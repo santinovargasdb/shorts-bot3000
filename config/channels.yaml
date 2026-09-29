@@ -55,7 +55,10 @@ peliculas_series:
 # -------------------------------------------------------------------------
 faceless:
   display_name: "En 60 Segundos"
+  whisper_model: "base"           # voz IA limpia -> 'base' basta y es rápido
   crop_mode: "blur"
   clips_per_source: 1             # se genera 1 short por guion/fuente original
   hook_text: ""
+  tts_voice: "es-MX-DaliaNeural"  # voz IA (edge-tts). Ver voces: python -m src.tts
+  tts_rate: "+8%"                 # +% = más rápido (más retención en Shorts)
   legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."

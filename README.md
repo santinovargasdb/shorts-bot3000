@@ -54,6 +54,18 @@ python run.py --channel streamers --file "input/mi_video.mp4" --model small
 Los shorts salen en `output/<canal>/`, cada uno con un `.json` de metadatos
 (título, descripción y hashtags borrador) generado desde la transcripción.
 
+### Canal FACELESS (contenido original, sin clipar nada ajeno)
+
+Genera un short desde un guion de texto: **voz IA (edge-tts) + fondo animado +
+subtítulos karaoke**. Cero costo, cero riesgo de copyright.
+
+```bash
+python faceless_run.py --file guiones/pulpos.txt --title "El pulpo tiene 3 corazones"
+python faceless_run.py --text "Tu dato corto..." --title "Mi título" --palette 2
+```
+Voces disponibles en español: `python -m src.tts`. Se elige en `config/channels.yaml`
+(`tts_voice`). Guiones en la carpeta `guiones/`.
+
 ## ⬆️ Publicar
 
 ```bash

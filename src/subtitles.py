@@ -22,6 +22,20 @@ def _fmt_time(t: float) -> str:
     return f"{h}:{m:02d}:{s:05.2f}"
 
 
+def _wrap(text: str, max_chars: int = 16) -> str:
+    """Parte un texto en líneas (\\N de ASS) por palabras, ~max_chars por línea."""
+    out, line = [], ""
+    for word in text.split():
+        if line and len(line) + 1 + len(word) > max_chars:
+            out.append(line)
+            line = word
+        else:
+            line = f"{line} {word}".strip()
+    if line:
+        out.append(line)
+    return "\\N".join(out)
+
+
 def _group_words(words: list[Word], max_words: int, max_chars: int) -> list[list[Word]]:
     """Agrupa palabras en líneas cortas (por nº de palabras o longitud)."""
     groups: list[list[Word]] = []
@@ -46,8 +60,8 @@ def build_ass(
     target_width: int,
     target_height: int,
     offset: float = 0.0,
-    max_words: int = 4,
-    max_chars: int = 22,
+    max_words: int = 3,
+    max_chars: int = 18,
     hook_text: str = "",
     clip_duration: float | None = None,
 ) -> Path:
@@ -63,7 +77,7 @@ def build_ass(
     shadow = caption.get("shadow", 1)
     margin_v = caption.get("margin_v", 260)
     uppercase = caption.get("uppercase", True)
-    hook_size = int(size * 0.85)
+    hook_size = int(size * 0.62)   # más chico para que el título entre y pueda envolver
 
     # Estilos: Cap (abajo-centro) y Hook (arriba-centro). Colores se pisan inline.
     header = f"""[Script Info]
@@ -88,6 +102,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     if hook_text and clip_duration and clip_duration > 0:
         htxt = (hook_text.upper() if uppercase else hook_text)
         htxt = htxt.replace("{", "(").replace("}", ")")
+        htxt = _wrap(htxt, max_chars=16)   # parte el título en varias líneas
         lines.append(
             f"Dialogue: 0,{_fmt_time(0)},{_fmt_time(clip_duration)},Hook,,0,0,0,,{htxt}\n"
         )
