@@ -54,7 +54,7 @@ peliculas_series:
 # CANAL 3 — Faceless original (cero riesgo de copyright)
 # -------------------------------------------------------------------------
 faceless:
-  display_name: "Datos y Curiosidades"
+  display_name: "En 60 Segundos"
   crop_mode: "blur"
   clips_per_source: 1             # se genera 1 short por guion/fuente original
   hook_text: ""
