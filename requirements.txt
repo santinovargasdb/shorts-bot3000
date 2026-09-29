@@ -1,0 +1,13 @@
+# Motor de edición (núcleo, gratis y local)
+faster-whisper>=1.0.0    # subtítulos por IA en local (no requiere API de pago)
+PyYAML>=6.0              # lectura de config de canales
+numpy>=1.24             # detección de momentos destacados por energía de audio
+
+# Subida a plataformas (opcional, se usa al configurar cada canal)
+google-api-python-client>=2.0    # YouTube Data API v3
+google-auth-oauthlib>=1.0        # login OAuth de YouTube
+google-auth-httplib2>=0.2
+requests>=2.31                   # Instagram Graph API
+
+# Nota: yt-dlp y ffmpeg se usan como binarios del sistema (ya instalados),
+# no como paquetes de Python.

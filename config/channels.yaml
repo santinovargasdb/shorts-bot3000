@@ -1,0 +1,61 @@
+# =========================================================================
+#  Configuración de los 3 canales.
+#  Un solo motor de edición + 3 perfiles = 3 cuentas sin pagar SaaS.
+#
+#  Cambiá aquí el estilo de cada canal sin tocar el código.
+# =========================================================================
+
+# Ajustes globales del motor (aplican a todos salvo que el canal los pise)
+defaults:
+  whisper_model: "small"        # tiny/base/small/medium. "small" = buen equilibrio en CPU.
+  language: null                # null = autodetectar idioma. "es"/"en" para forzar.
+  target_width: 1080            # resolución vertical de salida (9:16)
+  target_height: 1920
+  short_min_seconds: 15         # duración mínima de cada short
+  short_max_seconds: 58         # < 60s para que cuente como Short
+  clips_per_source: 3           # cuántos shorts sacar de cada video fuente
+  crop_mode: "blur"             # "crop" (rellena, recorta laterales) o "blur" (encaja con fondo borroso)
+  # Estilo de subtítulos "virales" (karaoke, palabra por palabra)
+  caption:
+    font: "Arial Black"
+    font_size: 90                   # px sobre el lienzo vertical 1080x1920
+    primary_color: "&H00FFFFFF"     # texto normal (blanco) - formato ASS &HAABBGGRR
+    highlight_color: "&H0000F0FF"   # palabra activa (amarillo)
+    outline: 3
+    shadow: 1
+    margin_v: 260                   # margen inferior (sube los subtítulos sobre la barra de UI)
+    uppercase: true
+
+# -------------------------------------------------------------------------
+# CANAL 1 — Solo streamers (el más seguro y monetizable)
+# -------------------------------------------------------------------------
+streamers:
+  display_name: "Clips de Streamers"
+  crop_mode: "crop"               # gameplay/cara centrada: recortar da más inmersión
+  clips_per_source: 4
+  hook_text: ""                   # gancho superior opcional, ej: "😱 NO VAS A CREER ESTO"
+  # Recordatorio legal: usar clips con permiso del streamer o de streamers
+  # que permiten canales de clips. Añadir siempre valor (subs, edición, gancho).
+  legal_note: "Requiere permiso del streamer o edición transformadora."
+
+# -------------------------------------------------------------------------
+# CANAL 2 — Streamers + series/películas (mayor alcance, mayor riesgo)
+# -------------------------------------------------------------------------
+peliculas_series:
+  display_name: "Escenas y Momentos"
+  crop_mode: "blur"               # cine en 16:9 -> fondo borroso conserva el encuadre
+  clips_per_source: 3
+  hook_text: ""
+  caption:
+    highlight_color: "&H0000D7FF"  # naranja para diferenciar el canal
+  legal_note: "ALTO RIESGO de Content ID. Solo con edición muy transformadora (reseña/comentario)."
+
+# -------------------------------------------------------------------------
+# CANAL 3 — Faceless original (cero riesgo de copyright)
+# -------------------------------------------------------------------------
+faceless:
+  display_name: "Datos y Curiosidades"
+  crop_mode: "blur"
+  clips_per_source: 1             # se genera 1 short por guion/fuente original
+  hook_text: ""
+  legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."

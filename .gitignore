@@ -1,0 +1,29 @@
+# Fuentes descargadas y clips generados (no versionar, pueden ser grandes / con copyright)
+input/
+output/
+work/
+*.mp4
+*.mkv
+*.webm
+*.wav
+*.mp3
+
+# Secretos y credenciales (NUNCA subir a git)
+.env
+secrets/
+client_secret*.json
+token*.json
+*.pickle
+
+# Modelos de Whisper descargados
+models/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Sistema
+.DS_Store
+Thumbs.db
