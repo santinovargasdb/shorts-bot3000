@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BACKGROUNDS_DIR = ROOT / "backgrounds"
 PEXELS_API = "https://api.pexels.com/videos/search"
 PIXABAY_API = "https://pixabay.com/api/videos/"
+PIXABAY_IMG_API = "https://pixabay.com/api/"
 
 
 def _load_env() -> None:
@@ -82,6 +83,34 @@ def _search_pexels(query: str, count: int) -> list[tuple[str, str]]:
         if files:
             out.append((files[0]["link"], str(v["id"])))
     return out
+
+
+def download_image(query: str, dest: Path, index: int = 0) -> Path | None:
+    """Descarga UNA imagen vertical de Pixabay para `query` a `dest`. Devuelve
+    la ruta o None si no hay resultados. Ideal para los planos que cambian."""
+    _load_env()
+    key = os.environ.get("PIXABAY_API_KEY")
+    if not key:
+        raise EnvironmentError("Falta PIXABAY_API_KEY en .env para bajar imágenes.")
+    params = {"key": key, "q": query, "image_type": "photo",
+              "orientation": "vertical", "safesearch": "true", "per_page": 12}
+    r = requests.get(PIXABAY_IMG_API, params=params, timeout=60)
+    r.raise_for_status()
+    hits = r.json().get("hits", [])
+    if not hits:
+        return None
+    hit = hits[index % len(hits)]
+    url = hit.get("largeImageURL") or hit.get("webformatURL")
+    if not url:
+        return None
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with requests.get(url, stream=True, timeout=120) as resp:
+        resp.raise_for_status()
+        with open(dest, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1 << 16):
+                f.write(chunk)
+    return dest
 
 
 def _resolve_provider(provider: str) -> str:

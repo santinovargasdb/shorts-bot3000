@@ -92,7 +92,7 @@ def _compose(
     height: int,
     background: Path | None = None,
     music: Path | None = None,
-    music_volume: float = 0.12,
+    music_volume: float = 0.18,
 ) -> Path:
     """Compone el short. `background`: video (gameplay/slime/satisfactorio) en loop,
     recortado a 9:16 y oscurecido; si es None usa un gradiente animado. `music`:
