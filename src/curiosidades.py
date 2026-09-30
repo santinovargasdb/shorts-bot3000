@@ -115,7 +115,8 @@ def generate(
               offset=0.0, hook_text="", clip_duration=duration,
               center_title=(title_seg["title_text"] if title_seg else ""),
               center_start=(title_seg["start"] if title_seg else 0.0),
-              center_end=(title_seg["end"] if title_seg else 0.0))
+              center_end=(title_seg["end"] if title_seg else 0.0),
+              boundaries=[s["start"] for s in segs])
 
     # 4) Eventos de imagen: cada dato reparte su ventana entre sus 1-2 imágenes
     #    (más dinámico; whoosh + animación en cada una).

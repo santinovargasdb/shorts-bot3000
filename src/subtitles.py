@@ -36,16 +36,29 @@ def _wrap(text: str, max_chars: int = 16) -> str:
     return "\\N".join(out)
 
 
-def _group_words(words: list[Word], max_words: int, max_chars: int) -> list[list[Word]]:
-    """Agrupa palabras en líneas cortas (por nº de palabras o longitud)."""
+def _group_words(words: list[Word], max_words: int, max_chars: int,
+                 boundaries: list[float] | None = None) -> list[list[Word]]:
+    """Agrupa palabras en líneas cortas (por nº de palabras o longitud).
+    `boundaries`: tiempos de inicio de cada segmento; ningún renglón cruza un
+    límite (evita mezclar el final de un dato con el inicio del siguiente)."""
+    import bisect
+
+    def seg_of(t: float) -> int:
+        return bisect.bisect_right(boundaries, t + 1e-3) if boundaries else 0
+
     groups: list[list[Word]] = []
     current: list[Word] = []
     char_count = 0
+    cur_seg = None
     for w in words:
         wlen = len(w.text) + 1
-        if current and (len(current) >= max_words or char_count + wlen > max_chars):
+        wseg = seg_of(w.start)
+        cross = bool(current) and boundaries is not None and wseg != cur_seg
+        if current and (cross or len(current) >= max_words or char_count + wlen > max_chars):
             groups.append(current)
             current, char_count = [], 0
+        if not current:
+            cur_seg = wseg
         current.append(w)
         char_count += wlen
     if current:
@@ -67,6 +80,7 @@ def build_ass(
     center_title: str = "",
     center_start: float = 0.0,
     center_end: float = 0.0,
+    boundaries: list[float] | None = None,
 ) -> Path:
     """Escribe el .ass. `offset` resta el tiempo de inicio del clip. `hook_text`
     pinta un texto fijo arriba todo el clip. `center_title` pinta un título
@@ -121,7 +135,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             f"Dialogue: 0,{_fmt_time(center_start)},{_fmt_time(center_end)},Titulo,,0,0,0,,{ttxt}\n"
         )
 
-    groups = _group_words(words, max_words, max_chars)
+    groups = _group_words(words, max_words, max_chars, boundaries=boundaries)
 
     for gi, group in enumerate(groups):
         # Fin del grupo: hasta el arranque del siguiente grupo (línea persistente)
