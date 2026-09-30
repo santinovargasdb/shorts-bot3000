@@ -60,11 +60,17 @@ Genera un short desde un guion de texto: **voz IA (edge-tts) + fondo animado +
 subtítulos karaoke**. Cero costo, cero riesgo de copyright.
 
 ```bash
+# Con fondo de gameplay + música de fondo baja:
+python faceless_run.py --file guiones/venus.txt --title "En Venus un día dura más que un año" \
+  --bg backgrounds/minecraft_parkour.mp4 --music music/lofi_chill.mp3
+
+# Fondo satisfactorio (Pixabay) o gradiente si no hay nada:
 python faceless_run.py --file guiones/pulpos.txt --title "El pulpo tiene 3 corazones"
-python faceless_run.py --text "Tu dato corto..." --title "Mi título" --palette 2
 ```
-Voces disponibles en español: `python -m src.tts`. Se elige en `config/channels.yaml`
-(`tts_voice`). Guiones en la carpeta `guiones/`.
+- **Fondos** en `backgrounds/` (gameplay/slime/satisfactorio). Bajá royalty-free con
+  `python -m src.stock "slime"` o gameplay con yt-dlp (ver `backgrounds/README.md`).
+- **Música** en `music/` (se mezcla a volumen bajo). Ver `music/README.md`.
+- Voces: `python -m src.tts`. Se eligen en `config/channels.yaml` (`tts_voice`).
 
 ## ⬆️ Publicar
 

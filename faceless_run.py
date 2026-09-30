@@ -28,6 +28,7 @@ def main() -> int:
     p.add_argument("--channel", default="faceless")
     p.add_argument("--palette", type=int, default=0, help="Índice de paleta de fondo (0-3)")
     p.add_argument("--bg", help="Video de fondo (gameplay/slime/satisfactorio) o carpeta. Si se omite, usa backgrounds/ o gradiente.")
+    p.add_argument("--music", help="Pista de música de fondo (volumen bajo) o carpeta. Si se omite, usa music/.")
     args = p.parse_args()
 
     if args.file:
@@ -38,7 +39,7 @@ def main() -> int:
         p.error("Indicá --file o --text")
 
     out = generate(text, channel_name=args.channel, title=args.title,
-                   palette_index=args.palette, background=args.bg)
+                   palette_index=args.palette, background=args.bg, music=args.music)
     print("\nShort generado:", out)
     return 0
 
