@@ -23,7 +23,7 @@ defaults:
     highlight_color: "&H0000F0FF"   # palabra activa (amarillo)
     outline: 3
     shadow: 1
-    margin_v: 260                   # margen inferior (sube los subtítulos sobre la barra de UI)
+    margin_v: 360                   # margen inferior: más alto = subtítulos más arriba (no chocan con el nombre del canal)
     uppercase: true
 
 # -------------------------------------------------------------------------

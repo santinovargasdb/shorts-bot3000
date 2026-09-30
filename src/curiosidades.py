@@ -158,13 +158,13 @@ def generate(
         aparts.append(f"[{music_i}:a]volume=0.16[mus]")
         mix.append("[mus]")
     if F:
-        # whoosh fuerte, duplicado y ubicado en cada aparición de imagen
-        aparts.append(f"[{pop_i}:a]volume=1.4,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
+        # whoosh en cada aparición de imagen (volumen bajado un poco para no saturar)
+        aparts.append(f"[{pop_i}:a]volume=1.15,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
         for j, f in enumerate(facts):
             ms = max(0, int((f["start"] - LEAD) * 1000))
             aparts.append(f"[ps{j}]adelay={ms}|{ms}[pd{j}]")
             mix.append(f"[pd{j}]")
-    aparts.append("".join(mix) + f"amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.97[a]")
+    aparts.append("".join(mix) + f"amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.95[a]")
 
     filter_complex = ";".join(vparts + aparts)
     out_name = f"{slug}.mp4"
