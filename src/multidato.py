@@ -121,7 +121,8 @@ def generate_multidato(
         seg_video = work_dir / f"v_{i:02d}.mp4"
         img = None
         try:
-            img = stock.download_image(item["img"], work_dir / f"img_{i:02d}.jpg")
+            res = stock.download_image(item["img"], work_dir / f"img_{i:02d}.jpg")
+            img = res[0] if res else None
         except Exception as e:
             print(f"  ⚠️  imagen '{item['img']}': {e}")
         if img and img.exists():

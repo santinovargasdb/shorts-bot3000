@@ -85,21 +85,28 @@ def _search_pexels(query: str, count: int) -> list[tuple[str, str]]:
     return out
 
 
-def download_image(query: str, dest: Path, index: int = 0) -> Path | None:
-    """Descarga UNA imagen vertical de Pixabay para `query` a `dest`. Devuelve
-    la ruta o None si no hay resultados. Ideal para los planos que cambian."""
+def download_image(query: str, dest: Path, index: int = 0,
+                   exclude_ids=None) -> tuple[Path, str] | None:
+    """Descarga UNA imagen vertical de Pixabay para `query` a `dest`.
+    Devuelve (ruta, id) o None si no hay resultados. `exclude_ids`: ids a evitar
+    (para no repetir imágenes dentro de un mismo dato)."""
     _load_env()
     key = os.environ.get("PIXABAY_API_KEY")
     if not key:
         raise EnvironmentError("Falta PIXABAY_API_KEY en .env para bajar imágenes.")
     params = {"key": key, "q": query, "image_type": "photo",
-              "orientation": "vertical", "safesearch": "true", "per_page": 12}
+              "orientation": "vertical", "safesearch": "true", "per_page": 20}
     r = requests.get(PIXABAY_IMG_API, params=params, timeout=60)
     r.raise_for_status()
     hits = r.json().get("hits", [])
     if not hits:
         return None
-    hit = hits[index % len(hits)]
+    exclude = {str(x) for x in (exclude_ids or set())}
+    order = list(range(len(hits)))
+    order = order[index:] + order[:index]
+    hit = next((hits[i] for i in order if str(hits[i]["id"]) not in exclude), None)
+    if hit is None:
+        return None   # no hay ninguna distinta disponible
     url = hit.get("largeImageURL") or hit.get("webformatURL")
     if not url:
         return None
@@ -110,7 +117,7 @@ def download_image(query: str, dest: Path, index: int = 0) -> Path | None:
         with open(dest, "wb") as f:
             for chunk in resp.iter_content(chunk_size=1 << 16):
                 f.write(chunk)
-    return dest
+    return dest, str(hit["id"])
 
 
 def _resolve_provider(provider: str) -> str:

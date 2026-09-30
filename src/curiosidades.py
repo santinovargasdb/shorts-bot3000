@@ -73,21 +73,28 @@ def generate(
         audio_files.append(a)
         info = {"kind": seg["kind"], "start": t, "end": t + d}
         if seg["kind"] == "fact":
-            # 1 o 2 imágenes por dato (imgs=[...] o img="...")
+            # 2 imágenes DISTINTAS por dato, ambas de la query principal (más
+            # relevante). Se descartan por id para no repetir; las otras queries
+            # son solo respaldo si la principal no tiene resultados.
             queries = seg.get("imgs") or ([seg["img"]] if seg.get("img") else [])
-            cards = []
-            for j, q in enumerate(queries):
-                try:
-                    # index=j: la 2ª imagen toma otro resultado (evita que salgan iguales)
-                    img = stock.download_image(q, work / f"img_{i:02d}_{j}.jpg", index=j)
-                    if img and img.exists():
-                        cards.append(_card(img, work / f"card_{i:02d}_{j}.png"))
-                except Exception as e:
-                    print(f"  ⚠️  imagen '{q}': {e}")
+            cards, used_ids = [], set()
+            for j in range(2):
+                res = None
+                for q in queries:
+                    try:
+                        res = stock.download_image(q, work / f"img_{i:02d}_{j}.jpg", exclude_ids=used_ids)
+                    except Exception as e:
+                        print(f"  ⚠️  imagen '{q}': {e}")
+                    if res:
+                        break
+                if res:
+                    path, iid = res
+                    used_ids.add(iid)
+                    cards.append(_card(path, work / f"card_{i:02d}_{j}.png"))
             if cards:
                 info["cards"] = cards
             if verbose:
-                print(f"[curiosidades] Dato {i}: {queries} ({d:.1f}s)")
+                print(f"[curiosidades] Dato {i}: {queries} -> {len(cards)} img ({d:.1f}s)")
         else:
             info["title_text"] = seg["text"]
             if verbose:
@@ -178,8 +185,8 @@ def generate(
         aparts.append(f"[{music_i}:a]volume=0.16[mus]")
         mix.append("[mus]")
     if F:
-        # whoosh en cada aparición de imagen (volumen bajado un poco para no saturar)
-        aparts.append(f"[{pop_i}:a]volume=1.15,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
+        # whoosh en cada aparición de imagen (volumen bajo, no debe tapar la voz)
+        aparts.append(f"[{pop_i}:a]volume=0.4,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
         for j, ev in enumerate(events):
             ms = max(0, int((ev["start"] - LEAD) * 1000))
             aparts.append(f"[ps{j}]adelay={ms}|{ms}[pd{j}]")
