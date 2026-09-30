@@ -1,14 +1,16 @@
-"""Descarga footage royalty-free de Pexels (gratis, uso comercial sin atribución).
+"""Descarga footage royalty-free para los fondos del canal faceless.
 
-Sirve para conseguir fondos "satisfactorios/abstractos/gameplay" limpios para el
-canal faceless, sin riesgo de copyright.
+Soporta dos proveedores gratis (uso comercial, sin atribución):
+  - Pixabay  -> https://pixabay.com/api/docs/  (key inmediata)
+  - Pexels   -> https://www.pexels.com/api/     (a veces pausa keys nuevas)
 
-Requiere una API key gratuita de Pexels: https://www.pexels.com/api/
-Ponela en .env como  PEXELS_API_KEY=xxxx  (o exportala como variable de entorno).
+Poné la key en .env:
+  PIXABAY_API_KEY=xxxx     (recomendado)
+  PEXELS_API_KEY=xxxx      (alternativa)
 
 Uso:
-  python -m src.stock "satisfying" 3          # baja 3 clips verticales a backgrounds/
-  python -m src.stock "abstract loop" 5
+  python -m src.stock "satisfying" 3
+  python -m src.stock "slime" 5 --provider pixabay
 """
 from __future__ import annotations
 
@@ -20,7 +22,8 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 BACKGROUNDS_DIR = ROOT / "backgrounds"
-API = "https://api.pexels.com/videos/search"
+PEXELS_API = "https://api.pexels.com/videos/search"
+PIXABAY_API = "https://pixabay.com/api/videos/"
 
 
 def _load_env() -> None:
@@ -36,55 +39,79 @@ def _load_env() -> None:
         os.environ.setdefault(k.strip(), v.strip())
 
 
-def _api_key() -> str:
-    _load_env()
-    key = os.environ.get("PEXELS_API_KEY")
+# ---------------------------------------------------------------- Pixabay
+def _search_pixabay(query: str, count: int) -> list[tuple[str, str]]:
+    """Devuelve [(url_mp4, id)] priorizando clips verticales."""
+    key = os.environ.get("PIXABAY_API_KEY")
     if not key:
         raise EnvironmentError(
-            "Falta PEXELS_API_KEY. Conseguí una gratis en https://www.pexels.com/api/ "
-            "y ponela en .env como PEXELS_API_KEY=xxxx"
+            "Falta PIXABAY_API_KEY. Gratis en https://pixabay.com/api/docs/ -> .env"
         )
-    return key
+    params = {"key": key, "q": query, "per_page": max(count * 3, 12), "safesearch": "true"}
+    r = requests.get(PIXABAY_API, params=params, timeout=60)
+    r.raise_for_status()
+    hits = r.json().get("hits", [])
+
+    def ratio(h: dict) -> float:
+        v = h["videos"].get("large") or h["videos"].get("medium") or {}
+        w, ht = v.get("width", 1), v.get("height", 1)
+        return (ht / w) if w else 0
+
+    hits.sort(key=ratio, reverse=True)   # verticales primero
+    out = []
+    for h in hits[:count]:
+        v = h["videos"].get("large") or h["videos"].get("medium") or h["videos"].get("small")
+        if v and v.get("url"):
+            out.append((v["url"], str(h["id"])))
+    return out
 
 
-def _best_portrait_mp4(video: dict, max_height: int = 1920) -> str | None:
-    """Elige el mejor archivo mp4 vertical (más alto sin pasarse)."""
-    candidates = [
-        f for f in video.get("video_files", [])
-        if f.get("file_type") == "video/mp4"
-        and (f.get("height") or 0) >= (f.get("width") or 0)   # vertical o cuadrado
-    ]
-    if not candidates:
-        candidates = [f for f in video.get("video_files", []) if f.get("file_type") == "video/mp4"]
-    if not candidates:
-        return None
-    ok = [f for f in candidates if (f.get("height") or 0) <= max_height] or candidates
-    ok.sort(key=lambda f: f.get("height") or 0, reverse=True)
-    return ok[0].get("link")
-
-
-def download(query: str, count: int = 3, out_dir: Path | str = BACKGROUNDS_DIR) -> list[Path]:
-    """Busca y descarga `count` clips verticales para `query`. Devuelve rutas."""
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    headers = {"Authorization": _api_key()}
+# ---------------------------------------------------------------- Pexels
+def _search_pexels(query: str, count: int) -> list[tuple[str, str]]:
+    key = os.environ.get("PEXELS_API_KEY")
+    if not key:
+        raise EnvironmentError("Falta PEXELS_API_KEY.")
     params = {"query": query, "orientation": "portrait", "size": "medium",
               "per_page": max(count * 2, 10)}
-    r = requests.get(API, headers=headers, params=params, timeout=60)
+    r = requests.get(PEXELS_API, headers={"Authorization": key}, params=params, timeout=60)
     r.raise_for_status()
-    videos = r.json().get("videos", [])
+    out = []
+    for v in r.json().get("videos", [])[:count]:
+        files = [f for f in v.get("video_files", []) if f.get("file_type") == "video/mp4"]
+        files.sort(key=lambda f: f.get("height") or 0, reverse=True)
+        if files:
+            out.append((files[0]["link"], str(v["id"])))
+    return out
 
+
+def _resolve_provider(provider: str) -> str:
+    if provider != "auto":
+        return provider
+    if os.environ.get("PIXABAY_API_KEY"):
+        return "pixabay"
+    if os.environ.get("PEXELS_API_KEY"):
+        return "pexels"
+    raise EnvironmentError(
+        "No hay API key. Poné PIXABAY_API_KEY (o PEXELS_API_KEY) en .env"
+    )
+
+
+def download(query: str, count: int = 3, provider: str = "auto",
+             out_dir: Path | str = BACKGROUNDS_DIR) -> list[Path]:
+    """Busca y descarga `count` clips para `query`. Devuelve las rutas."""
+    _load_env()
+    provider = _resolve_provider(provider)
+    print(f"Proveedor: {provider} | búsqueda: '{query}'")
+    results = _search_pixabay(query, count) if provider == "pixabay" else _search_pexels(query, count)
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    slug = "".join(c if c.isalnum() else "_" for c in query.lower())[:20]
     saved: list[Path] = []
-    for v in videos:
-        if len(saved) >= count:
-            break
-        link = _best_portrait_mp4(v)
-        if not link:
-            continue
-        slug = "".join(c if c.isalnum() else "_" for c in query.lower())[:20]
-        dest = out_dir / f"pexels_{slug}_{v['id']}.mp4"
+    for url, vid in results:
+        dest = out_dir / f"{provider}_{slug}_{vid}.mp4"
         print(f"  Descargando {dest.name} ...")
-        with requests.get(link, stream=True, timeout=120) as resp:
+        with requests.get(url, stream=True, timeout=180) as resp:
             resp.raise_for_status()
             with open(dest, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=1 << 16):
@@ -95,9 +122,14 @@ def download(query: str, count: int = 3, out_dir: Path | str = BACKGROUNDS_DIR) 
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print('Uso: python -m src.stock "<búsqueda>" [cantidad]')
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    provider = "auto"
+    for a in sys.argv[1:]:
+        if a.startswith("--provider"):
+            provider = a.split("=", 1)[1] if "=" in a else "auto"
+    if not args:
+        print('Uso: python -m src.stock "<búsqueda>" [cantidad] [--provider=pixabay|pexels]')
         raise SystemExit(1)
-    q = sys.argv[1]
-    n = int(sys.argv[2]) if len(sys.argv) > 2 else 3
-    download(q, n)
+    q = args[0]
+    n = int(args[1]) if len(args) > 1 else 3
+    download(q, n, provider=provider)
