@@ -1,15 +1,19 @@
 #!/usr/bin/env python
-"""Job diario: sube la próxima parte de la serie (la genera si no existe).
+"""Job diario: publica la próxima parte de la serie en YouTube y en Instagram.
 
-Lleva el estado en automation_state.json (qué parte sigue). Pensado para correr
-1 vez por día desde el Programador de tareas de Windows (run_daily.bat).
+Cada plataforma lleva su propio contador (state), así una no bloquea a la otra
+(ej: si YouTube tocó el límite diario, Instagram igual postea).
+Genera el video si no existe. Pensado para correr desde el Programador de
+tareas de Windows (run_daily.bat), 2 veces por día.
 
-  python daily_post.py            # genera si falta y sube
-  python daily_post.py --dry-run  # genera si falta, NO sube (para probar)
+  python daily_post.py            # postea en YouTube + Instagram
+  python daily_post.py --dry-run  # genera si falta, NO publica (para probar)
+  python daily_post.py --only yt  # o --only ig
 """
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -29,7 +33,7 @@ STATE = ROOT / "automation_state.json"
 OUT = ROOT / "output" / "faceless"
 
 # ─── Configuración ───────────────────────────────────────────────
-PRIVACY = "public"     # "public" (auto viral) | "unlisted" (revisar antes) | "private"
+YT_PRIVACY = "public"     # "public" (auto viral) | "unlisted" | "private"
 # ─────────────────────────────────────────────────────────────────
 
 
@@ -38,96 +42,115 @@ def _log(msg: str) -> None:
 
 
 def _load_state() -> dict:
+    s = {"youtube": {"next_part": 1, "posted": []},
+         "instagram": {"next_part": 1, "posted": []}}
     if STATE.exists():
-        return json.loads(STATE.read_text(encoding="utf-8"))
-    return {"next_part": 1, "posted": []}
+        old = json.loads(STATE.read_text(encoding="utf-8"))
+        if "next_part" in old:            # migrar formato viejo (solo YouTube)
+            s["youtube"]["next_part"] = old["next_part"]
+            s["youtube"]["posted"] = old.get("posted", [])
+        else:
+            s.update(old)
+    return s
 
 
 def _save_state(s: dict) -> None:
     STATE.write_text(json.dumps(s, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _video_for(part: int) -> Path:
-    slug = _slug(f"Datos para parecer inteligente pt. {part}")
-    return OUT / f"{slug}.mp4"
+def _title(part: int) -> str:
+    return f"Datos para parecer inteligente pt. {part}"
 
 
-def _post_instagram(video: Path) -> None:
-    """Publica el Reel en IG (best-effort). Requiere IG_USER_ID, IG_ACCESS_TOKEN
-    y GITHUB_TOKEN en .env. Si falta algo, saltea sin romper el flujo."""
-    import os
-    from src.gh_release import _load_env
-    _load_env()
-    if not all(os.environ.get(k) for k in ("IG_USER_ID", "IG_ACCESS_TOKEN", "GITHUB_TOKEN")):
-        _log("Instagram no configurado (faltan credenciales en .env), lo salteo.")
+def _ensure_video(part: int) -> Path:
+    """Devuelve el mp4 de la parte, generándolo si no existe."""
+    video = OUT / f"{_slug(_title(part))}.mp4"
+    if not video.exists():
+        _log(f"Generando parte {part}...")
+        generate(PARTS[part]["segments"], title_meta=_title(part),
+                 description=descripcion(part, PARTS[part]["resumen"]),
+                 hashtags=KEYWORDS, background="backgrounds/minecraft_parkour.mp4",
+                 music="music/monkeys_spinning_monkeys.mp3", verbose=False)
+    return video
+
+
+def _caption(video: Path) -> str:
+    meta = video.with_suffix(".json")
+    if meta.exists():
+        return json.loads(meta.read_text(encoding="utf-8")).get("description", video.stem)
+    return video.stem
+
+
+def do_youtube(state: dict) -> None:
+    part = state["youtube"]["next_part"]
+    if part not in PARTS:
+        _log(f"[YT] No hay parte {part} en el backlog. Agregá más partes.")
         return
-    # Caption desde los metadatos del video
-    meta_path = video.with_suffix(".json")
-    caption = video.stem
-    if meta_path.exists():
-        caption = json.loads(meta_path.read_text(encoding="utf-8")).get("description", caption)
+    video = _ensure_video(part)
+    from uploaders.youtube_upload import upload_from_folder
+    _log(f"[YT] Subiendo parte {part} ({YT_PRIVACY})...")
+    try:
+        vid = upload_from_folder(video, privacy=YT_PRIVACY)
+    except Exception as e:
+        _log(f"[YT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
+        return
+    state["youtube"]["next_part"] = part + 1
+    state["youtube"]["posted"].append({"part": part, "video_id": vid, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    _log(f"[YT] ✅ Parte {part}: https://youtube.com/shorts/{vid}")
+
+
+def do_instagram(state: dict) -> None:
+    if not all(os.environ.get(k) or _in_env(k) for k in ("IG_USER_ID", "IG_ACCESS_TOKEN", "GITHUB_TOKEN")):
+        _log("[IG] No configurado (faltan credenciales en .env), lo salteo.")
+        return
+    part = state["instagram"]["next_part"]
+    if part not in PARTS:
+        _log(f"[IG] No hay parte {part} en el backlog. Agregá más partes.")
+        return
+    video = _ensure_video(part)
     try:
         from src.gh_release import upload as gh_upload
         from uploaders.instagram_upload import publish_reel
-        _log("Instagram: subiendo mp4 a GitHub Releases (hosting)...")
+        _log(f"[IG] Parte {part}: subiendo mp4 a hosting...")
         url = gh_upload(video)
-        _log("Instagram: publicando Reel...")
-        media_id = publish_reel(url, caption=caption)
-        _log(f"✅ Instagram Reel publicado: {media_id}")
+        _log(f"[IG] Publicando Reel...")
+        media_id = publish_reel(url, caption=_caption(video))
     except Exception as e:
-        _log(f"⚠️  Instagram falló (sigo igual): {e}")
+        _log(f"[IG] ⚠️  No se pudo publicar (reintenta la próxima): {e}")
+        return
+    state["instagram"]["next_part"] = part + 1
+    state["instagram"]["posted"].append({"part": part, "media_id": media_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    _log(f"[IG] ✅ Parte {part}: Reel {media_id}")
+
+
+def _in_env(key: str) -> bool:
+    env = ROOT / ".env"
+    if not env.exists():
+        return False
+    return any(line.strip().startswith(f"{key}=") for line in env.read_text(encoding="utf-8").splitlines())
 
 
 def main() -> int:
+    only = None
+    if "--only" in sys.argv:
+        only = sys.argv[sys.argv.index("--only") + 1]
     dry = "--dry-run" in sys.argv
+
     state = _load_state()
-    part = state.get("next_part", 1)
-
-    if part not in PARTS:
-        _log(f"⚠️  No hay parte {part} en series_data.py. Agregá más partes al backlog.")
-        return 1
-
-    _log(f"Parte del día: {part}")
-    video = _video_for(part)
-
-    # Generar si el video no existe todavía
-    if not video.exists():
-        _log(f"Generando parte {part}...")
-        generate(
-            PARTS[part]["segments"],
-            title_meta=f"Datos para parecer inteligente pt. {part}",
-            description=descripcion(part, PARTS[part]["resumen"]),
-            hashtags=KEYWORDS,
-            background="backgrounds/minecraft_parkour.mp4",
-            music="music/monkeys_spinning_monkeys.mp3",
-            verbose=False,
-        )
-    else:
-        _log(f"Video ya existe: {video.name}")
-
     if dry:
-        _log(f"[DRY-RUN] Subiría {video.name} como {PRIVACY}. No se sube.")
+        yt, ig = state["youtube"]["next_part"], state["instagram"]["next_part"]
+        _log(f"[DRY-RUN] Próxima en YouTube: pt.{yt} · en Instagram: pt.{ig}. No publica.")
+        # Igual genera los videos si faltan
+        for p in {yt, ig}:
+            if p in PARTS:
+                _ensure_video(p)
         return 0
 
-    # Subir
-    from uploaders.youtube_upload import upload_from_folder
-    _log(f"Subiendo {video.name} como {PRIVACY}...")
-    try:
-        video_id = upload_from_folder(video, privacy=PRIVACY)
-    except Exception as e:
-        _log(f"❌ Error al subir: {e}")
-        return 1
-
-    state["next_part"] = part + 1
-    state.setdefault("posted", []).append(
-        {"part": part, "video_id": video_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    if only in (None, "yt"):
+        do_youtube(state)
+    if only in (None, "ig"):
+        do_instagram(state)
     _save_state(state)
-    _log(f"✅ YouTube parte {part}: https://youtube.com/shorts/{video_id}")
-
-    # También a Instagram (best-effort; no bloquea si no está configurado)
-    _post_instagram(video)
-
-    _log(f"Próxima parte: {part + 1}")
     return 0
 
 
