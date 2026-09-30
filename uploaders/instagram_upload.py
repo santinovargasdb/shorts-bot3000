@@ -1,16 +1,13 @@
-"""Publica un Reel en Instagram con la Graph API oficial (gratis).
+"""Publica un Reel en Instagram con la API de Instagram (inicio de sesión de IG).
 
-IMPORTANTE: la Graph API NO acepta subir el archivo directo; requiere una
-URL pública del video (ella lo descarga). Opciones para hostear gratis el mp4:
-  - Un bucket/hosting propio, Cloudflare R2, GitHub Releases, etc.
-  - Un túnel temporal (p.ej. servir /output y exponerlo).
-Ver setup_instagram_auth.md.
+IMPORTANTE: la API NO acepta subir el archivo directo; requiere una URL pública
+del video (ella lo descarga). Acá se hostea gratis con GitHub Releases
+(ver src/gh_release.py).
 
 Requisitos (una sola vez):
-  - Cuenta de Instagram Profesional (Creador/Empresa) vinculada a una Página de Facebook.
-  - App de Meta + token de acceso de larga duración con permisos
-    instagram_content_publish, instagram_basic, pages_read_engagement.
-  - IG_USER_ID y IG_ACCESS_TOKEN en el .env (o variables de entorno).
+  - Cuenta de Instagram Profesional (Creador/Empresa).
+  - App de Meta con "Instagram API" + permiso instagram_business_content_publish.
+  - Token de larga duración (60 días) y el IG_USER_ID en el .env.
 
 Flujo: crear contenedor (REELS) -> esperar a FINISHED -> publicar.
 """
@@ -22,7 +19,8 @@ import time
 
 import requests
 
-GRAPH = "https://graph.facebook.com/v21.0"
+# API de Instagram con inicio de sesión de Instagram (no la de Facebook)
+GRAPH = "https://graph.instagram.com/v21.0"
 
 
 def _env(name: str) -> str:
@@ -37,8 +35,7 @@ def publish_reel(
     caption: str = "",
     ig_user_id: str | None = None,
     access_token: str | None = None,
-    share_to_feed: bool = True,
-    poll_seconds: int = 5,
+    poll_seconds: int = 6,
     max_wait: int = 300,
 ) -> str:
     """Publica un Reel desde una URL pública. Devuelve el ID del media."""
@@ -52,7 +49,6 @@ def publish_reel(
             "media_type": "REELS",
             "video_url": video_url,
             "caption": caption[:2200],
-            "share_to_feed": "true" if share_to_feed else "false",
             "access_token": access_token,
         },
         timeout=60,
