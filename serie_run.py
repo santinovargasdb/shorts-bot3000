@@ -16,7 +16,7 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 from src.curiosidades import generate
-from series_data import KEYWORDS, PARTS, descripcion
+from series_data import KEYWORDS, PARTS, background_for, descripcion
 
 
 def main() -> int:
@@ -33,7 +33,7 @@ def main() -> int:
         title_meta=f"Datos para parecer inteligente pt. {args.part}",
         description=descripcion(args.part, part["resumen"]),
         hashtags=KEYWORDS,
-        background="backgrounds/minecraft_parkour.mp4",
+        background=background_for(args.part),
         music="music/monkeys_spinning_monkeys.mp3",
     )
     print("\nShort:", out)

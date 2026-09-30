@@ -24,7 +24,7 @@ for _s in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-from series_data import KEYWORDS, PARTS, descripcion
+from series_data import KEYWORDS, PARTS, background_for, descripcion
 from src.curiosidades import generate
 from src.faceless import _slug
 
@@ -69,7 +69,7 @@ def _ensure_video(part: int) -> Path:
         _log(f"Generando parte {part}...")
         generate(PARTS[part]["segments"], title_meta=_title(part),
                  description=descripcion(part, PARTS[part]["resumen"]),
-                 hashtags=KEYWORDS, background="backgrounds/minecraft_parkour.mp4",
+                 hashtags=KEYWORDS, background=background_for(part),
                  music="music/monkeys_spinning_monkeys.mp3", verbose=False)
     return video
 

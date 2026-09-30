@@ -29,6 +29,21 @@ def descripcion(parte: int, resumen: str) -> str:
     )
 
 
+# Fondos que ROTAN por episodio (todos ~85s para que no se congelen en IG).
+BACKGROUNDS = [
+    "backgrounds/bg_minecraft.mp4",    # parkour de Minecraft
+    "backgrounds/bg_subway.mp4",       # Subway Surfers
+    "backgrounds/bg_gta.mp4",          # mega rampas de GTA V
+    "backgrounds/bg_slime.mp4",        # slime
+    "backgrounds/bg_satisfying.mp4",   # videos satisfactorios
+]
+
+
+def background_for(part: int) -> str:
+    """Fondo rotativo según el número de parte."""
+    return BACKGROUNDS[(part - 1) % len(BACKGROUNDS)]
+
+
 def _T():
     return {"kind": "title", "text": TITULO_PANTALLA}
 
