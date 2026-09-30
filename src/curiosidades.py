@@ -27,7 +27,7 @@ from .tts import synthesize
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _card(img: Path, out: Path, size: int = 820) -> Path:
+def _card(img: Path, out: Path, size: int = 720) -> Path:
     """Imagen -> cuadro centrado (sin marco), recortado a tamaño."""
     s = size
     vf = f"scale={s}:{s}:force_original_aspect_ratio=increase,crop={s}:{s},setsar=1"
@@ -73,15 +73,21 @@ def generate(
         audio_files.append(a)
         info = {"kind": seg["kind"], "start": t, "end": t + d}
         if seg["kind"] == "fact":
-            img = None
-            try:
-                img = stock.download_image(seg["img"], work / f"img_{i:02d}.jpg")
-            except Exception as e:
-                print(f"  ⚠️  imagen '{seg.get('img')}': {e}")
-            if img and img.exists():
-                info["card"] = _card(img, work / f"card_{i:02d}.png")
+            # 1 o 2 imágenes por dato (imgs=[...] o img="...")
+            queries = seg.get("imgs") or ([seg["img"]] if seg.get("img") else [])
+            cards = []
+            for j, q in enumerate(queries):
+                try:
+                    # index=j: la 2ª imagen toma otro resultado (evita que salgan iguales)
+                    img = stock.download_image(q, work / f"img_{i:02d}_{j}.jpg", index=j)
+                    if img and img.exists():
+                        cards.append(_card(img, work / f"card_{i:02d}_{j}.png"))
+                except Exception as e:
+                    print(f"  ⚠️  imagen '{q}': {e}")
+            if cards:
+                info["cards"] = cards
             if verbose:
-                print(f"[curiosidades] Dato {i}: '{seg.get('img')}' ({d:.1f}s)")
+                print(f"[curiosidades] Dato {i}: {queries} ({d:.1f}s)")
         else:
             info["title_text"] = seg["text"]
             if verbose:
@@ -111,15 +117,28 @@ def generate(
               center_start=(title_seg["start"] if title_seg else 0.0),
               center_end=(title_seg["end"] if title_seg else 0.0))
 
-    # 4) Composición ffmpeg: bg + overlays de tarjetas (por ventana) + subs; audio + música + pops
-    facts = [s for s in segs if s.get("card")]
+    # 4) Eventos de imagen: cada dato reparte su ventana entre sus 1-2 imágenes
+    #    (más dinámico; whoosh + animación en cada una).
+    events = []
+    for s in segs:
+        cards = s.get("cards")
+        if not cards:
+            continue
+        n = len(cards)
+        seg_dur = s["end"] - s["start"]
+        for j, card in enumerate(cards):
+            events.append({
+                "card": card,
+                "start": s["start"] + j * seg_dur / n,
+                "end": s["start"] + (j + 1) * seg_dur / n,
+            })
     track = _resolve_music(music, 0)
 
     cmd = ["ffmpeg", "-y",
            "-stream_loop", "-1", "-t", f"{duration:.3f}", "-i", str(Path(background).resolve())]
-    for f in facts:
-        cmd += ["-loop", "1", "-framerate", "30", "-t", f"{duration:.3f}", "-i", str(f["card"].resolve())]
-    narr_i = 1 + len(facts)
+    for ev in events:
+        cmd += ["-loop", "1", "-framerate", "30", "-t", f"{duration:.3f}", "-i", str(ev["card"].resolve())]
+    narr_i = 1 + len(events)
     cmd += ["-i", str(narration.resolve())]
     music_i = narr_i + 1
     cmd += ["-stream_loop", "-1", "-i", str(Path(track).resolve())] if track else []
@@ -131,16 +150,16 @@ def generate(
     vparts = [f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
               f"setsar=1,eq=brightness=-0.12:saturation=1.1[bg]"]
     # Preparar cada tarjeta: alpha + fundido de entrada/salida en su ventana
-    for k, f in enumerate(facts):
-        s, e2 = f["start"], f["end"] - AD
+    for k, ev in enumerate(events):
+        s, e2 = ev["start"], ev["end"] - AD
         vparts.append(
             f"[{k + 1}:v]format=yuva420p,fade=t=in:st={s:.3f}:d={AD}:alpha=1,"
             f"fade=t=out:st={e2:.3f}:d={AD}:alpha=1[c{k}]")
     # Encadenar overlays: se desliza hacia arriba al entrar y al salir (comillas
     # simples protegen las comas de las expresiones)
     prev = "bg"
-    for k, f in enumerate(facts):
-        s, e, e2 = f["start"], f["end"], f["end"] - AD
+    for k, ev in enumerate(events):
+        s, e, e2 = ev["start"], ev["end"], ev["end"] - AD
         yexpr = (f"'(H-h)/2 + {OFF}*(1-min(1,max(0,(t-{s:.3f})/{AD}))) "
                  f"- {OFF}*min(1,max(0,(t-{e2:.3f})/{AD}))'")
         vparts.append(
@@ -149,8 +168,8 @@ def generate(
         prev = f"o{k}"
     vparts.append(f"[{prev}]subtitles={ass.name}[v]")
 
-    # Audio: voz + música baja + pops en cada aparición de imagen
-    F = len(facts)
+    # Audio: voz + música baja + whoosh en cada aparición de imagen
+    F = len(events)
     LEAD = 0.12   # el whoosh arranca un poco antes de la imagen (sensación de transición)
     aparts = [f"[{narr_i}:a]volume=1.0[voz]"]
     mix = ["[voz]"]
@@ -160,8 +179,8 @@ def generate(
     if F:
         # whoosh en cada aparición de imagen (volumen bajado un poco para no saturar)
         aparts.append(f"[{pop_i}:a]volume=1.15,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
-        for j, f in enumerate(facts):
-            ms = max(0, int((f["start"] - LEAD) * 1000))
+        for j, ev in enumerate(events):
+            ms = max(0, int((ev["start"] - LEAD) * 1000))
             aparts.append(f"[ps{j}]adelay={ms}|{ms}[pd{j}]")
             mix.append(f"[pd{j}]")
     aparts.append("".join(mix) + f"amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.95[a]")

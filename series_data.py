@@ -34,17 +34,26 @@ def _T():
 
 PARTS = {
     1: {
-        "resumen": ("el pulpo y su sangre azul, por qué en Venus un día dura más que un año, "
-                    "los tiburones más antiguos que los árboles, la miel que nunca caduca, "
-                    "los rayos más calientes que el Sol y por qué Saturno flotaría en el agua"),
+        "resumen": ("por qué el pulpo tiene sangre azul, por qué en Venus un día dura más que un "
+                    "año, por qué la miel nunca caduca, por qué un rayo es más caliente que el Sol "
+                    "y por qué Saturno flotaría en el agua"),
         "segments": [
-            {"kind": "fact", "text": "El pulpo tiene tres corazones y su sangre es azul.", "img": "octopus"},
+            {"kind": "fact",
+             "text": "El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.",
+             "imgs": ["octopus", "octopus underwater"]},
             _T(),
-            {"kind": "fact", "text": "En Venus, un solo día dura más que todo un año.", "img": "venus planet"},
-            {"kind": "fact", "text": "Los tiburones existen desde antes que los árboles.", "img": "shark underwater"},
-            {"kind": "fact", "text": "La miel nunca se echa a perder, ni en mil años.", "img": "honey"},
-            {"kind": "fact", "text": "Un rayo es cinco veces más caliente que la superficie del Sol.", "img": "lightning"},
-            {"kind": "fact", "text": "Saturno es tan liviano que flotaría en el agua. Seguime para la parte dos.", "img": "saturn planet"},
+            {"kind": "fact",
+             "text": "En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.",
+             "imgs": ["venus planet", "venus surface"]},
+            {"kind": "fact",
+             "text": "La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.",
+             "imgs": ["honey", "honeycomb"]},
+            {"kind": "fact",
+             "text": "Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.",
+             "imgs": ["lightning", "lightning storm"]},
+            {"kind": "fact",
+             "text": "Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua. Seguime para la parte dos.",
+             "imgs": ["saturn planet", "saturn rings"]},
         ],
     },
     2: {
