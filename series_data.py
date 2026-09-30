@@ -103,4 +103,32 @@ PARTS = {
             {"kind": "fact", "text": "El ojo humano puede distinguir unos diez millones de colores. Seguime para la parte seis.", "img": "human eye"},
         ],
     },
+    6: {
+        "resumen": ("los millones de rayos que caen por día, las vacas que tienen mejores amigas, "
+                    "el Sol que es casi toda la masa del sistema solar, los caracoles que duermen "
+                    "años, más árboles que estrellas en la galaxia y cuánto late tu corazón"),
+        "segments": [
+            {"kind": "fact", "text": "En la Tierra caen unos ocho millones de rayos por día.", "img": "lightning"},
+            _T(),
+            {"kind": "fact", "text": "Las vacas tienen mejores amigas y se estresan si las separan.", "img": "cow"},
+            {"kind": "fact", "text": "El Sol representa el noventa y nueve por ciento de la masa de todo el sistema solar.", "img": "sun"},
+            {"kind": "fact", "text": "Algunos caracoles pueden dormir hasta tres años seguidos.", "img": "snail"},
+            {"kind": "fact", "text": "Hay más árboles en la Tierra que estrellas en la Vía Láctea.", "img": "forest"},
+            {"kind": "fact", "text": "Tu corazón late unas cien mil veces por día. Seguime para la parte siete.", "img": "heart"},
+        ],
+    },
+    7: {
+        "resumen": ("el volcán gigante de Marte, los elefantes que no pueden saltar, el billón de "
+                    "olores que recuerda tu nariz, el mito de la Muralla China desde el espacio, "
+                    "los pulpos que abren frascos y cuánto dura un año en Neptuno"),
+        "segments": [
+            {"kind": "fact", "text": "Marte tiene el volcán más grande del sistema solar: tres veces el Everest.", "img": "mars planet"},
+            _T(),
+            {"kind": "fact", "text": "Los elefantes son los únicos animales que no pueden saltar.", "img": "elephant"},
+            {"kind": "fact", "text": "Tu nariz puede recordar más de un billón de olores distintos.", "img": "nose"},
+            {"kind": "fact", "text": "La Gran Muralla China no se ve a simple vista desde el espacio.", "img": "great wall china"},
+            {"kind": "fact", "text": "Los pulpos son tan inteligentes que abren frascos desde adentro.", "img": "octopus"},
+            {"kind": "fact", "text": "Un año en Neptuno dura ciento sesenta y cinco años terrestres. Seguime para la parte ocho.", "img": "neptune planet"},
+        ],
+    },
 }
