@@ -19,6 +19,25 @@ from .tts import synthesize
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "output"
+BACKGROUNDS_DIR = ROOT / "backgrounds"
+VIDEO_EXTS = (".mp4", ".mov", ".webm", ".mkv", ".avi")
+
+
+def _resolve_background(background: str | Path | None, index: int) -> Path | None:
+    """Devuelve un video de fondo: archivo dado, elegido de una carpeta, o de
+    backgrounds/. None => se usa el gradiente animado."""
+    if background:
+        p = Path(background)
+        if p.is_file():
+            return p
+        if p.is_dir():
+            vids = sorted(f for f in p.iterdir() if f.suffix.lower() in VIDEO_EXTS)
+            return vids[index % len(vids)] if vids else None
+        return None
+    if BACKGROUNDS_DIR.is_dir():
+        vids = sorted(f for f in BACKGROUNDS_DIR.iterdir() if f.suffix.lower() in VIDEO_EXTS)
+        return vids[index % len(vids)] if vids else None
+    return None
 
 # Paletas de fondo (hex) por si se quieren variar
 PALETTES = [
@@ -52,24 +71,46 @@ def _compose(
     palette: tuple[str, str, str],
     width: int,
     height: int,
+    background: Path | None = None,
 ) -> Path:
-    """Fondo animado + subtítulos + narración -> mp4. Ejecuta en cwd=work_dir."""
-    c0, c1, c2 = palette
-    grad = (
-        f"gradients=s={width}x{height}:c0={c0}:c1={c1}:c2={c2}"
-        f":x0=0:y0=0:x1={width}:y1={height}:nb_colors=3:d={duration:.3f}:speed=0.006:type=radial"
-    )
-    cmd = [
-        "ffmpeg", "-y",
-        "-f", "lavfi", "-t", f"{duration:.3f}", "-i", grad,
-        "-i", narration_mp3.name,
-        "-filter_complex", f"[0:v]subtitles={ass_file.name},format=yuv420p[v]",
-        "-map", "[v]", "-map", "1:a",
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-        "-c:a", "aac", "-b:a", "160k",
-        "-r", "30", "-movflags", "+faststart", "-shortest",
-        out_name,
-    ]
+    """Compone el short. Si `background` es un video (gameplay/slime/satisfactorio),
+    lo usa de fondo (en loop, recortado a 9:16 y oscurecido para que lean los
+    subtítulos). Si no, usa un gradiente animado. Ejecuta en cwd=work_dir."""
+    if background is not None:
+        # Fondo de video: loop infinito recortado a la duración de la narración.
+        vf = (
+            f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
+            f"crop={width}:{height},setsar=1,eq=brightness=-0.12:saturation=1.15,"
+            f"subtitles={ass_file.name},format=yuv420p[v]"
+        )
+        cmd = [
+            "ffmpeg", "-y",
+            "-stream_loop", "-1", "-t", f"{duration:.3f}", "-i", str(background.resolve()),
+            "-i", narration_mp3.name,
+            "-filter_complex", vf,
+            "-map", "[v]", "-map", "1:a",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+            "-c:a", "aac", "-b:a", "160k",
+            "-r", "30", "-movflags", "+faststart", "-shortest",
+            out_name,
+        ]
+    else:
+        c0, c1, c2 = palette
+        grad = (
+            f"gradients=s={width}x{height}:c0={c0}:c1={c1}:c2={c2}"
+            f":x0=0:y0=0:x1={width}:y1={height}:nb_colors=3:d={duration:.3f}:speed=0.006:type=radial"
+        )
+        cmd = [
+            "ffmpeg", "-y",
+            "-f", "lavfi", "-t", f"{duration:.3f}", "-i", grad,
+            "-i", narration_mp3.name,
+            "-filter_complex", f"[0:v]subtitles={ass_file.name},format=yuv420p[v]",
+            "-map", "[v]", "-map", "1:a",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+            "-c:a", "aac", "-b:a", "160k",
+            "-r", "30", "-movflags", "+faststart", "-shortest",
+            out_name,
+        ]
     result = subprocess.run(cmd, cwd=str(work_dir), capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(f"ffmpeg falló al componer faceless:\n{result.stderr[-2000:]}")
@@ -82,9 +123,13 @@ def generate(
     title: str | None = None,
     hashtags: list[str] | None = None,
     palette_index: int = 0,
+    background: str | Path | None = None,
     verbose: bool = True,
 ) -> Path:
-    """Genera un short faceless a partir de un guion. Devuelve la ruta del mp4."""
+    """Genera un short faceless a partir de un guion. Devuelve la ruta del mp4.
+
+    `background`: video de fondo (gameplay/slime/satisfactorio) o carpeta con
+    varios. Si no se indica, usa backgrounds/ o un gradiente animado."""
     channel = cfg.load_channel(channel_name)
     width = int(channel["target_width"])
     height = int(channel["target_height"])
@@ -123,13 +168,15 @@ def generate(
         clip_duration=duration,
     )
 
-    # 4) Componer
+    # 4) Componer (con fondo de video si hay, si no gradiente)
+    bg = _resolve_background(background, palette_index)
     if verbose:
-        print(f"[{channel_name}] Componiendo video...")
+        print(f"[{channel_name}] Componiendo video... (fondo: {bg.name if bg else 'gradiente'})")
     out_name = f"{slug}.mp4"
     rendered = _compose(
         work_dir, narration, ass_file, out_name, duration,
         PALETTES[palette_index % len(PALETTES)], width, height,
+        background=bg,
     )
     final = out_dir / out_name
     import shutil

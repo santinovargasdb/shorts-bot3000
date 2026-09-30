@@ -27,6 +27,7 @@ def main() -> int:
     p.add_argument("--title", help="Título/gancho (arriba en pantalla y como título de YouTube)")
     p.add_argument("--channel", default="faceless")
     p.add_argument("--palette", type=int, default=0, help="Índice de paleta de fondo (0-3)")
+    p.add_argument("--bg", help="Video de fondo (gameplay/slime/satisfactorio) o carpeta. Si se omite, usa backgrounds/ o gradiente.")
     args = p.parse_args()
 
     if args.file:
@@ -36,7 +37,8 @@ def main() -> int:
     else:
         p.error("Indicá --file o --text")
 
-    out = generate(text, channel_name=args.channel, title=args.title, palette_index=args.palette)
+    out = generate(text, channel_name=args.channel, title=args.title,
+                   palette_index=args.palette, background=args.bg)
     print("\nShort generado:", out)
     return 0
 
