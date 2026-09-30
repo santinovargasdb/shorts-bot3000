@@ -104,6 +104,11 @@ def do_instagram(state: dict) -> None:
         _log("[IG] No configurado (faltan credenciales en .env), lo salteo.")
         return
     part = state["instagram"]["next_part"]
+    # Sincronización: IG no se adelanta a YouTube (postea recién cuando YT ya subió
+    # esa parte). Así las cuentas quedan alineadas y no se repite lo ya posteado.
+    if part >= state["youtube"]["next_part"]:
+        _log(f"[IG] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
+        return
     if part not in PARTS:
         _log(f"[IG] No hay parte {part} en el backlog. Agregá más partes.")
         return
