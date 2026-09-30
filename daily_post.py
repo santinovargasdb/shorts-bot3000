@@ -52,6 +52,32 @@ def _video_for(part: int) -> Path:
     return OUT / f"{slug}.mp4"
 
 
+def _post_instagram(video: Path) -> None:
+    """Publica el Reel en IG (best-effort). Requiere IG_USER_ID, IG_ACCESS_TOKEN
+    y GITHUB_TOKEN en .env. Si falta algo, saltea sin romper el flujo."""
+    import os
+    from src.gh_release import _load_env
+    _load_env()
+    if not all(os.environ.get(k) for k in ("IG_USER_ID", "IG_ACCESS_TOKEN", "GITHUB_TOKEN")):
+        _log("Instagram no configurado (faltan credenciales en .env), lo salteo.")
+        return
+    # Caption desde los metadatos del video
+    meta_path = video.with_suffix(".json")
+    caption = video.stem
+    if meta_path.exists():
+        caption = json.loads(meta_path.read_text(encoding="utf-8")).get("description", caption)
+    try:
+        from src.gh_release import upload as gh_upload
+        from uploaders.instagram_upload import publish_reel
+        _log("Instagram: subiendo mp4 a GitHub Releases (hosting)...")
+        url = gh_upload(video)
+        _log("Instagram: publicando Reel...")
+        media_id = publish_reel(url, caption=caption)
+        _log(f"✅ Instagram Reel publicado: {media_id}")
+    except Exception as e:
+        _log(f"⚠️  Instagram falló (sigo igual): {e}")
+
+
 def main() -> int:
     dry = "--dry-run" in sys.argv
     state = _load_state()
@@ -96,7 +122,12 @@ def main() -> int:
     state.setdefault("posted", []).append(
         {"part": part, "video_id": video_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
     _save_state(state)
-    _log(f"✅ Publicado parte {part}: https://youtube.com/shorts/{video_id}. Próxima: {part + 1}")
+    _log(f"✅ YouTube parte {part}: https://youtube.com/shorts/{video_id}")
+
+    # También a Instagram (best-effort; no bloquea si no está configurado)
+    _post_instagram(video)
+
+    _log(f"Próxima parte: {part + 1}")
     return 0
 
 
