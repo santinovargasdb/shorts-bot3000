@@ -151,17 +151,20 @@ def generate(
 
     # Audio: voz + música baja + pops en cada aparición de imagen
     F = len(facts)
+    LEAD = 0.12   # el whoosh arranca un poco antes de la imagen (sensación de transición)
     aparts = [f"[{narr_i}:a]volume=1.0[voz]"]
     mix = ["[voz]"]
     if track:
-        aparts.append(f"[{music_i}:a]volume=0.18[mus]")
+        aparts.append(f"[{music_i}:a]volume=0.16[mus]")
         mix.append("[mus]")
     if F:
-        aparts.append(f"[{pop_i}:a]volume=0.7,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
+        # whoosh fuerte, duplicado y ubicado en cada aparición de imagen
+        aparts.append(f"[{pop_i}:a]volume=1.4,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
         for j, f in enumerate(facts):
-            aparts.append(f"[ps{j}]adelay={int(f['start'] * 1000)}|{int(f['start'] * 1000)}[pd{j}]")
+            ms = max(0, int((f["start"] - LEAD) * 1000))
+            aparts.append(f"[ps{j}]adelay={ms}|{ms}[pd{j}]")
             mix.append(f"[pd{j}]")
-    aparts.append("".join(mix) + f"amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.9[a]")
+    aparts.append("".join(mix) + f"amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.97[a]")
 
     filter_complex = ";".join(vparts + aparts)
     out_name = f"{slug}.mp4"

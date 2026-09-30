@@ -55,7 +55,7 @@ peliculas_series:
 # -------------------------------------------------------------------------
 faceless:
   display_name: "En 60 Segundos"
-  whisper_model: "base"           # voz IA limpia -> 'base' basta y es rápido
+  whisper_model: "small"          # más precisión en los subtítulos (un poco más lento)
   crop_mode: "blur"
   clips_per_source: 1             # se genera 1 short por guion/fuente original
   hook_text: ""
