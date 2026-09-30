@@ -75,4 +75,32 @@ PARTS = {
             {"kind": "fact", "text": "Napoleón no era bajo: medía la altura promedio de su época. Seguime para la parte cuatro.", "img": "napoleon"},
         ],
     },
+    4: {
+        "resumen": ("los átomos de una gota de agua, los delfines que se ponen nombres, "
+                    "el Everest que crece cada año, las nutrias que duermen de la mano, "
+                    "los gatos que no sienten lo dulce y cuál es el planeta más caliente"),
+        "segments": [
+            {"kind": "fact", "text": "Hay más átomos en una cucharada de agua que estrellas en todo el universo observable.", "img": "water drop"},
+            _T(),
+            {"kind": "fact", "text": "Los delfines se ponen nombres y se llaman entre sí con silbidos únicos.", "img": "dolphin"},
+            {"kind": "fact", "text": "El monte Everest crece unos milímetros cada año.", "img": "mount everest"},
+            {"kind": "fact", "text": "Las nutrias se toman de las manos al dormir para no separarse.", "img": "otter"},
+            {"kind": "fact", "text": "Los gatos no pueden sentir el sabor dulce.", "img": "cat"},
+            {"kind": "fact", "text": "El planeta más caliente es Venus, no Mercurio. Seguime para la parte cinco.", "img": "venus planet"},
+        ],
+    },
+    5: {
+        "resumen": ("el estómago que se renueva para no digerirse, los pulpos que saborean con "
+                    "los brazos, el esmalte dental, las más de cien lunas de Saturno, los "
+                    "pingüinos que regalan piedras y los millones de colores que ve el ojo"),
+        "segments": [
+            {"kind": "fact", "text": "Tu estómago genera una capa nueva cada pocos días para no digerirse a sí mismo.", "img": "stomach anatomy"},
+            _T(),
+            {"kind": "fact", "text": "Los pulpos pueden sentir el sabor con sus brazos.", "img": "octopus"},
+            {"kind": "fact", "text": "El material más duro de tu cuerpo es el esmalte de los dientes.", "img": "teeth"},
+            {"kind": "fact", "text": "Saturno tiene más de cien lunas.", "img": "saturn planet"},
+            {"kind": "fact", "text": "Los pingüinos le regalan piedras a su pareja.", "img": "penguin"},
+            {"kind": "fact", "text": "El ojo humano puede distinguir unos diez millones de colores. Seguime para la parte seis.", "img": "human eye"},
+        ],
+    },
 }

@@ -18,6 +18,10 @@ token*.json
 # Modelos de Whisper descargados
 models/
 
+# Estado/log de la automatización (local)
+automation_state.json
+automation.log
+
 # Python
 __pycache__/
 *.pyc
