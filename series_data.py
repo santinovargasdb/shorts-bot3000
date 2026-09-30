@@ -131,4 +131,46 @@ PARTS = {
             {"kind": "fact", "text": "Un año en Neptuno dura ciento sesenta y cinco años terrestres. Seguime para la parte ocho.", "img": "neptune planet"},
         ],
     },
+    8: {
+        "resumen": ("la medusa inmortal, los mapaches que lavan la comida, el tamaño de Júpiter, "
+                    "las jirafas que casi no duermen, cuánta saliva generás en la vida y cuál es "
+                    "el animal más letal del mundo"),
+        "segments": [
+            {"kind": "fact", "text": "Existe una medusa que puede rejuvenecer y volverse biológicamente inmortal.", "img": "jellyfish"},
+            _T(),
+            {"kind": "fact", "text": "Los mapaches suelen lavar su comida antes de comerla.", "img": "raccoon"},
+            {"kind": "fact", "text": "En Júpiter cabrían más de mil planetas Tierra adentro.", "img": "jupiter planet"},
+            {"kind": "fact", "text": "Las jirafas duermen menos de dos horas por día.", "img": "giraffe"},
+            {"kind": "fact", "text": "A lo largo de tu vida vas a generar saliva suficiente para llenar dos piscinas.", "img": "swimming pool"},
+            {"kind": "fact", "text": "El animal más letal del mundo para los humanos es el mosquito. Seguime para la parte nueve.", "img": "mosquito"},
+        ],
+    },
+    9: {
+        "resumen": ("la Luna que se aleja cada año, los gatos que duermen casi toda su vida, el "
+                    "Sahara que fue verde, las microsiestas de las hormigas, la lluvia de diamantes "
+                    "en los gigantes gaseosos y el corazón del colibrí"),
+        "segments": [
+            {"kind": "fact", "text": "La Luna se aleja de la Tierra unos cuatro centímetros cada año.", "img": "moon"},
+            _T(),
+            {"kind": "fact", "text": "Los gatos pasan cerca del setenta por ciento de su vida durmiendo.", "img": "cat sleeping"},
+            {"kind": "fact", "text": "El desierto del Sahara alguna vez fue verde y estuvo lleno de lagos.", "img": "sahara desert"},
+            {"kind": "fact", "text": "Las hormigas no duermen como nosotros: hacen cientos de microsiestas.", "img": "ant"},
+            {"kind": "fact", "text": "En Júpiter y Saturno probablemente llueven diamantes.", "img": "saturn planet"},
+            {"kind": "fact", "text": "El corazón de un colibrí late más de mil veces por minuto. Seguime para la parte diez.", "img": "hummingbird"},
+        ],
+    },
+    10: {
+        "resumen": ("los dos billones de galaxias, los koalas que duermen casi todo el día, el "
+                    "océano más profundo que el Everest, las alas de las abejas, el carbono de tu "
+                    "cuerpo y lo lejos que está la estrella más cercana"),
+        "segments": [
+            {"kind": "fact", "text": "El universo tiene más de dos billones de galaxias.", "img": "galaxy"},
+            _T(),
+            {"kind": "fact", "text": "Los koalas pueden dormir hasta veintidós horas por día.", "img": "koala"},
+            {"kind": "fact", "text": "El punto más profundo del océano es más hondo que la altura del Everest.", "img": "deep ocean"},
+            {"kind": "fact", "text": "Las abejas baten sus alas más de doscientas veces por segundo.", "img": "bee"},
+            {"kind": "fact", "text": "Tu cuerpo tiene suficiente carbono para fabricar unos novecientos lápices.", "img": "pencils"},
+            {"kind": "fact", "text": "La luz del Sol tarda ocho minutos en llegar, pero la de la estrella más cercana, cuatro años. Seguime, que esto sigue.", "img": "stars night sky"},
+        ],
+    },
 }
