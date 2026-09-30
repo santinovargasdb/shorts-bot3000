@@ -64,10 +64,13 @@ def build_ass(
     max_chars: int = 18,
     hook_text: str = "",
     clip_duration: float | None = None,
+    center_title: str = "",
+    center_start: float = 0.0,
+    center_end: float = 0.0,
 ) -> Path:
-    """Escribe el .ass. `offset` resta el tiempo de inicio del clip (para
-    que las marcas queden relativas al recorte). `hook_text` pinta un texto
-    fijo arriba durante todo el clip."""
+    """Escribe el .ass. `offset` resta el tiempo de inicio del clip. `hook_text`
+    pinta un texto fijo arriba todo el clip. `center_title` pinta un título
+    grande al centro entre [center_start, center_end] (para el momento del título)."""
     out_path = Path(out_path)
     font = caption.get("font", "Arial Black")
     size = int(caption.get("font_size", 90))
@@ -78,6 +81,7 @@ def build_ass(
     margin_v = caption.get("margin_v", 260)
     uppercase = caption.get("uppercase", True)
     hook_size = int(size * 0.62)   # más chico para que el título entre y pueda envolver
+    title_size = int(size * 1.15)  # título grande centrado (momento del título)
 
     # Estilos: Cap (abajo-centro) y Hook (arriba-centro). Colores se pisan inline.
     header = f"""[Script Info]
@@ -91,6 +95,7 @@ ScaledBorderAndShadow: yes
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,{font},{size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},2,60,60,{margin_v},1
 Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,180,1
+Style: Titulo,{font},{title_size},{highlight},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline+3},{shadow},5,80,80,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -105,6 +110,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         htxt = _wrap(htxt, max_chars=16)   # parte el título en varias líneas
         lines.append(
             f"Dialogue: 0,{_fmt_time(0)},{_fmt_time(clip_duration)},Hook,,0,0,0,,{htxt}\n"
+        )
+
+    # Título grande centrado durante su ventana (momento del título)
+    if center_title and center_end > center_start:
+        ttxt = (center_title.upper() if uppercase else center_title)
+        ttxt = ttxt.replace("{", "(").replace("}", ")")
+        ttxt = _wrap(ttxt, max_chars=14)
+        lines.append(
+            f"Dialogue: 0,{_fmt_time(center_start)},{_fmt_time(center_end)},Titulo,,0,0,0,,{ttxt}\n"
         )
 
     groups = _group_words(words, max_words, max_chars)

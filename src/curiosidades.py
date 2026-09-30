@@ -1,0 +1,183 @@
+"""Formato 'curiosidades' sobre GAMEPLAY:
+
+- Gameplay (Minecraft parkour) de fondo TODO el tiempo.
+- Por cada dato, una IMAGEN aparece en el CENTRO (tipo tarjeta) SOLO mientras se
+  narra ese dato, sin tapar del todo el parkour. Al aparecer suena un 'pop'.
+- Flujo: dato más interesante (con imagen) -> título hablado (grande, centrado)
+  -> resto de datos con sus imágenes.
+- Subtítulos karaoke abajo + música de fondo baja.
+
+Ver curiosidades_run.py para el uso.
+"""
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+from pathlib import Path
+
+from . import config as cfg
+from . import stock
+from .faceless import OUTPUT_DIR, _resolve_music, _slug
+from .multidato import _audio_dur, _music_credit
+from .subtitles import build_ass
+from .transcribe import transcribe_words
+from .tts import synthesize
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def _card(img: Path, out: Path, size: int = 760, border: int = 10) -> Path:
+    """Imagen -> tarjeta cuadrada con borde blanco (para el centro)."""
+    s = size
+    vf = (f"scale={s}:{s}:force_original_aspect_ratio=increase,crop={s}:{s},"
+          f"pad={s + 2 * border}:{s + 2 * border}:{border}:{border}:white,setsar=1")
+    subprocess.run(["ffmpeg", "-y", "-i", str(img), "-vf", vf, "-frames:v", "1", str(out)],
+                   capture_output=True, text=True, check=True)
+    return out
+
+
+def generate(
+    segments: list[dict],
+    channel_name: str = "faceless",
+    background: str = "backgrounds/minecraft_parkour.mp4",
+    music: str = "music/monkeys_spinning_monkeys.mp3",
+    sfx: str = "sfx/pop.wav",
+    title_meta: str | None = None,
+    hashtags: list[str] | None = None,
+    verbose: bool = True,
+) -> Path:
+    """segments: lista ordenada de
+         {'kind': 'fact',  'text': frase, 'img': término}   -> imagen + pop
+         {'kind': 'title', 'text': 'Cosas que no sabías'}   -> título grande
+       El primer 'fact' debería ser el dato más interesante (gancho)."""
+    channel = cfg.load_channel(channel_name)
+    w, h = int(channel["target_width"]), int(channel["target_height"])
+    voice = channel.get("tts_voice", "es-MX-DaliaNeural")
+    rate = channel.get("tts_rate", "+8%")
+
+    slug = _slug(title_meta or segments[0]["text"])
+    out_dir = OUTPUT_DIR / channel_name
+    work = out_dir / ".work" / slug
+    out_dir.mkdir(parents=True, exist_ok=True)
+    work.mkdir(parents=True, exist_ok=True)
+
+    # 1) Voz por segmento + tiempos (duración exacta) + tarjetas de imagen
+    audio_files: list[Path] = []
+    segs: list[dict] = []
+    t = 0.0
+    for i, seg in enumerate(segments):
+        a = work / f"a_{i:02d}.mp3"
+        synthesize(seg["text"], a, voice=voice, rate=rate)
+        d = _audio_dur(a)
+        audio_files.append(a)
+        info = {"kind": seg["kind"], "start": t, "end": t + d}
+        if seg["kind"] == "fact":
+            img = None
+            try:
+                img = stock.download_image(seg["img"], work / f"img_{i:02d}.jpg")
+            except Exception as e:
+                print(f"  ⚠️  imagen '{seg.get('img')}': {e}")
+            if img and img.exists():
+                info["card"] = _card(img, work / f"card_{i:02d}.png")
+            if verbose:
+                print(f"[curiosidades] Dato {i}: '{seg.get('img')}' ({d:.1f}s)")
+        else:
+            info["title_text"] = seg["text"]
+            if verbose:
+                print(f"[curiosidades] Título: '{seg['text']}' ({d:.1f}s)")
+        segs.append(info)
+        t += d
+
+    # 2) Narración concatenada
+    alist = work / "alist.txt"
+    alist.write_text("".join(f"file '{p.name}'\n" for p in audio_files), encoding="utf-8")
+    narration = work / "narration.m4a"
+    subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", alist.name,
+                    "-c:a", "aac", "-b:a", "160k", narration.name],
+                   cwd=str(work), capture_output=True, text=True, check=True)
+    duration = _audio_dur(narration)
+
+    # 3) Subtítulos karaoke + título grande centrado en su ventana
+    lang = voice.split("-")[0] if "-" in voice else channel.get("language")
+    if verbose:
+        print(f"[curiosidades] Transcribiendo ({duration:.1f}s)...")
+    words = transcribe_words(narration, model_size=channel["whisper_model"], language=lang)
+    title_seg = next((s for s in segs if s["kind"] == "title"), None)
+    ass = work / "captions.ass"
+    build_ass(words, ass, caption=channel["caption"], target_width=w, target_height=h,
+              offset=0.0, hook_text="", clip_duration=duration,
+              center_title=(title_seg["title_text"] if title_seg else ""),
+              center_start=(title_seg["start"] if title_seg else 0.0),
+              center_end=(title_seg["end"] if title_seg else 0.0))
+
+    # 4) Composición ffmpeg: bg + overlays de tarjetas (por ventana) + subs; audio + música + pops
+    facts = [s for s in segs if s.get("card")]
+    track = _resolve_music(music, 0)
+
+    cmd = ["ffmpeg", "-y",
+           "-stream_loop", "-1", "-t", f"{duration:.3f}", "-i", str(Path(background).resolve())]
+    for f in facts:
+        cmd += ["-loop", "1", "-framerate", "30", "-t", f"{duration:.3f}", "-i", str(f["card"].resolve())]
+    narr_i = 1 + len(facts)
+    cmd += ["-i", str(narration.resolve())]
+    music_i = narr_i + 1
+    cmd += ["-stream_loop", "-1", "-i", str(Path(track).resolve())] if track else []
+    pop_i = music_i + 1 if track else narr_i + 1
+    cmd += ["-i", str(Path(sfx).resolve())]
+
+    # Video: fondo + overlays centrados con enable por ventana
+    vparts = [f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
+              f"setsar=1,eq=brightness=-0.12:saturation=1.1[bg]"]
+    prev = "bg"
+    for k, f in enumerate(facts):
+        lbl = f"o{k}"
+        vparts.append(
+            f"[{prev}][{k + 1}:v]overlay=(W-w)/2:(H-h)/2:"
+            f"enable='between(t,{f['start']:.3f},{f['end']:.3f})'[{lbl}]")
+        prev = lbl
+    vparts.append(f"[{prev}]subtitles={ass.name}[v]")
+
+    # Audio: voz + música baja + pops en cada aparición de imagen
+    F = len(facts)
+    aparts = [f"[{narr_i}:a]volume=1.0[voz]"]
+    mix = ["[voz]"]
+    if track:
+        aparts.append(f"[{music_i}:a]volume=0.18[mus]")
+        mix.append("[mus]")
+    if F:
+        aparts.append(f"[{pop_i}:a]volume=0.7,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
+        for j, f in enumerate(facts):
+            aparts.append(f"[ps{j}]adelay={int(f['start'] * 1000)}|{int(f['start'] * 1000)}[pd{j}]")
+            mix.append(f"[pd{j}]")
+    aparts.append("".join(mix) + f"amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.9[a]")
+
+    filter_complex = ";".join(vparts + aparts)
+    out_name = f"{slug}.mp4"
+    cmd += ["-filter_complex", filter_complex, "-map", "[v]", "-map", "[a]",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-b:a", "160k", "-r", "30", "-t", f"{duration:.3f}",
+            "-movflags", "+faststart", out_name]
+
+    if verbose:
+        print(f"[curiosidades] Componiendo (fondo: {Path(background).name}, "
+              f"música: {track.name if track else 'no'}, pops: {F})...")
+    r = subprocess.run(cmd, cwd=str(work), capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"ffmpeg falló:\n{r.stderr[-2500:]}")
+    final = out_dir / out_name
+    shutil.move(str(work / out_name), str(final))
+
+    # 5) Metadatos (+ crédito música)
+    tags = hashtags or ["#shorts", "#curiosidades", "#datoscuriosos", "#sabiasque", "#viral"]
+    facts_txt = " ".join(s["text"] for s in segments if s["kind"] == "fact")
+    desc = facts_txt[:350] + "\n\n" + " ".join(tags)
+    credit = _music_credit()
+    if credit:
+        desc += "\n\n" + credit
+    (out_dir / f"{slug}.json").write_text(
+        json.dumps({"title": (title_meta or "Curiosidades")[:100], "description": desc,
+                    "hashtags": tags}, ensure_ascii=False, indent=2), encoding="utf-8")
+    if verbose:
+        print(f"[curiosidades] ✅ {final}")
+    return final
