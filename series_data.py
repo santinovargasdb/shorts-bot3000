@@ -1,7 +1,8 @@
 """Datos de la serie 'Datos para parecer inteligente'.
 
 Cada parte: segmentos (gancho -> título -> resto) + un resumen para la descripción.
-El título hablado/en pantalla es el mismo en toda la serie.
+Cada dato trae contexto (el por qué/cómo) y 2 términos de imagen (imgs) para que
+se muestren dos fotos por dato. El título hablado/en pantalla es igual en toda la serie.
 """
 
 TITULO_PANTALLA = "Datos para parecer más inteligente."
@@ -32,154 +33,137 @@ def _T():
     return {"kind": "title", "text": TITULO_PANTALLA}
 
 
+def _f(text, *imgs):
+    return {"kind": "fact", "text": text, "imgs": list(imgs)}
+
+
 PARTS = {
     1: {
         "resumen": ("por qué el pulpo tiene sangre azul, por qué en Venus un día dura más que un "
                     "año, por qué la miel nunca caduca, por qué un rayo es más caliente que el Sol "
                     "y por qué Saturno flotaría en el agua"),
         "segments": [
-            {"kind": "fact",
-             "text": "El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.",
-             "imgs": ["octopus", "octopus underwater"]},
+            _f("El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.", "octopus", "octopus underwater"),
             _T(),
-            {"kind": "fact",
-             "text": "En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.",
-             "imgs": ["venus planet", "venus surface"]},
-            {"kind": "fact",
-             "text": "La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.",
-             "imgs": ["honey", "honeycomb"]},
-            {"kind": "fact",
-             "text": "Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.",
-             "imgs": ["lightning", "lightning storm"]},
-            {"kind": "fact",
-             "text": "Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua. Seguime para la parte dos.",
-             "imgs": ["saturn planet", "saturn rings"]},
+            _f("En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.", "venus planet", "venus surface"),
+            _f("La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.", "honey", "honeycomb"),
+            _f("Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.", "lightning", "lightning storm"),
+            _f("Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua. Seguime para la parte dos.", "saturn planet", "saturn rings"),
         ],
     },
     2: {
-        "resumen": ("las estrellas contra los granos de arena, las huellas de los koalas, "
-                    "la Torre Eiffel que crece en verano, las abejas que reconocen caras, "
-                    "cuánto tarda la luz del Sol y por qué el plátano es radiactivo"),
+        "resumen": ("cuántas estrellas hay en el universo, las huellas de los koalas, por qué la "
+                    "Torre Eiffel crece en verano, las abejas que reconocen caras y por qué el "
+                    "plátano es radiactivo"),
         "segments": [
-            {"kind": "fact", "text": "Hay más estrellas en el universo que granos de arena en todas las playas de la Tierra.", "img": "galaxy"},
+            _f("Hay más estrellas en el universo que granos de arena en toda la Tierra. Son tantas que, si contaras una por segundo, tardarías más que la edad del universo en terminar.", "galaxy", "stars night sky"),
             _T(),
-            {"kind": "fact", "text": "Los koalas tienen huellas dactilares casi idénticas a las de los humanos.", "img": "koala"},
-            {"kind": "fact", "text": "La Torre Eiffel puede medir quince centímetros más en verano por el calor.", "img": "eiffel tower"},
-            {"kind": "fact", "text": "Las abejas son capaces de reconocer rostros humanos.", "img": "bee"},
-            {"kind": "fact", "text": "La luz del Sol tarda ocho minutos en llegar hasta la Tierra.", "img": "sun"},
-            {"kind": "fact", "text": "El plátano es levemente radiactivo por su potasio. Seguime para la parte tres.", "img": "banana"},
+            _f("Los koalas tienen huellas dactilares casi idénticas a las nuestras. Son tan parecidas que, bajo un microscopio, hasta un experto podría confundirlas con huellas humanas.", "koala", "koala tree"),
+            _f("La Torre Eiffel crece en verano. El calor dilata el metal y la torre puede medir hasta quince centímetros más alta que en invierno, cuando el frío la encoge de nuevo.", "eiffel tower", "paris"),
+            _f("Las abejas pueden reconocer caras humanas. Combinan los rasgos como si armaran un rompecabezas, la misma técnica que usamos nosotros, aunque su cerebro es más chico que una semilla.", "bee", "honeybee flower"),
+            _f("El plátano es levemente radiactivo por su potasio. Es tan poco que necesitarías comer millones de golpe para que sea un problema. Seguime para la parte tres.", "banana", "bananas"),
         ],
     },
     3: {
-        "resumen": ("los tardígrados que sobreviven en el espacio, Cleopatra más cerca del iPhone "
+        "resumen": ("los tardígrados que sobreviven en el espacio, Cleopatra más cerca de la Luna "
                     "que de las pirámides, por qué los flamencos son rosados, el planeta donde "
                     "llueve vidrio y cuánto ADN compartimos con un plátano"),
         "segments": [
-            {"kind": "fact", "text": "Los tardígrados pueden sobrevivir en el vacío del espacio exterior.", "img": "tardigrade"},
+            _f("Los tardígrados pueden sobrevivir en el espacio exterior. Estos bichos microscópicos aguantan el vacío, la radiación y el frío extremo. Los mandaron al espacio sin traje y volvieron vivos.", "tardigrade", "microscope"),
             _T(),
-            {"kind": "fact", "text": "Cleopatra vivió más cerca en el tiempo del primer iPhone que de las pirámides.", "img": "pyramids egypt"},
-            {"kind": "fact", "text": "Los flamencos nacen grises y se vuelven rosados por lo que comen.", "img": "flamingo"},
-            {"kind": "fact", "text": "Existe un planeta donde llueve vidrio derretido de costado.", "img": "planet space"},
-            {"kind": "fact", "text": "Compartimos alrededor del sesenta por ciento de nuestro ADN con un plátano.", "img": "dna"},
-            {"kind": "fact", "text": "Napoleón no era bajo: medía la altura promedio de su época. Seguime para la parte cuatro.", "img": "napoleon"},
+            _f("Cleopatra vivió más cerca de la llegada a la Luna que de la construcción de las pirámides. Para ella, las pirámides ya eran ruinas antiquísimas. La historia es larguísima.", "pyramids egypt", "egypt"),
+            _f("Los flamencos nacen grises, no rosados. Se vuelven rosados por lo que comen: camarones y algas con pigmentos que tiñen sus plumas. Si dejaran de comerlos, volverían a ser pálidos.", "flamingo", "flamingos"),
+            _f("Existe un planeta donde llueve vidrio de costado. Sus vientos superan los siete mil kilómetros por hora y lanzan partículas de vidrio fundido en horizontal.", "exoplanet", "planet space"),
+            _f("Compartís más de la mitad de tu ADN con un plátano. Aunque no se parezcan en nada, gran parte de las instrucciones básicas de la vida son iguales en casi todos los seres. Seguime para la parte cuatro.", "dna", "banana"),
         ],
     },
     4: {
-        "resumen": ("los átomos de una gota de agua, los delfines que se ponen nombres, "
-                    "el Everest que crece cada año, las nutrias que duermen de la mano, "
-                    "los gatos que no sienten lo dulce y cuál es el planeta más caliente"),
+        "resumen": ("los átomos de una cucharada de agua, los delfines que se ponen nombres, la "
+                    "montaña más alta de verdad, las nutrias que duermen de la mano y cuál es el "
+                    "planeta más caliente"),
         "segments": [
-            {"kind": "fact", "text": "Hay más átomos en una cucharada de agua que estrellas en todo el universo observable.", "img": "water drop"},
+            _f("Hay más átomos en una cucharada de agua que estrellas en todo el universo observable. Los átomos son tan minúsculos que su número es imposible de imaginar.", "water drop", "galaxy"),
             _T(),
-            {"kind": "fact", "text": "Los delfines se ponen nombres y se llaman entre sí con silbidos únicos.", "img": "dolphin"},
-            {"kind": "fact", "text": "El monte Everest crece unos milímetros cada año.", "img": "mount everest"},
-            {"kind": "fact", "text": "Las nutrias se toman de las manos al dormir para no separarse.", "img": "otter"},
-            {"kind": "fact", "text": "Los gatos no pueden sentir el sabor dulce.", "img": "cat"},
-            {"kind": "fact", "text": "El planeta más caliente es Venus, no Mercurio. Seguime para la parte cinco.", "img": "venus planet"},
+            _f("Los delfines se ponen nombres. Cada uno inventa un silbido único para sí mismo, y los demás lo usan para llamarlo, igual que un nombre propio entre nosotros.", "dolphin", "dolphins ocean"),
+            _f("El Everest no es la montaña más alta si medís desde la base. El volcán Mauna Kea, en Hawái, es más alto, pero casi todo su cuerpo está bajo el agua.", "mount everest", "mountain"),
+            _f("Las nutrias duermen tomadas de la mano. Lo hacen para no separarse con la corriente mientras flotan, y a veces se envuelven en algas como si fueran un cinturón.", "otter", "sea otter"),
+            _f("El planeta más caliente no es Mercurio, es Venus. Su atmósfera atrapa tanto calor que supera los cuatrocientos grados, suficiente para derretir plomo. Seguime para la parte cinco.", "venus planet", "planet"),
         ],
     },
     5: {
-        "resumen": ("el estómago que se renueva para no digerirse, los pulpos que saborean con "
-                    "los brazos, el esmalte dental, las más de cien lunas de Saturno, los "
-                    "pingüinos que regalan piedras y los millones de colores que ve el ojo"),
+        "resumen": ("por qué el estómago no se digiere a sí mismo, los pulpos que saborean con los "
+                    "brazos, el material más duro del cuerpo, las lunas de Saturno y los pingüinos "
+                    "que regalan piedras"),
         "segments": [
-            {"kind": "fact", "text": "Tu estómago genera una capa nueva cada pocos días para no digerirse a sí mismo.", "img": "stomach anatomy"},
+            _f("Tu estómago fabrica una capa nueva cada pocos días para no digerirse a sí mismo. Sus ácidos podrían disolver metal, pero una capa de moco lo protege por dentro.", "stomach anatomy", "human body"),
             _T(),
-            {"kind": "fact", "text": "Los pulpos pueden sentir el sabor con sus brazos.", "img": "octopus"},
-            {"kind": "fact", "text": "El material más duro de tu cuerpo es el esmalte de los dientes.", "img": "teeth"},
-            {"kind": "fact", "text": "Saturno tiene más de cien lunas.", "img": "saturn planet"},
-            {"kind": "fact", "text": "Los pingüinos le regalan piedras a su pareja.", "img": "penguin"},
-            {"kind": "fact", "text": "El ojo humano puede distinguir unos diez millones de colores. Seguime para la parte seis.", "img": "human eye"},
+            _f("Los pulpos saborean con los brazos. Cada ventosa tiene receptores de gusto, así que literalmente prueban todo lo que tocan sin llevárselo a la boca.", "octopus", "octopus tentacles"),
+            _f("El esmalte de tus dientes es el material más duro de tu cuerpo, más que el hueso. Pero, a diferencia de los huesos, no se regenera: lo que se rompe no vuelve.", "teeth", "dentist"),
+            _f("Saturno tiene más de cien lunas confirmadas. Le ganó a Júpiter como el planeta con más lunas, y todavía siguen descubriendo nuevas cada año.", "saturn planet", "saturn rings"),
+            _f("Los pingüinos le regalan piedras a su pareja. El macho busca la piedra más lisa y perfecta y se la ofrece; si la acepta, forman pareja. Seguime para la parte seis.", "penguin", "penguins"),
         ],
     },
     6: {
-        "resumen": ("los millones de rayos que caen por día, las vacas que tienen mejores amigas, "
-                    "el Sol que es casi toda la masa del sistema solar, los caracoles que duermen "
-                    "años, más árboles que estrellas en la galaxia y cuánto late tu corazón"),
+        "resumen": ("cuántos rayos caen por día, las vacas que tienen mejores amigas, el peso del "
+                    "Sol, los caracoles que duermen años y por qué hay más árboles que estrellas en "
+                    "la galaxia"),
         "segments": [
-            {"kind": "fact", "text": "En la Tierra caen unos ocho millones de rayos por día.", "img": "lightning"},
+            _f("En la Tierra caen unos ocho millones de rayos por día. Eso es casi cien rayos por segundo golpeando el planeta en algún lado, todo el tiempo, sin parar.", "lightning", "storm"),
             _T(),
-            {"kind": "fact", "text": "Las vacas tienen mejores amigas y se estresan si las separan.", "img": "cow"},
-            {"kind": "fact", "text": "El Sol representa el noventa y nueve por ciento de la masa de todo el sistema solar.", "img": "sun"},
-            {"kind": "fact", "text": "Algunos caracoles pueden dormir hasta tres años seguidos.", "img": "snail"},
-            {"kind": "fact", "text": "Hay más árboles en la Tierra que estrellas en la Vía Láctea.", "img": "forest"},
-            {"kind": "fact", "text": "Tu corazón late unas cien mil veces por día. Seguime para la parte siete.", "img": "heart"},
+            _f("Las vacas tienen mejores amigas. Forman vínculos fuertes con otras vacas y su corazón se estresa si las separan, igual que a nosotros cuando extrañamos a alguien.", "cow", "cows field"),
+            _f("El Sol es el noventa y nueve por ciento de toda la masa del sistema solar. Todo lo demás, los ocho planetas juntos, es apenas el uno por ciento que sobró.", "sun", "solar system"),
+            _f("Algunos caracoles pueden dormir hasta tres años seguidos. Cuando el clima es muy seco, se encierran en su caparazón y bajan tanto su cuerpo que parecen muertos.", "snail", "snail shell"),
+            _f("Hay más árboles en la Tierra que estrellas en la Vía Láctea. Se calculan unos tres billones de árboles, muchísimos más que las estrellas de nuestra galaxia. Seguime para la parte siete.", "forest", "trees"),
         ],
     },
     7: {
-        "resumen": ("el volcán gigante de Marte, los elefantes que no pueden saltar, el billón de "
-                    "olores que recuerda tu nariz, el mito de la Muralla China desde el espacio, "
-                    "los pulpos que abren frascos y cuánto dura un año en Neptuno"),
+        "resumen": ("el volcán gigante de Marte, por qué los elefantes no saltan, el billón de "
+                    "olores que recordás, el mito de la Muralla China y cuánto dura un año en "
+                    "Neptuno"),
         "segments": [
-            {"kind": "fact", "text": "Marte tiene el volcán más grande del sistema solar: tres veces el Everest.", "img": "mars planet"},
+            _f("Marte tiene el volcán más grande del sistema solar. El Monte Olimpo es tres veces más alto que el Everest y tan ancho como un país entero.", "mars planet", "volcano"),
             _T(),
-            {"kind": "fact", "text": "Los elefantes son los únicos animales que no pueden saltar.", "img": "elephant"},
-            {"kind": "fact", "text": "Tu nariz puede recordar más de un billón de olores distintos.", "img": "nose"},
-            {"kind": "fact", "text": "La Gran Muralla China no se ve a simple vista desde el espacio.", "img": "great wall china"},
-            {"kind": "fact", "text": "Los pulpos son tan inteligentes que abren frascos desde adentro.", "img": "octopus"},
-            {"kind": "fact", "text": "Un año en Neptuno dura ciento sesenta y cinco años terrestres. Seguime para la parte ocho.", "img": "neptune planet"},
+            _f("Los elefantes son los únicos animales que no pueden saltar. Su enorme peso y la forma de sus patas hacen que nunca despeguen las cuatro del suelo a la vez.", "elephant", "elephants"),
+            _f("Tu nariz puede recordar más de un billón de olores. Cada aroma queda grabado con una emoción, por eso un olor puede transportarte de golpe a un recuerdo de la infancia.", "nose", "perfume"),
+            _f("La Gran Muralla China no se ve desde el espacio a simple vista. Es larguísima, pero demasiado angosta para distinguirla sin ayuda desde la órbita. Es un mito famoso.", "great wall china", "china"),
+            _f("Un año en Neptuno dura ciento sesenta y cinco años terrestres. Está tan lejos del Sol que, desde que lo descubrimos, recién completó una vuelta hace poco. Seguime para la parte ocho.", "neptune planet", "planet space"),
         ],
     },
     8: {
-        "resumen": ("la medusa inmortal, los mapaches que lavan la comida, el tamaño de Júpiter, "
-                    "las jirafas que casi no duermen, cuánta saliva generás en la vida y cuál es "
-                    "el animal más letal del mundo"),
+        "resumen": ("la medusa inmortal, el tamaño de Júpiter, por qué las jirafas casi no duermen, "
+                    "el animal más letal del mundo y cuánta saliva generás en la vida"),
         "segments": [
-            {"kind": "fact", "text": "Existe una medusa que puede rejuvenecer y volverse biológicamente inmortal.", "img": "jellyfish"},
+            _f("Existe una medusa biológicamente inmortal. Cuando envejece o se lastima, puede volver a su etapa de bebé y empezar de nuevo, repitiendo el ciclo, en teoría, para siempre.", "jellyfish", "jellyfish ocean"),
             _T(),
-            {"kind": "fact", "text": "Los mapaches suelen lavar su comida antes de comerla.", "img": "raccoon"},
-            {"kind": "fact", "text": "En Júpiter cabrían más de mil planetas Tierra adentro.", "img": "jupiter planet"},
-            {"kind": "fact", "text": "Las jirafas duermen menos de dos horas por día.", "img": "giraffe"},
-            {"kind": "fact", "text": "A lo largo de tu vida vas a generar saliva suficiente para llenar dos piscinas.", "img": "swimming pool"},
-            {"kind": "fact", "text": "El animal más letal del mundo para los humanos es el mosquito. Seguime para la parte nueve.", "img": "mosquito"},
+            _f("En Júpiter cabrían más de mil planetas Tierra adentro. Es tan gigante que su Gran Mancha Roja, una sola tormenta, es más grande que todo nuestro planeta.", "jupiter planet", "jupiter"),
+            _f("Las jirafas duermen menos de dos horas por día, muchas veces paradas y en siestas de pocos minutos, porque echarse las deja indefensas ante los depredadores.", "giraffe", "giraffes"),
+            _f("El animal más letal del mundo es el mosquito. Mata a más humanos por año que cualquier otro, por las enfermedades que transmite, más que tiburones y serpientes juntos.", "mosquito", "mosquito macro"),
+            _f("A lo largo de tu vida vas a producir saliva suficiente para llenar dos piscinas. Trabaja todo el día sin que lo notes, ayudándote a tragar y a sentir los sabores. Seguime para la parte nueve.", "swimming pool", "water"),
         ],
     },
     9: {
-        "resumen": ("la Luna que se aleja cada año, los gatos que duermen casi toda su vida, el "
-                    "Sahara que fue verde, las microsiestas de las hormigas, la lluvia de diamantes "
-                    "en los gigantes gaseosos y el corazón del colibrí"),
+        "resumen": ("la Luna que se aleja, los gatos que duermen casi toda su vida, el Sahara que "
+                    "fue verde, la lluvia de diamantes en los gigantes gaseosos y el corazón del "
+                    "colibrí"),
         "segments": [
-            {"kind": "fact", "text": "La Luna se aleja de la Tierra unos cuatro centímetros cada año.", "img": "moon"},
+            _f("La Luna se aleja de la Tierra unos cuatro centímetros por año. Dentro de millones de años los días serán más largos y ya no habrá eclipses totales de Sol como hoy.", "moon", "full moon"),
             _T(),
-            {"kind": "fact", "text": "Los gatos pasan cerca del setenta por ciento de su vida durmiendo.", "img": "cat sleeping"},
-            {"kind": "fact", "text": "El desierto del Sahara alguna vez fue verde y estuvo lleno de lagos.", "img": "sahara desert"},
-            {"kind": "fact", "text": "Las hormigas no duermen como nosotros: hacen cientos de microsiestas.", "img": "ant"},
-            {"kind": "fact", "text": "En Júpiter y Saturno probablemente llueven diamantes.", "img": "saturn planet"},
-            {"kind": "fact", "text": "El corazón de un colibrí late más de mil veces por minuto. Seguime para la parte diez.", "img": "hummingbird"},
+            _f("Los gatos pasan cerca del setenta por ciento de su vida durmiendo. Un gato de nueve años estuvo despierto solo unos tres. Duermen tanto para ahorrar energía de cazador.", "cat sleeping", "cat"),
+            _f("El desierto del Sahara fue verde hace pocos miles de años. Estaba lleno de lagos, ríos y animales, y hay pinturas rupestres que lo prueban. El clima lo convirtió en arena.", "sahara desert", "desert"),
+            _f("En Júpiter y Saturno probablemente llueven diamantes. Sus tormentas convierten el carbono en diamante, que cae como granizo brillante a través de la atmósfera.", "saturn planet", "diamond"),
+            _f("El corazón de un colibrí late más de mil veces por minuto. Vive tan acelerado que debe comer casi cada diez minutos o no sobrevive. Seguime para la parte diez.", "hummingbird", "hummingbird flower"),
         ],
     },
     10: {
-        "resumen": ("los dos billones de galaxias, los koalas que duermen casi todo el día, el "
-                    "océano más profundo que el Everest, las alas de las abejas, el carbono de tu "
-                    "cuerpo y lo lejos que está la estrella más cercana"),
+        "resumen": ("los dos billones de galaxias, lo poco que conocemos del océano, los koalas "
+                    "dormilones, las alas de las abejas y lo lejos que está la estrella más cercana"),
         "segments": [
-            {"kind": "fact", "text": "El universo tiene más de dos billones de galaxias.", "img": "galaxy"},
+            _f("El universo tiene más de dos billones de galaxias, y cada una tiene miles de millones de estrellas. Los números son tan grandes que el cerebro no los puede imaginar.", "galaxy", "galaxies space"),
             _T(),
-            {"kind": "fact", "text": "Los koalas pueden dormir hasta veintidós horas por día.", "img": "koala"},
-            {"kind": "fact", "text": "El punto más profundo del océano es más hondo que la altura del Everest.", "img": "deep ocean"},
-            {"kind": "fact", "text": "Las abejas baten sus alas más de doscientas veces por segundo.", "img": "bee"},
-            {"kind": "fact", "text": "Tu cuerpo tiene suficiente carbono para fabricar unos novecientos lápices.", "img": "pencils"},
-            {"kind": "fact", "text": "La luz del Sol tarda ocho minutos en llegar, pero la de la estrella más cercana, cuatro años. Seguime, que esto sigue.", "img": "stars night sky"},
+            _f("Conocemos mejor la Luna que el fondo de nuestros océanos. Más del ochenta por ciento del mar sigue inexplorado; hay mejores mapas de Marte que del fondo marino.", "deep ocean", "underwater"),
+            _f("Los koalas duermen hasta veintidós horas por día. Sus hojas de eucalipto son casi tóxicas y dan poquísima energía, así que dormir es su forma de sobrevivir.", "koala", "koala sleeping"),
+            _f("Las abejas baten sus alas más de doscientas veces por segundo. Por eso zumban, y por eso pueden volar cargando néctar que pesa casi como ellas.", "bee", "bee flying"),
+            _f("La luz del Sol tarda ocho minutos en llegar, pero la de la estrella más cercana tarda cuatro años. Si el Sol se apagara, lo sabríamos ocho minutos después. Seguime, que hay muchas más.", "stars night sky", "sun space"),
         ],
     },
 }
