@@ -43,6 +43,7 @@ def generate(
     music: str = "music/monkeys_spinning_monkeys.mp3",
     sfx: str = "sfx/whoosh.wav",
     title_meta: str | None = None,
+    description: str | None = None,
     hashtags: list[str] | None = None,
     verbose: bool = True,
 ) -> Path:
@@ -180,8 +181,11 @@ def generate(
 
     # 5) Metadatos (+ crédito música)
     tags = hashtags or ["#shorts", "#curiosidades", "#datoscuriosos", "#sabiasque", "#viral"]
-    facts_txt = " ".join(s["text"] for s in segments if s["kind"] == "fact")
-    desc = facts_txt[:350] + "\n\n" + " ".join(tags)
+    if description:
+        desc = description
+    else:
+        facts_txt = " ".join(s["text"] for s in segments if s["kind"] == "fact")
+        desc = facts_txt[:350] + "\n\n" + " ".join(tags)
     credit = _music_credit()
     if credit:
         desc += "\n\n" + credit
