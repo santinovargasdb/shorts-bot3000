@@ -43,14 +43,16 @@ def _log(msg: str) -> None:
 
 def _load_state() -> dict:
     s = {"youtube": {"next_part": 1, "posted": []},
-         "instagram": {"next_part": 1, "posted": []}}
+         "instagram": {"next_part": 1, "posted": []},
+         "tiktok": {"next_part": 1, "posted": []}}
     if STATE.exists():
         old = json.loads(STATE.read_text(encoding="utf-8"))
         if "next_part" in old:            # migrar formato viejo (solo YouTube)
             s["youtube"]["next_part"] = old["next_part"]
             s["youtube"]["posted"] = old.get("posted", [])
         else:
-            s.update(old)
+            for k, v in old.items():
+                s.setdefault(k, {"next_part": 1, "posted": []}).update(v)
     return s
 
 
@@ -128,6 +130,33 @@ def do_instagram(state: dict) -> None:
     _log(f"[IG] ✅ Parte {part}: Reel {media_id}")
 
 
+def do_tiktok(state: dict) -> None:
+    """Sube la próxima parte a los BORRADORES de TikTok (el usuario la publica
+    en la app con 2 toques). Misma sincronización que IG: no se adelanta a YT."""
+    from uploaders.tiktok_upload import TOKEN_FILE
+    if not TOKEN_FILE.exists():
+        _log("[TT] No configurado (sin token), lo salteo.")
+        return
+    part = state["tiktok"]["next_part"]
+    if part >= state["youtube"]["next_part"]:
+        _log(f"[TT] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
+        return
+    if part not in PARTS:
+        _log(f"[TT] No hay parte {part} en el backlog. Agregá más partes.")
+        return
+    video = _ensure_video(part)
+    try:
+        from uploaders.tiktok_upload import upload_draft
+        _log(f"[TT] Subiendo parte {part} a borradores...")
+        publish_id = upload_draft(video)
+    except Exception as e:
+        _log(f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
+        return
+    state["tiktok"]["next_part"] = part + 1
+    state["tiktok"]["posted"].append({"part": part, "publish_id": publish_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    _log(f"[TT] ✅ Parte {part} en borradores de TikTok (publicala desde la app).")
+
+
 def _in_env(key: str) -> bool:
     env = ROOT / ".env"
     if not env.exists():
@@ -155,6 +184,8 @@ def main() -> int:
         do_youtube(state)
     if only in (None, "ig"):
         do_instagram(state)
+    if only in (None, "tt"):
+        do_tiktok(state)
     _save_state(state)
     return 0
 
