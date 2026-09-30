@@ -27,11 +27,10 @@ from .tts import synthesize
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _card(img: Path, out: Path, size: int = 760, border: int = 10) -> Path:
-    """Imagen -> tarjeta cuadrada con borde blanco (para el centro)."""
+def _card(img: Path, out: Path, size: int = 820) -> Path:
+    """Imagen -> cuadro centrado (sin marco), recortado a tamaño."""
     s = size
-    vf = (f"scale={s}:{s}:force_original_aspect_ratio=increase,crop={s}:{s},"
-          f"pad={s + 2 * border}:{s + 2 * border}:{border}:{border}:white,setsar=1")
+    vf = f"scale={s}:{s}:force_original_aspect_ratio=increase,crop={s}:{s},setsar=1"
     subprocess.run(["ffmpeg", "-y", "-i", str(img), "-vf", vf, "-frames:v", "1", str(out)],
                    capture_output=True, text=True, check=True)
     return out
@@ -42,7 +41,7 @@ def generate(
     channel_name: str = "faceless",
     background: str = "backgrounds/minecraft_parkour.mp4",
     music: str = "music/monkeys_spinning_monkeys.mp3",
-    sfx: str = "sfx/pop.wav",
+    sfx: str = "sfx/whoosh.wav",
     title_meta: str | None = None,
     hashtags: list[str] | None = None,
     verbose: bool = True,
@@ -126,16 +125,27 @@ def generate(
     pop_i = music_i + 1 if track else narr_i + 1
     cmd += ["-i", str(Path(sfx).resolve())]
 
-    # Video: fondo + overlays centrados con enable por ventana
+    # Video: fondo + overlays con animación corta de entrada/salida (deslizar+fundir)
+    AD, OFF = 0.18, 70   # duración de la animación (s) y desplazamiento (px)
     vparts = [f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
               f"setsar=1,eq=brightness=-0.12:saturation=1.1[bg]"]
+    # Preparar cada tarjeta: alpha + fundido de entrada/salida en su ventana
+    for k, f in enumerate(facts):
+        s, e2 = f["start"], f["end"] - AD
+        vparts.append(
+            f"[{k + 1}:v]format=yuva420p,fade=t=in:st={s:.3f}:d={AD}:alpha=1,"
+            f"fade=t=out:st={e2:.3f}:d={AD}:alpha=1[c{k}]")
+    # Encadenar overlays: se desliza hacia arriba al entrar y al salir (comillas
+    # simples protegen las comas de las expresiones)
     prev = "bg"
     for k, f in enumerate(facts):
-        lbl = f"o{k}"
+        s, e, e2 = f["start"], f["end"], f["end"] - AD
+        yexpr = (f"'(H-h)/2 + {OFF}*(1-min(1,max(0,(t-{s:.3f})/{AD}))) "
+                 f"- {OFF}*min(1,max(0,(t-{e2:.3f})/{AD}))'")
         vparts.append(
-            f"[{prev}][{k + 1}:v]overlay=(W-w)/2:(H-h)/2:"
-            f"enable='between(t,{f['start']:.3f},{f['end']:.3f})'[{lbl}]")
-        prev = lbl
+            f"[{prev}][c{k}]overlay=x=(W-w)/2:y={yexpr}:"
+            f"enable='between(t,{s:.3f},{e:.3f})'[o{k}]")
+        prev = f"o{k}"
     vparts.append(f"[{prev}]subtitles={ass.name}[v]")
 
     # Audio: voz + música baja + pops en cada aparición de imagen
