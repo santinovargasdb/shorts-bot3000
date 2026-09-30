@@ -27,7 +27,20 @@ from .tts import synthesize
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _card(img: Path, out: Path, size: int = 720) -> Path:
+def _tighten(audio: Path) -> Path:
+    """Acorta las pausas largas de la voz (los puntos meten ~1s de silencio) a
+    ~0.2s para que el guion fluya como oración corrida (feedback de audiencia).
+    También recorta el silencio inicial. Mantiene la entonación natural."""
+    out = audio.with_name(audio.stem + "_t.m4a")
+    af = ("silenceremove=start_periods=1:start_duration=0:start_threshold=-45dB:"
+          "stop_periods=-1:stop_duration=0.30:stop_threshold=-40dB:stop_silence=0.20")
+    subprocess.run(["ffmpeg", "-y", "-i", str(audio), "-af", af,
+                    "-c:a", "aac", "-b:a", "160k", str(out)],
+                   capture_output=True, text=True, check=True)
+    return out
+
+
+def _card(img: Path, out: Path, size: int = 620) -> Path:
     """Imagen -> cuadro centrado (sin marco), recortado a tamaño."""
     s = size
     vf = f"scale={s}:{s}:force_original_aspect_ratio=increase,crop={s}:{s},setsar=1"
@@ -67,8 +80,9 @@ def generate(
     segs: list[dict] = []
     t = 0.0
     for i, seg in enumerate(segments):
-        a = work / f"a_{i:02d}.mp3"
-        synthesize(seg["text"], a, voice=voice, rate=rate)
+        a_raw = work / f"a_{i:02d}.mp3"
+        synthesize(seg["text"], a_raw, voice=voice, rate=rate)
+        a = _tighten(a_raw)          # pausas de puntos ~1s -> ~0.2s (fluidez)
         d = _audio_dur(a)
         audio_files.append(a)
         info = {"kind": seg["kind"], "start": t, "end": t + d}
@@ -155,6 +169,7 @@ def generate(
 
     # Video: fondo + overlays con animación corta de entrada/salida (deslizar+fundir)
     AD, OFF = 0.18, 70   # duración de la animación (s) y desplazamiento (px)
+    Y_TOP = 210          # imagen arriba-centrada: no tapa el gameplay del centro
     vparts = [f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
               f"setsar=1,eq=brightness=-0.12:saturation=1.1[bg]"]
     # Preparar cada tarjeta: alpha + fundido de entrada/salida en su ventana
@@ -168,7 +183,7 @@ def generate(
     prev = "bg"
     for k, ev in enumerate(events):
         s, e, e2 = ev["start"], ev["end"], ev["end"] - AD
-        yexpr = (f"'(H-h)/2 + {OFF}*(1-min(1,max(0,(t-{s:.3f})/{AD}))) "
+        yexpr = (f"'{Y_TOP} + {OFF}*(1-min(1,max(0,(t-{s:.3f})/{AD}))) "
                  f"- {OFF}*min(1,max(0,(t-{e2:.3f})/{AD}))'")
         vparts.append(
             f"[{prev}][c{k}]overlay=x=(W-w)/2:y={yexpr}:"
