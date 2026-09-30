@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>TikTok OAuth — en60segundos-bot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: system-ui, sans-serif; background:#0f1117; color:#eee;
+         display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+  .card { background:#1b1e27; padding:2rem 2.5rem; border-radius:14px; max-width:640px; }
+  h1 { font-size:1.2rem; margin-top:0; }
+  code { display:block; background:#0f1117; border:1px solid #333; padding:.8rem 1rem;
+         border-radius:8px; word-break:break-all; font-size:.95rem; margin:.8rem 0; }
+  button { background:#fe2c55; color:#fff; border:0; padding:.6rem 1.2rem;
+           border-radius:8px; font-size:1rem; cursor:pointer; }
+  .ok { color:#6f6; } .err { color:#f66; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🔑 Autorización de TikTok</h1>
+  <div id="content">Leyendo respuesta…</div>
+</div>
+<script>
+  const p = new URLSearchParams(location.search);
+  const code = p.get("code");
+  const err = p.get("error");
+  const el = document.getElementById("content");
+  if (code) {
+    el.innerHTML = '<p class="ok">✅ Autorización exitosa. Copiá este código y pegáselo a Claude:</p>' +
+      '<code id="c">' + code + '</code>' +
+      '<button onclick="navigator.clipboard.writeText(document.getElementById(\'c\').innerText)">Copiar código</button>';
+  } else if (err) {
+    el.innerHTML = '<p class="err">❌ Error: ' + err + '</p><p>' + (p.get("error_description") || "") + '</p>';
+  } else {
+    el.innerHTML = '<p>Esta página recibe la redirección del OAuth de TikTok. No hay código en la URL.</p>';
+  }
+</script>
+</body>
+</html>
