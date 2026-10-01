@@ -16,6 +16,7 @@ def test_estructura_episodios():
             assert s["kind"] == "fact"
             assert s["text"].strip()
             assert s["imgs"], f"ep {n}: momento sin imágenes"
+            assert len(s["imgs"]) >= 2, f"ep {n}: momento con menos de 2 imágenes"
         palabras = sum(len(s["text"].split()) for s in segs)
         assert 100 <= palabras <= 165, f"ep {n}: {palabras} palabras (45-58s)"
 
