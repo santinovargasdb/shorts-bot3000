@@ -27,9 +27,9 @@
   const err = p.get("error");
   const el = document.getElementById("content");
   if (code) {
-    el.innerHTML = '<p class="ok">✅ Autorización exitosa. Copiá este código y pegáselo a Claude:</p>' +
+    el.innerHTML = '<p class="ok">✅ Authorization successful. Copy this code and paste it into the app to finish connecting your TikTok account:</p>' +
       '<code id="c">' + code + '</code>' +
-      '<button onclick="navigator.clipboard.writeText(document.getElementById(\'c\').innerText)">Copiar código</button>';
+      '<button onclick="navigator.clipboard.writeText(document.getElementById(\'c\').innerText)">Copy code</button>';
   } else if (err) {
     el.innerHTML = '<p class="err">❌ Error: ' + err + '</p><p>' + (p.get("error_description") || "") + '</p>';
   } else {

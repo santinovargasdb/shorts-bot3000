@@ -47,7 +47,9 @@ def main() -> None:
     print("Opening the TikTok authorization page in the browser.")
     print("The account owner logs in and reviews the requested permissions.")
     time.sleep(3)
-    webbrowser.open(auth_url())
+    # disable_auto_auth=1 fuerza la pantalla de consentimiento aunque la cuenta
+    # ya haya autorizado antes (clave para que el demo muestre el botón Authorize)
+    webbrowser.open(auth_url() + "&disable_auto_auth=1")
 
     banner("STEP 2/5", "Exchange the authorization code for an access token")
     code = input("Paste the authorization code shown on the redirect page: ").strip()
@@ -102,7 +104,7 @@ def main() -> None:
     print("[OK] File uploaded to TikTok.")
 
     banner("STEP 5/5", "Check the publish status via the API")
-    for _ in range(10):
+    for _ in range(36):               # hasta ~3 min: el video debe terminar en éxito
         st = requests.post(STATUS_URL, headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json; charset=UTF-8",
@@ -110,8 +112,12 @@ def main() -> None:
         status = st.get("data", {}).get("status")
         print(f"  status: {status}")
         if status == "SEND_TO_USER_INBOX":
+            print("  -> The video reached the user's TikTok inbox.")
             break
-        time.sleep(3)
+        if status and "FAILED" in status:
+            print(f"  -> Upload failed: {st.get('data')}")
+            break
+        time.sleep(5)
 
     print()
     print("[DONE] The video is now in the user's TikTok inbox notifications.")
