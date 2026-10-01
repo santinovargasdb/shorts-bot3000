@@ -1,0 +1,35 @@
+import series_misterios as sm
+
+
+def test_diez_misterios():
+    assert set(sm.MISTERIOS) == set(range(1, 11))
+    assert sm.PARTS is sm.MISTERIOS
+
+
+def test_estructura_episodios():
+    for n, ep in sm.MISTERIOS.items():
+        assert ep["titulo"], f"ep {n} sin título"
+        assert ep["resumen"], f"ep {n} sin resumen"
+        segs = ep["segments"]
+        assert 4 <= len(segs) <= 7, f"ep {n}: {len(segs)} segmentos"
+        for s in segs:
+            assert s["kind"] == "fact"
+            assert s["text"].strip()
+            assert s["imgs"], f"ep {n}: momento sin imágenes"
+            assert len(s["imgs"]) >= 2, f"ep {n}: momento con menos de 2 imágenes"
+        palabras = sum(len(s["text"].split()) for s in segs)
+        assert 100 <= palabras <= 165, f"ep {n}: {palabras} palabras (fuera de 100-165)"
+
+
+def test_interfaz_serie():
+    assert sm.MISTERIOS[1]["titulo"] in sm.title_for(1)
+    assert "Misterios en 60 Segundos" in sm.title_for(1)
+    assert sm.background_for(1).startswith("backgrounds/")
+    assert sm.KEYWORDS
+    desc = sm.descripcion(1, "resumen de prueba")
+    assert "1" in desc or "misterio" in desc.lower()
+
+
+def test_remate_invita_a_seguir():
+    for n, ep in sm.MISTERIOS.items():
+        assert "eguime" in ep["segments"][-1]["text"], f"ep {n} sin CTA de seguir"
