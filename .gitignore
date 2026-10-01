@@ -31,3 +31,4 @@ venv/
 # Sistema
 .DS_Store
 Thumbs.db
+demo_log.txt

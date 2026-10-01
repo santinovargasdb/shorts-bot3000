@@ -37,6 +37,22 @@ DIRECT_VIDEO = ROOT / "output" / "faceless" / "7_datos_que_no_sab_as.mp4"
 DEFAULT_TITLE = "Did you know? 5 facts in 60 seconds #facts #learnontiktok"
 
 
+class _Tee:
+    """Duplica stdout/stderr a demo_log.txt para poder diagnosticar una toma
+    aunque la grabación pierda los últimos segundos."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, s):
+        for st in self.streams:
+            st.write(s)
+
+    def flush(self):
+        for st in self.streams:
+            st.flush()
+
+
 def banner(step: str, title: str) -> None:
     print()
     print("=" * 62)
@@ -187,4 +203,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    _log = open(ROOT / "demo_log.txt", "w", encoding="utf-8")
+    sys.stdout = _Tee(sys.stdout, _log)
+    sys.stderr = _Tee(sys.stderr, _log)
     main()

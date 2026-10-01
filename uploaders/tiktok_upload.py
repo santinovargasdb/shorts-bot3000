@@ -8,6 +8,7 @@ Comandos:
   python -m uploaders.tiktok_upload auth            # imprime la URL para autorizar
   python -m uploaders.tiktok_upload code <CODE>     # canjea el código por tokens
   python -m uploaders.tiktok_upload upload <video>  # sube un mp4 a borradores
+  python -m uploaders.tiktok_upload publish <video> [titulo]  # direct post PRIVADO (test)
   python -m uploaders.tiktok_upload status <id>     # consulta estado de una subida
 
 Credenciales en .env: TIKTOK_CLIENT_KEY, TIKTOK_CLIENT_SECRET, TIKTOK_REDIRECT_URI.
@@ -229,6 +230,17 @@ if __name__ == "__main__":
         exchange_code(sys.argv[2])
     elif cmd == "upload":
         upload_draft(sys.argv[2])
+    elif cmd == "publish":
+        _title = sys.argv[3] if len(sys.argv) > 3 else "Test direct post (private)"
+        _pid = publish_direct(sys.argv[2], title=_title, privacy_level="SELF_ONLY")
+        for _ in range(24):
+            _st = fetch_status(_pid)
+            _s = _st.get("data", {}).get("status")
+            print(f"  status: {_s}")
+            if _s == "PUBLISH_COMPLETE" or (_s and "FAILED" in _s):
+                print(json.dumps(_st.get("data", {}), indent=2))
+                break
+            time.sleep(5)
     elif cmd == "status":
         print(json.dumps(fetch_status(sys.argv[2]), indent=2))
     else:
