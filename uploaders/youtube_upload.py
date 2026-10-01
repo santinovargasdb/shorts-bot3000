@@ -6,7 +6,7 @@ Requisitos (una sola vez, ver setup_youtube_auth.md):
   3. La 1ª ejecución abre el navegador para autorizar y guarda secrets/token.json
 
 Uso:
-  python -m uploaders.youtube_upload output/streamers/test_source_clip01.mp4
+  python -m uploaders.youtube_upload <clip.mp4> [private|unlisted|public] [token_file]
 """
 from __future__ import annotations
 
@@ -104,7 +104,8 @@ def upload_from_folder(clip_path: Path | str, privacy: str = "private", token_fi
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Uso: python -m uploaders.youtube_upload <clip.mp4> [private|unlisted|public]")
+        print("Uso: python -m uploaders.youtube_upload <clip.mp4> [private|unlisted|public] [token_file]")
         raise SystemExit(1)
     priv = sys.argv[2] if len(sys.argv) > 2 else "private"
-    upload_from_folder(sys.argv[1], privacy=priv)
+    tok = sys.argv[3] if len(sys.argv) > 3 else None
+    upload_from_folder(sys.argv[1], privacy=priv, token_file=tok)

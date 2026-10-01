@@ -59,14 +59,31 @@ def _load_state() -> dict:
     return s
 
 
-def _save_state(s: dict) -> None:
-    STATE.write_text(json.dumps(s, ensure_ascii=False, indent=2), encoding="utf-8")
+def _write_atomic(path: Path, text: str) -> None:
+    """Escribe text en path de forma atómica (tmp hermano + os.replace)."""
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _save_state(state: dict, channel: str) -> None:
+    """Persiste SOLO la clave del canal, preservando las demás tal como están en disco."""
+    if STATE.exists():
+        fresh = json.loads(STATE.read_text(encoding="utf-8"))
+    else:
+        fresh = {}
+    fresh[channel] = state[channel]
+    _write_atomic(STATE, json.dumps(fresh, ensure_ascii=False, indent=2))
 
 
 def _ensure_video(part: int, ctx: dict, series) -> Path:
     """Devuelve el mp4 de la parte, generándolo si no existe."""
     from src.curiosidades import generate
     from src.faceless import _slug
+
+    if not (ROOT / ctx["music"]).exists():
+        _log(ctx, f"⚠️ Falta la pista {ctx['music']} — el video saldría sin música y con crédito equivocado. Abortando generación.")
+        raise FileNotFoundError(ctx["music"])
 
     title = series.title_for(part)
     video = ROOT / "output" / ctx["engine_channel"] / f"{_slug(title)}.mp4"
@@ -91,6 +108,9 @@ def _caption(video: Path) -> str:
 
 
 def do_youtube(st: dict, ctx: dict, series) -> None:
+    if ctx["yt_token"] is not None and not (ROOT / ctx["yt_token"]).exists():
+        _log(ctx, "[YT] No configurado (sin token), lo salteo.")
+        return
     part = st["youtube"]["next_part"]
     if part not in series.PARTS:
         _log(ctx, f"[YT] No hay parte {part} en el backlog. Agregá más partes.")
@@ -144,7 +164,7 @@ def _refresh_ig_token_env(st: dict, ctx: dict) -> None:
         if "access_token" in data:
             txt = re.sub(r"^IG_ACCESS_TOKEN=.+$", f"IG_ACCESS_TOKEN={data['access_token']}",
                          txt, flags=re.M)
-            env_path.write_text(txt, encoding="utf-8")
+            _write_atomic(env_path, txt)
             os.environ["IG_ACCESS_TOKEN"] = data["access_token"]
             st["instagram"]["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
             _log(ctx, f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
@@ -175,7 +195,7 @@ def _refresh_ig_token(st: dict, ctx: dict) -> None:
         if "access_token" in data:
             d["access_token"] = data["access_token"]
             d["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
-            f.write_text(json.dumps(d, indent=2), encoding="utf-8")
+            _write_atomic(f, json.dumps(d, indent=2))
             _log(ctx, f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
         else:
             _log(ctx, f"[IG] ⚠️  No se pudo renovar el token: {data}")
@@ -255,13 +275,25 @@ def _in_env(key: str) -> bool:
 def main() -> int:
     channel = "faceless"
     if "--channel" in sys.argv:
-        channel = sys.argv[sys.argv.index("--channel") + 1]
+        idx = sys.argv.index("--channel")
+        if idx + 1 >= len(sys.argv):
+            print("Error: --channel requiere un nombre de canal como argumento.")
+            return 1
+        channel = sys.argv[idx + 1]
     only = None
     if "--only" in sys.argv:
-        only = sys.argv[sys.argv.index("--only") + 1]
+        idx = sys.argv.index("--only")
+        if idx + 1 >= len(sys.argv):
+            print("Error: --only requiere un valor (yt, ig o tt) como argumento.")
+            return 1
+        only = sys.argv[idx + 1]
     dry = "--dry-run" in sys.argv
 
-    ctx = get_channel(channel)
+    try:
+        ctx = get_channel(channel)
+    except KeyError as e:
+        print(str(e))
+        return 1
     series = load_series(ctx)
     state = _load_state()
     st = state[channel]
@@ -280,7 +312,7 @@ def main() -> int:
         do_instagram(st, ctx, series)
     if "tt" in ctx["platforms"] and only in (None, "tt"):
         do_tiktok(st, ctx, series)
-    _save_state(state)
+    _save_state(state, channel)
     return 0
 
 
