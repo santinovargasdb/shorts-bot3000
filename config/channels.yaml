@@ -62,3 +62,18 @@ faceless:
   tts_voice: "es-MX-DaliaNeural"  # voz IA (edge-tts). Ver voces: python -m src.tts
   tts_rate: "+8%"                 # +% = más rápido (más retención en Shorts)
   legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."
+
+# -------------------------------------------------------------------------
+# CANAL NUEVO — Historia en 60 Segundos (faceless de datos históricos)
+# -------------------------------------------------------------------------
+historia:
+  display_name: "Historia en 60 Segundos"
+  whisper_model: "small"
+  crop_mode: "blur"
+  clips_per_source: 1
+  hook_text: ""
+  tts_voice: "es-MX-JorgeNeural"   # provisional: se confirma con muestras (plan Task 7)
+  tts_rate: "+4%"                  # relato un toque más pausado que el canal 1
+  caption:
+    highlight_color: "&H0000A5FF"  # dorado/ámbar para diferenciar el canal
+  legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."
