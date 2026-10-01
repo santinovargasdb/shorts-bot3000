@@ -83,8 +83,8 @@ MISTERIOS = {
                "la misma que los astrónomos sugerían para comunicarse con civilizaciones extraterrestres.",
                "sagittarius constellation", "hydrogen frequency spectrum"),
             _m("Desde entonces se buscó la señal decenas de veces, con los mejores telescopios del mundo. "
-               "Nada. En dos mil dieciséis se detectó una señal de HD 164595, pero luego se atribuyó "
-               "a interferencia terrestre, no a origen extraterrestre.",
+               "Nada. En dos mil dieciséis se detectó una señal parecida desde una estrella de la "
+               "constelación de Hércules, pero luego se atribuyó a interferencia terrestre.",
                "radio telescope array", "deep space exploration"),
             _m("No hay prueba de que sea extraterrestre, pero tampoco hay explicación natural que convenza "
                "a todos. La señal Wow! sigue siendo el candidato más serio al primer contacto. "
