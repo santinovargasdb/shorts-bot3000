@@ -85,7 +85,7 @@ def exchange_code(code: str) -> dict:
     data["obtained_at"] = int(time.time())
     TOKEN_FILE.parent.mkdir(exist_ok=True)
     TOKEN_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    print(f"✅ Token guardado. open_id={data.get('open_id', '?')} scope={data.get('scope')}")
+    print(f"[OK] Token guardado. open_id={data.get('open_id', '?')} scope={data.get('scope')}")
     return data
 
 
@@ -147,7 +147,7 @@ def upload_draft(video_path: Path | str) -> str:
         }, data=f.read(), timeout=300)
     if put.status_code not in (200, 201):
         raise RuntimeError(f"TikTok upload falló ({put.status_code}): {put.text[:300]}")
-    print(f"  ✅ Video en tus borradores de TikTok (revisá las notificaciones de la app).")
+    print("  [OK] Video en tus borradores de TikTok (revisá las notificaciones de la app).")
     return publish_id
 
 
@@ -205,7 +205,7 @@ def publish_direct(video_path: Path | str, title: str, privacy_level: str,
         }, data=f.read(), timeout=300)
     if put.status_code not in (200, 201):
         raise RuntimeError(f"TikTok upload falló ({put.status_code}): {put.text[:300]}")
-    print("  ✅ Video subido; TikTok lo está procesando para publicarlo.")
+    print("  [OK] Video subido; TikTok lo está procesando para publicarlo.")
     return publish_id
 
 
