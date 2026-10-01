@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-"""Job diario: publica la próxima parte de la serie en YouTube y en Instagram.
+"""Job diario multi-canal: publica la próxima parte del canal en sus plataformas.
 
-Cada plataforma lleva su propio contador (state), así una no bloquea a la otra
-(ej: si YouTube tocó el límite diario, Instagram igual postea).
-Genera el video si no existe. Pensado para correr desde el Programador de
-tareas de Windows (run_daily.bat), 2 veces por día.
+Cada canal (ver channels_registry.py) y cada plataforma llevan su propio
+contador, así una no bloquea a la otra. Genera el video si no existe.
+Pensado para el Programador de tareas de Windows (run_daily*.bat).
 
-  python daily_post.py            # postea en YouTube + Instagram
-  python daily_post.py --dry-run  # genera si falta, NO publica (para probar)
-  python daily_post.py --only yt  # o --only ig
+  python daily_post.py                       # canal 1 (faceless) — compatibilidad
+  python daily_post.py --channel historia    # canal 2
+  python daily_post.py --channel historia --dry-run
+  python daily_post.py --only yt             # o --only ig / --only tt
 """
 from __future__ import annotations
 
@@ -24,35 +24,38 @@ for _s in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-from series_data import KEYWORDS, PARTS, background_for, descripcion
-from src.curiosidades import generate
-from src.faceless import _slug
+from channels_registry import CHANNELS, get_channel, load_series
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "automation_state.json"
-OUT = ROOT / "output" / "faceless"
 
 # ─── Configuración ───────────────────────────────────────────────
 YT_PRIVACY = "public"     # "public" (auto viral) | "unlisted" | "private"
 # ─────────────────────────────────────────────────────────────────
 
+_PLATAFORMAS = ("youtube", "instagram", "tiktok")
 
-def _log(msg: str) -> None:
-    print(f"[{datetime.now():%Y-%m-%d %H:%M}] {msg}", flush=True)
+
+def _log(ctx: dict, msg: str) -> None:
+    print(f"[{datetime.now():%Y-%m-%d %H:%M}][{ctx['name']}] {msg}", flush=True)
+
+
+def _default_channel_state() -> dict:
+    return {p: {"next_part": 1, "posted": []} for p in _PLATAFORMAS}
 
 
 def _load_state() -> dict:
-    s = {"youtube": {"next_part": 1, "posted": []},
-         "instagram": {"next_part": 1, "posted": []},
-         "tiktok": {"next_part": 1, "posted": []}}
+    s = {name: _default_channel_state() for name in CHANNELS}
     if STATE.exists():
         old = json.loads(STATE.read_text(encoding="utf-8"))
-        if "next_part" in old:            # migrar formato viejo (solo YouTube)
-            s["youtube"]["next_part"] = old["next_part"]
-            s["youtube"]["posted"] = old.get("posted", [])
-        else:
-            for k, v in old.items():
-                s.setdefault(k, {"next_part": 1, "posted": []}).update(v)
+        if "youtube" in old:                 # formato plano viejo = canal 1
+            old = {"faceless": old}
+        if "next_part" in old:               # formato prehistórico (solo YT)
+            old = {"faceless": {"youtube": old}}
+        for canal, plats in old.items():
+            s.setdefault(canal, _default_channel_state())
+            for plat, v in plats.items():
+                s[canal].setdefault(plat, {"next_part": 1, "posted": []}).update(v)
     return s
 
 
@@ -60,19 +63,23 @@ def _save_state(s: dict) -> None:
     STATE.write_text(json.dumps(s, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _title(part: int) -> str:
-    return f"Datos para parecer inteligente pt. {part}"
-
-
-def _ensure_video(part: int) -> Path:
+def _ensure_video(part: int, ctx: dict, series) -> Path:
     """Devuelve el mp4 de la parte, generándolo si no existe."""
-    video = OUT / f"{_slug(_title(part))}.mp4"
+    from src.curiosidades import generate
+    from src.faceless import _slug
+
+    title = series.title_for(part)
+    video = ROOT / "output" / ctx["engine_channel"] / f"{_slug(title)}.mp4"
     if not video.exists():
-        _log(f"Generando parte {part}...")
-        generate(PARTS[part]["segments"], title_meta=_title(part),
-                 description=descripcion(part, PARTS[part]["resumen"]),
-                 hashtags=KEYWORDS, background=background_for(part),
-                 music="music/monkeys_spinning_monkeys.mp3", verbose=False)
+        _log(ctx, f"Generando parte {part}...")
+        generate(series.PARTS[part]["segments"],
+                 channel_name=ctx["engine_channel"],
+                 background=series.background_for(part),
+                 music=ctx["music"],
+                 title_meta=title,
+                 description=series.descripcion(part, series.PARTS[part]["resumen"]),
+                 hashtags=series.KEYWORDS,
+                 verbose=False)
     return video
 
 
@@ -83,31 +90,45 @@ def _caption(video: Path) -> str:
     return video.stem
 
 
-def do_youtube(state: dict) -> None:
-    part = state["youtube"]["next_part"]
-    if part not in PARTS:
-        _log(f"[YT] No hay parte {part} en el backlog. Agregá más partes.")
+def do_youtube(st: dict, ctx: dict, series) -> None:
+    part = st["youtube"]["next_part"]
+    if part not in series.PARTS:
+        _log(ctx, f"[YT] No hay parte {part} en el backlog. Agregá más partes.")
         return
-    video = _ensure_video(part)
+    video = _ensure_video(part, ctx, series)
     from uploaders.youtube_upload import upload_from_folder
-    _log(f"[YT] Subiendo parte {part} ({YT_PRIVACY})...")
+    _log(ctx, f"[YT] Subiendo parte {part} ({YT_PRIVACY})...")
     try:
-        vid = upload_from_folder(video, privacy=YT_PRIVACY)
+        vid = upload_from_folder(video, privacy=YT_PRIVACY, token_file=ctx["yt_token"])
     except Exception as e:
-        _log(f"[YT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
+        _log(ctx, f"[YT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
-    state["youtube"]["next_part"] = part + 1
-    state["youtube"]["posted"].append({"part": part, "video_id": vid, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
-    _log(f"[YT] ✅ Parte {part}: https://youtube.com/shorts/{vid}")
+    st["youtube"]["next_part"] = part + 1
+    st["youtube"]["posted"].append({"part": part, "video_id": vid, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    _log(ctx, f"[YT] ✅ Parte {part}: https://youtube.com/shorts/{vid}")
 
 
-def _refresh_ig_token(state: dict) -> None:
-    """Renueva el token de IG (vence a los 60 días) una vez por semana y lo
-    persiste en .env. Así la automatización nunca muere por token vencido."""
+def _ig_creds(ctx: dict) -> dict | None:
+    """{'user_id','access_token'} del canal, o None si no está configurado."""
+    if ctx["ig_creds"] is None:              # canal 1: variables del .env (legacy)
+        if not all(os.environ.get(k) or _in_env(k) for k in ("IG_USER_ID", "IG_ACCESS_TOKEN")):
+            return None
+        from src.gh_release import _load_env
+        _load_env()
+        return {"user_id": os.environ["IG_USER_ID"],
+                "access_token": os.environ["IG_ACCESS_TOKEN"]}
+    f = ROOT / ctx["ig_creds"]
+    if not f.exists():
+        return None
+    return json.loads(f.read_text(encoding="utf-8"))
+
+
+def _refresh_ig_token_env(st: dict) -> None:
+    """Renovación semanal del token del canal 1 (vive en .env). Sin cambios."""
     import re
 
     import requests
-    last = state["instagram"].get("token_refreshed", "")
+    last = st["instagram"].get("token_refreshed", "")
     if last and (datetime.now() - datetime.strptime(last, "%Y-%m-%d")).days < 7:
         return
     env_path = ROOT / ".env"
@@ -125,69 +146,103 @@ def _refresh_ig_token(state: dict) -> None:
                          txt, flags=re.M)
             env_path.write_text(txt, encoding="utf-8")
             os.environ["IG_ACCESS_TOKEN"] = data["access_token"]
-            state["instagram"]["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
-            _log(f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
+            st["instagram"]["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
+            print(f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
         else:
-            _log(f"[IG] ⚠️  No se pudo renovar el token: {data}")
+            print(f"[IG] ⚠️  No se pudo renovar el token: {data}")
     except Exception as e:
-        _log(f"[IG] ⚠️  Error renovando token (sigo igual): {e}")
+        print(f"[IG] ⚠️  Error renovando token (sigo igual): {e}")
 
 
-def do_instagram(state: dict) -> None:
-    if not all(os.environ.get(k) or _in_env(k) for k in ("IG_USER_ID", "IG_ACCESS_TOKEN", "GITHUB_TOKEN")):
-        _log("[IG] No configurado (faltan credenciales en .env), lo salteo.")
+def _refresh_ig_token(st: dict, ctx: dict) -> None:
+    """Renueva el token de IG del canal (vence a los 60 días) una vez por semana."""
+    if ctx["ig_creds"] is None:
+        _refresh_ig_token_env(st)
         return
-    _refresh_ig_token(state)
-    part = state["instagram"]["next_part"]
-    # Sincronización: IG no se adelanta a YouTube (postea recién cuando YT ya subió
-    # esa parte). Así las cuentas quedan alineadas y no se repite lo ya posteado.
-    if part >= state["youtube"]["next_part"]:
-        _log(f"[IG] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
+    import requests
+    f = ROOT / ctx["ig_creds"]
+    if not f.exists():
         return
-    if part not in PARTS:
-        _log(f"[IG] No hay parte {part} en el backlog. Agregá más partes.")
+    d = json.loads(f.read_text(encoding="utf-8"))
+    last = d.get("token_refreshed", "")
+    if last and (datetime.now() - datetime.strptime(last, "%Y-%m-%d")).days < 7:
         return
-    video = _ensure_video(part)
+    try:
+        r = requests.get("https://graph.instagram.com/refresh_access_token",
+                         params={"grant_type": "ig_refresh_token",
+                                 "access_token": d["access_token"]}, timeout=60)
+        data = r.json()
+        if "access_token" in data:
+            d["access_token"] = data["access_token"]
+            d["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
+            f.write_text(json.dumps(d, indent=2), encoding="utf-8")
+            _log(ctx, f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
+        else:
+            _log(ctx, f"[IG] ⚠️  No se pudo renovar el token: {data}")
+    except Exception as e:
+        _log(ctx, f"[IG] ⚠️  Error renovando token (sigo igual): {e}")
+
+
+def do_instagram(st: dict, ctx: dict, series) -> None:
+    if not (os.environ.get("GITHUB_TOKEN") or _in_env("GITHUB_TOKEN")):
+        _log(ctx, "[IG] Falta GITHUB_TOKEN en .env (hosting del mp4), lo salteo.")
+        return
+    creds = _ig_creds(ctx)
+    if not creds:
+        _log(ctx, "[IG] No configurado (sin credenciales), lo salteo.")
+        return
+    _refresh_ig_token(st, ctx)
+    creds = _ig_creds(ctx)   # releer por si el refresh cambió el token
+    part = st["instagram"]["next_part"]
+    if part >= st["youtube"]["next_part"]:
+        _log(ctx, f"[IG] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
+        return
+    if part not in series.PARTS:
+        _log(ctx, f"[IG] No hay parte {part} en el backlog. Agregá más partes.")
+        return
+    video = _ensure_video(part, ctx, series)
     try:
         from src.gh_release import upload as gh_upload
         from uploaders.instagram_upload import publish_reel
-        _log(f"[IG] Parte {part}: subiendo mp4 a hosting...")
+        _log(ctx, f"[IG] Parte {part}: subiendo mp4 a hosting...")
         url = gh_upload(video)
-        _log(f"[IG] Publicando Reel...")
-        media_id = publish_reel(url, caption=_caption(video))
+        _log(ctx, "[IG] Publicando Reel...")
+        media_id = publish_reel(url, caption=_caption(video),
+                                ig_user_id=creds["user_id"],
+                                access_token=creds["access_token"])
     except Exception as e:
-        _log(f"[IG] ⚠️  No se pudo publicar (reintenta la próxima): {e}")
+        _log(ctx, f"[IG] ⚠️  No se pudo publicar (reintenta la próxima): {e}")
         return
-    state["instagram"]["next_part"] = part + 1
-    state["instagram"]["posted"].append({"part": part, "media_id": media_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
-    _log(f"[IG] ✅ Parte {part}: Reel {media_id}")
+    st["instagram"]["next_part"] = part + 1
+    st["instagram"]["posted"].append({"part": part, "media_id": media_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    _log(ctx, f"[IG] ✅ Parte {part}: Reel {media_id}")
 
 
-def do_tiktok(state: dict) -> None:
-    """Sube la próxima parte a los BORRADORES de TikTok (el usuario la publica
-    en la app con 2 toques). Misma sincronización que IG: no se adelanta a YT."""
+def do_tiktok(st: dict, ctx: dict, series) -> None:
+    """Sube la próxima parte a los BORRADORES de TikTok (solo canales con 'tt';
+    el token sigue siendo el global de secrets/ hasta que aprueben la app)."""
     from uploaders.tiktok_upload import TOKEN_FILE
     if not TOKEN_FILE.exists():
-        _log("[TT] No configurado (sin token), lo salteo.")
+        _log(ctx, "[TT] No configurado (sin token), lo salteo.")
         return
-    part = state["tiktok"]["next_part"]
-    if part >= state["youtube"]["next_part"]:
-        _log(f"[TT] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
+    part = st["tiktok"]["next_part"]
+    if part >= st["youtube"]["next_part"]:
+        _log(ctx, f"[TT] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
         return
-    if part not in PARTS:
-        _log(f"[TT] No hay parte {part} en el backlog. Agregá más partes.")
+    if part not in series.PARTS:
+        _log(ctx, f"[TT] No hay parte {part} en el backlog. Agregá más partes.")
         return
-    video = _ensure_video(part)
+    video = _ensure_video(part, ctx, series)
     try:
         from uploaders.tiktok_upload import upload_draft
-        _log(f"[TT] Subiendo parte {part} a borradores...")
+        _log(ctx, f"[TT] Subiendo parte {part} a borradores...")
         publish_id = upload_draft(video)
     except Exception as e:
-        _log(f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
+        _log(ctx, f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
-    state["tiktok"]["next_part"] = part + 1
-    state["tiktok"]["posted"].append({"part": part, "publish_id": publish_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
-    _log(f"[TT] ✅ Parte {part} en borradores de TikTok (publicala desde la app).")
+    st["tiktok"]["next_part"] = part + 1
+    st["tiktok"]["posted"].append({"part": part, "publish_id": publish_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    _log(ctx, f"[TT] ✅ Parte {part} en borradores de TikTok (publicala desde la app).")
 
 
 def _in_env(key: str) -> bool:
@@ -198,27 +253,33 @@ def _in_env(key: str) -> bool:
 
 
 def main() -> int:
+    channel = "faceless"
+    if "--channel" in sys.argv:
+        channel = sys.argv[sys.argv.index("--channel") + 1]
     only = None
     if "--only" in sys.argv:
         only = sys.argv[sys.argv.index("--only") + 1]
     dry = "--dry-run" in sys.argv
 
+    ctx = get_channel(channel)
+    series = load_series(ctx)
     state = _load_state()
+    st = state[channel]
+
     if dry:
-        yt, ig = state["youtube"]["next_part"], state["instagram"]["next_part"]
-        _log(f"[DRY-RUN] Próxima en YouTube: pt.{yt} · en Instagram: pt.{ig}. No publica.")
-        # Igual genera los videos si faltan
+        yt, ig = st["youtube"]["next_part"], st["instagram"]["next_part"]
+        _log(ctx, f"[DRY-RUN] Próxima en YouTube: pt.{yt} · en Instagram: pt.{ig}. No publica.")
         for p in {yt, ig}:
-            if p in PARTS:
-                _ensure_video(p)
+            if p in series.PARTS:
+                _ensure_video(p, ctx, series)
         return 0
 
-    if only in (None, "yt"):
-        do_youtube(state)
-    if only in (None, "ig"):
-        do_instagram(state)
-    if only in (None, "tt"):
-        do_tiktok(state)
+    if "yt" in ctx["platforms"] and only in (None, "yt"):
+        do_youtube(st, ctx, series)
+    if "ig" in ctx["platforms"] and only in (None, "ig"):
+        do_instagram(st, ctx, series)
+    if "tt" in ctx["platforms"] and only in (None, "tt"):
+        do_tiktok(st, ctx, series)
     _save_state(state)
     return 0
 
