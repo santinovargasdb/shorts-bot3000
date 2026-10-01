@@ -174,7 +174,7 @@ HISTORIAS = {
                "crowded classroom", "medical checkup africa"),
             _m("La epidemia se extendió a comunidades vecinas y afectó a más de mil personas en total. Los médicos no encontraron ninguna causa física.",
                "village africa 1960s", "doctor examining patient"),
-            _m("El diagnóstico fue histeria masiva psicogénica: el estrés de la vida en los internados y la tensión social en la recién independizada Tanzania se canalizaron en síntomas físicos reales. Seguime para más historias así.",
+            _m("El diagnóstico fue histeria masiva psicogénica: el estrés de la vida en los internados y la tensión social en el recién independizado Tanganica se canalizaron en síntomas físicos reales. Seguime para más historias así.",
                "mental health stress illustration", "africa independence ceremony"),
         ],
     },
@@ -196,7 +196,7 @@ HISTORIAS = {
         ],
     },
     10: {
-        "titulo": "La ciudad que lleva cien años incendiada",
+        "titulo": "La ciudad que lleva más de 60 años incendiada",
         "resumen": ("Centralia, Pensilvania, la ciudad que tiene un incendio subterráneo "
                     "activo desde mil novecientos sesenta y dos"),
         "segments": [
