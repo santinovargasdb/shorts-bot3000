@@ -51,11 +51,13 @@ MISTERIOS = {
             _m("En diciembre de mil ochocientos setenta y dos, un barco navegaba solo por el Atlántico. "
                "La tripulación había desaparecido sin dejar rastro, y nadie lo pudo explicar.",
                "sailing ship atlantic ocean", "abandoned ship deck"),
-            _m("El Mary Celeste había partido de Nueva York diez días antes. A bordo: el capitán Briggs, "
-               "su esposa, su hija de dos años y siete marineros. Todos desaparecieron.",
+            _m("El Mary Celeste había zarpado de Nueva York casi cuatro semanas antes. "
+               "La última entrada del diario de a bordo era de diez días antes del hallazgo. "
+               "A bordo: el capitán Briggs, su esposa, su hija de dos años y siete marineros.",
                "new york harbor 1872", "ship captain portrait"),
-            _m("El barco estaba en perfectas condiciones: la comida en la mesa, la ropa guardada, "
-               "los instrumentos intactos. Solo faltaba el bote salvavidas.",
+            _m("La carga y las pertenencias estaban intactas. Había un metro de agua en la bodega "
+               "y el bote salvavidas no estaba. La leyenda popular añadió después la imagen "
+               "de comida servida en la mesa, pero eso no consta en el informe oficial.",
                "ship cabin interior", "lifeboat davits"),
             _m("Las teorías van desde una tromba marina que asustó a la tripulación hasta vapores de "
                "alcohol que los hicieron abandonar el barco creyendo que explotaría.",
@@ -81,8 +83,8 @@ MISTERIOS = {
                "la misma que los astrónomos sugerían para comunicarse con civilizaciones extraterrestres.",
                "sagittarius constellation", "hydrogen frequency spectrum"),
             _m("Desde entonces se buscó la señal decenas de veces, con los mejores telescopios del mundo. "
-               "Nada. En dos mil dieciséis, una señal similar llegó de una estrella cercana, "
-               "pero tampoco se pudo confirmar su origen.",
+               "Nada. En dos mil dieciséis se detectó una señal de HD 164595, pero luego se atribuyó "
+               "a interferencia terrestre, no a origen extraterrestre.",
                "radio telescope array", "deep space exploration"),
             _m("No hay prueba de que sea extraterrestre, pero tampoco hay explicación natural que convenza "
                "a todos. La señal Wow! sigue siendo el candidato más serio al primer contacto. "
@@ -96,19 +98,20 @@ MISTERIOS = {
                     "cincuenta y nueve, cuya causa exacta tardó décadas en esclarecerse"),
         "segments": [
             _m("En febrero de mil novecientos cincuenta y nueve, nueve excursionistas soviéticos "
-               "abandonaron su carpa en plena noche, con cuarenta grados bajo cero, sin abrigos ni botas. "
+               "abandonaron su carpa en plena noche, con más de veinticinco grados bajo cero, sin abrigos ni botas. "
                "Ninguno sobrevivió.",
                "ural mountains winter", "soviet expedition 1950s"),
             _m("El grupo era experimentado: estudiantes universitarios liderados por Igor Dyatlov. "
-               "Habían cruzado el paso sin problemas, pero algo los sacó de la carpa de golpe.",
+               "Acamparon en la ladera del monte Kholat Syakhl tras desviarse por mala visibilidad, "
+               "pero algo los sacó de la carpa de golpe.",
                "hiking group snow", "mountain base camp"),
             _m("Los rescatistas encontraron la carpa cortada desde adentro. Algunos cuerpos tenían "
                "fracturas graves sin marcas externas de golpe; otros presentaban quemaduras extrañas. "
                "La escena no tenía lógica.",
                "rescue team snow search", "snow tent damage"),
             _m("Durante décadas circularon teorías: desde pruebas militares secretas hasta infrasónidos "
-               "que causaron pánico. En dos mil diecinueve, investigadores rusos concluyeron que "
-               "lo más probable fue una avalancha de placa, un tipo raro que lanza nieve en bloque.",
+               "que causaron pánico. En dos mil diecinueve reabrieron el caso y en dos mil veinte "
+               "concluyeron que lo más probable fue una avalancha de placa, un tipo raro que lanza nieve en bloque.",
                "snow avalanche mountain", "scientific investigation"),
             _m("La hipótesis de la avalancha explica las fracturas y la huida desesperada, aunque no "
                "todos los detalles. Es el accidente de montaña más investigado de la historia. "
@@ -128,8 +131,8 @@ MISTERIOS = {
             _m("El hombre se presentó como Dan Cooper. Entregó una nota a la azafata: decía tener "
                "una bomba y exigía doscientos mil dólares y paracaídas. Las autoridades cedieron.",
                "airplane cabin 1970s", "ransom money cash"),
-            _m("Dejó bajar a los pasajeros en Seattle, luego ordenó volar hacia México. En algún punto "
-               "sobre Oregon, abrió la puerta trasera del avión y saltó a ciento ochenta "
+            _m("Dejó bajar a los pasajeros en Seattle y ordenó volar hacia México. En algún punto "
+               "sobre Washington, abrió la puerta trasera del avión y saltó a ciento ochenta "
                "kilómetros por hora, en plena noche y bajo la lluvia.",
                "airplane door open sky", "parachute jump night"),
             _m("El FBI investigó el caso durante cuarenta y cinco años. En mil novecientos ochenta, "
@@ -151,7 +154,7 @@ MISTERIOS = {
                "y un idioma que ningún experto pudo descifrar.",
                "ancient manuscript book", "mysterious writing symbols"),
             _m("El manuscrito Voynich data del siglo quince, probablemente del norte de Italia. "
-               "Lo vendió un librero polaco en mil novecientos doce, pero su historia anterior "
+               "Lo compró el librero polaco Wilfrid Voynich en mil novecientos doce, pero su historia anterior "
                "es casi un misterio en sí misma.",
                "medieval italy manuscript", "old book parchment"),
             _m("Los mejores criptógrafos del mundo lo estudiaron durante el siglo veinte, "
@@ -200,23 +203,23 @@ MISTERIOS = {
         "segments": [
             _m("En diciembre de mil novecientos, un barco de suministros llegó a un faro escocés "
                "en una isla remota. Los tres fareros habían desaparecido. "
-               "La lámpara estaba apagada y la comida, intacta sobre la mesa.",
+               "La lámpara llevaba once días apagada.",
                "scottish lighthouse island", "remote island scotland"),
             _m("El faro de Eilean Mor, en las islas Hébridas, era atendido por James Ducat, "
                "Thomas Marshall y Donald MacArthur. Eran hombres experimentados, "
                "acostumbrados a los temporales atlánticos.",
                "lighthouse keeper portrait", "hebrides islands"),
-            _m("El diario del faro registraba entradas angustiantes: vientos como nunca vistos, "
-               "uno de los hombres llorando. Pero el tiempo en la zona había sido tranquilo "
-               "según otros registros cercanos.",
+            _m("Según el informe oficial de Muirhead, la cocina estaba ordenada y el reloj parado. "
+               "Faltaban dos juegos de impermeables; el abrigo de MacArthur quedó colgado. "
+               "Esa pista real sugiere que salió desabrigado a la tormenta.",
                "lighthouse logbook journal", "stormy atlantic sea"),
-            _m("La silla del comedor estaba volcada, pero no había señales de lucha. "
-               "Las chaquetas de los fareros colgaban en sus ganchos. "
-               "Nunca se encontraron los cuerpos.",
+            _m("La imagen de la silla volcada y el diario con entradas aterradoras viene del poema "
+               "'Flannan Isle' de mil novecientos doce y de la prensa sensacionalista: "
+               "son leyenda, no el informe oficial. Nunca se encontraron los cuerpos.",
                "lighthouse interior room", "overturned chair"),
-            _m("Las teorías apuntan a una ola gigante que los sorprendió en los acantilados, "
-               "pero nadie pudo probar nada. La desaparición de los tres guardianes de Eilean Mor "
-               "sigue sin explicación oficial. Seguime para más misterios así.",
+            _m("La hipótesis aceptada: una ola gigante los sorprendió en la plataforma oeste "
+               "mientras aseguraban equipos. Los tres guardianes de Eilean Mor "
+               "siguen siendo uno de los misterios marítimos más célebres. Seguime para más misterios así.",
                "lighthouse cliff waves", "memorial plaque stone"),
         ],
     },
@@ -238,7 +241,7 @@ MISTERIOS = {
                "tutankhamun tomb egypt", "archaeologist excavation"),
             _m("La cuarta parte tiene apenas noventa y siete caracteres. "
                "Sanborn dio una pista en dos mil diez: ciertas letras significan 'BERLIN'. "
-               "En dos mil veinte agregó otra: 'CLOCK'.",
+               "En dos mil catorce agregó 'CLOCK' y en dos mil veinte reveló 'NORTHEAST'.",
                "cipher code symbols", "cryptography puzzle"),
             _m("Ni la CIA ni los mejores criptógrafos lo resolvieron. "
                "Sanborn dijo que probablemente no lo descifren hasta después de su muerte. "
@@ -251,16 +254,17 @@ MISTERIOS = {
         "resumen": ("el extraño fenómeno de marzo de mil ochocientos setenta y seis cuando trozos "
                     "de carne fresca cayeron del cielo despejado sobre un campo de Kentucky"),
         "segments": [
-            _m("El nueve de marzo de mil ochocientos setenta y seis, trozos de carne fresca "
+            _m("El tres de marzo de mil ochocientos setenta y seis, trozos de carne fresca "
                "cayeron del cielo sobre un campo de Kentucky. "
                "El cielo estaba despejado. No había nubes. Nadie entendió nada.",
                "kentucky countryside 1870s", "clear blue sky"),
             _m("La lluvia duró unos dos minutos y cubrió una franja de unos cien metros de largo "
-               "por unos once de ancho. Los trozos eran de distintos tamaños, "
+               "por unos cincuenta de ancho. Los trozos eran de distintos tamaños, "
                "algunos tan grandes como una mano.",
                "meat pieces ground", "rural farm field"),
-            _m("Científicos que analizaron muestras identificaron tejido muscular, cartílago y hueso "
-               "de al menos tres animales diferentes: ovejas, caballos y osos americanos.",
+            _m("Científicos que analizaron muestras identificaron tejido pulmonar, músculo y cartílago. "
+               "Dos vecinos la probaron y dijeron que sabía a carnero o venado. "
+               "No se hallaron huesos ni rastros de oso.",
                "scientific analysis lab", "biological specimens"),
             _m("La explicación más aceptada involucra buitres americanos. "
                "Estas aves, cuando se asustan al volar en grupo, vomitan para aligerar el vuelo. "
@@ -277,19 +281,19 @@ MISTERIOS = {
         "resumen": ("el barco de pesca encontrado a la deriva en el Pacífico Sur en mil novecientos "
                     "cincuenta y cinco con sus veinticinco tripulantes desaparecidos y lleno de vendas"),
         "segments": [
-            _m("En octubre de mil novecientos cincuenta y cinco, un avión descubrió un barco "
-               "a la deriva en el Pacífico Sur con vendas médicas y equipo intacto, "
-               "pero las veinticinco personas que partieron habían desaparecido.",
+            _m("En octubre de mil novecientos cincuenta y cinco, las veinticinco personas del MV Joyita "
+               "desaparecieron en el Pacífico Sur. La búsqueda aérea no encontró nada. "
+               "Cinco semanas después, un barco mercante lo halló a la deriva.",
                "pacific ocean aerial view", "abandoned boat sea"),
             _m("El MV Joyita había salido de Samoa rumbo a las islas Tokelau, un viaje de dos días. "
-               "Lo encontraron cinco semanas después, a ochocientos kilómetros de su ruta.",
+               "Lo encontraron a casi mil kilómetros de su ruta, con vendas médicas y equipo intacto.",
                "samoa islands pacific", "fishing vessel 1950s"),
             _m("El barco estaba parcialmente inundado pero no se hundía: el corcho de aislamiento "
                "lo mantenía a flote. El motor estaba averiado y la radio no funcionaba bien.",
                "ship engine room", "broken radio equipment"),
             _m("Las vendas ensangrentadas sugerían heridos a bordo. "
-               "El capitán Thomas Miller padecía una fístula y posiblemente colapsó, "
-               "lo que pudo desencadenar el abandono del barco.",
+               "El capitán Thomas Miller estaba enfermo y pudo haber colapsado, "
+               "lo que habría desencadenado el abandono del barco.",
                "ship medical supplies", "captain at helm"),
             _m("Nunca se encontró a ninguno de los veinticinco. La teoría del abandono en botes "
                "que se perdieron en mar abierto es la más aceptada, "
