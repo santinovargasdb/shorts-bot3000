@@ -101,10 +101,43 @@ def do_youtube(state: dict) -> None:
     _log(f"[YT] ✅ Parte {part}: https://youtube.com/shorts/{vid}")
 
 
+def _refresh_ig_token(state: dict) -> None:
+    """Renueva el token de IG (vence a los 60 días) una vez por semana y lo
+    persiste en .env. Así la automatización nunca muere por token vencido."""
+    import re
+
+    import requests
+    last = state["instagram"].get("token_refreshed", "")
+    if last and (datetime.now() - datetime.strptime(last, "%Y-%m-%d")).days < 7:
+        return
+    env_path = ROOT / ".env"
+    txt = env_path.read_text(encoding="utf-8")
+    m = re.search(r"^IG_ACCESS_TOKEN=(.+)$", txt, re.M)
+    if not m:
+        return
+    try:
+        r = requests.get("https://graph.instagram.com/refresh_access_token",
+                         params={"grant_type": "ig_refresh_token",
+                                 "access_token": m.group(1).strip()}, timeout=60)
+        data = r.json()
+        if "access_token" in data:
+            txt = re.sub(r"^IG_ACCESS_TOKEN=.+$", f"IG_ACCESS_TOKEN={data['access_token']}",
+                         txt, flags=re.M)
+            env_path.write_text(txt, encoding="utf-8")
+            os.environ["IG_ACCESS_TOKEN"] = data["access_token"]
+            state["instagram"]["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
+            _log(f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
+        else:
+            _log(f"[IG] ⚠️  No se pudo renovar el token: {data}")
+    except Exception as e:
+        _log(f"[IG] ⚠️  Error renovando token (sigo igual): {e}")
+
+
 def do_instagram(state: dict) -> None:
     if not all(os.environ.get(k) or _in_env(k) for k in ("IG_USER_ID", "IG_ACCESS_TOKEN", "GITHUB_TOKEN")):
         _log("[IG] No configurado (faltan credenciales en .env), lo salteo.")
         return
+    _refresh_ig_token(state)
     part = state["instagram"]["next_part"]
     # Sincronización: IG no se adelanta a YouTube (postea recién cuando YT ya subió
     # esa parte). Así las cuentas quedan alineadas y no se repite lo ya posteado.
