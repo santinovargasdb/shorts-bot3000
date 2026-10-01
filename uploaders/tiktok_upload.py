@@ -29,8 +29,10 @@ TOKEN_FILE = ROOT / "secrets" / "tiktok_token.json"
 AUTH_URL = "https://www.tiktok.com/v2/auth/authorize/"
 TOKEN_URL = "https://open.tiktokapis.com/v2/oauth/token/"
 INBOX_INIT_URL = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
+DIRECT_INIT_URL = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+CREATOR_INFO_URL = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/"
 STATUS_URL = "https://open.tiktokapis.com/v2/post/publish/status/fetch/"
-SCOPES = "user.info.basic,video.upload"
+SCOPES = "user.info.basic,video.upload,video.publish"
 
 
 def _load_env() -> None:
@@ -145,6 +147,64 @@ def upload_draft(video_path: Path | str) -> str:
     if put.status_code not in (200, 201):
         raise RuntimeError(f"TikTok upload falló ({put.status_code}): {put.text[:300]}")
     print(f"  ✅ Video en tus borradores de TikTok (revisá las notificaciones de la app).")
+    return publish_id
+
+
+def creator_info() -> dict:
+    """Consulta creator_info (obligatorio antes de un direct post): nickname,
+    opciones de privacidad disponibles y toggles de interacción."""
+    r = requests.post(CREATOR_INFO_URL, headers={
+        "Authorization": f"Bearer {_get_token()}",
+        "Content-Type": "application/json; charset=UTF-8",
+    }, timeout=60)
+    data = r.json()
+    if data.get("error", {}).get("code") not in (None, "ok"):
+        raise RuntimeError(f"creator_info falló: {data['error']}")
+    return data["data"]
+
+
+def publish_direct(video_path: Path | str, title: str, privacy_level: str,
+                   disable_comment: bool = False, disable_duet: bool = False,
+                   disable_stitch: bool = False) -> str:
+    """Publica el mp4 DIRECTO en TikTok (requiere scope video.publish y app
+    auditada; con app sin auditar el post queda privado). Devuelve publish_id."""
+    video_path = Path(video_path)
+    size = video_path.stat().st_size
+    token = _get_token()
+
+    init = requests.post(DIRECT_INIT_URL, headers={
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json; charset=UTF-8",
+    }, json={
+        "post_info": {
+            "title": title,
+            "privacy_level": privacy_level,
+            "disable_comment": disable_comment,
+            "disable_duet": disable_duet,
+            "disable_stitch": disable_stitch,
+        },
+        "source_info": {
+            "source": "FILE_UPLOAD",
+            "video_size": size,
+            "chunk_size": size,
+            "total_chunk_count": 1,
+        },
+    }, timeout=60)
+    data = init.json()
+    if data.get("error", {}).get("code") not in (None, "ok"):
+        raise RuntimeError(f"TikTok direct post init falló: {data['error']}")
+    publish_id = data["data"]["publish_id"]
+    upload_url = data["data"]["upload_url"]
+    print(f"  Publicación directa iniciada: {publish_id}")
+
+    with open(video_path, "rb") as f:
+        put = requests.put(upload_url, headers={
+            "Content-Type": "video/mp4",
+            "Content-Range": f"bytes 0-{size - 1}/{size}",
+        }, data=f.read(), timeout=300)
+    if put.status_code not in (200, 201):
+        raise RuntimeError(f"TikTok upload falló ({put.status_code}): {put.text[:300]}")
+    print("  ✅ Video subido; TikTok lo está procesando para publicarlo.")
     return publish_id
 
 
