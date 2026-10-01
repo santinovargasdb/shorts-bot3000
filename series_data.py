@@ -182,3 +182,8 @@ PARTS = {
         ],
     },
 }
+
+
+def title_for(part: int) -> str:
+    """Título del episodio (interfaz común de los módulos de serie)."""
+    return f"Datos para parecer inteligente pt. {part}"
