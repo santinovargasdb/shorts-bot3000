@@ -21,15 +21,24 @@ TOKEN = SECRETS / "token.json"
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 
-def _get_service():
+def _resolve_token(token_file: str | Path | None) -> Path:
+    """Ruta del token OAuth: la del canal (relativa a la raíz) o la legacy."""
+    if token_file is None:
+        return TOKEN
+    p = Path(token_file)
+    return p if p.is_absolute() else ROOT / p
+
+
+def _get_service(token_file: str | Path | None = None):
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
     from google_auth_oauthlib.flow import InstalledAppFlow
     from googleapiclient.discovery import build
 
+    tok = _resolve_token(token_file)
     creds = None
-    if TOKEN.exists():
-        creds = Credentials.from_authorized_user_file(str(TOKEN), SCOPES)
+    if tok.exists():
+        creds = Credentials.from_authorized_user_file(str(tok), SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -40,8 +49,8 @@ def _get_service():
                 )
             flow = InstalledAppFlow.from_client_secrets_file(str(CLIENT_SECRET), SCOPES)
             creds = flow.run_local_server(port=0)
-        SECRETS.mkdir(exist_ok=True)
-        TOKEN.write_text(creds.to_json(), encoding="utf-8")
+        tok.parent.mkdir(parents=True, exist_ok=True)
+        tok.write_text(creds.to_json(), encoding="utf-8")
     return build("youtube", "v3", credentials=creds)
 
 
@@ -52,11 +61,12 @@ def upload(
     tags: list[str] | None = None,
     privacy: str = "private",       # "private" | "unlisted" | "public"
     category_id: str = "24",        # 24 = Entertainment
+    token_file: str | Path | None = None,
 ) -> str:
     """Sube el video y devuelve el ID del video de YouTube."""
     from googleapiclient.http import MediaFileUpload
 
-    service = _get_service()
+    service = _get_service(token_file)
     body = {
         "snippet": {
             "title": title[:100],
@@ -79,7 +89,7 @@ def upload(
     return video_id
 
 
-def upload_from_folder(clip_path: Path | str, privacy: str = "private") -> str:
+def upload_from_folder(clip_path: Path | str, privacy: str = "private", token_file: str | Path | None = None) -> str:
     """Sube un clip usando su .json de metadatos hermano si existe."""
     clip_path = Path(clip_path)
     meta_path = clip_path.with_suffix(".json")
@@ -89,7 +99,7 @@ def upload_from_folder(clip_path: Path | str, privacy: str = "private") -> str:
         title = meta.get("title", title)
         description = meta.get("description", "")
         tags = [t.lstrip("#") for t in meta.get("hashtags", [])]
-    return upload(clip_path, title, description, tags, privacy=privacy)
+    return upload(clip_path, title, description, tags, privacy=privacy, token_file=token_file)
 
 
 if __name__ == "__main__":
