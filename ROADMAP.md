@@ -31,7 +31,8 @@ Reels en FB automáticamente falta:
 ## 🚀 Escala multi-nicho (plan aprobado)
 - Refactor multi-canal: registro de canales (`channels_registry`), secretos/estado por canal,
   voces/música/fondos distintos por canal, horarios escalonados
-- Canal 2: **Datos Históricos** (mismo motor) → canales de marca de YouTube (misma cuenta
-  Google, mismo proyecto Cloud) + testers extra en la misma app de Meta
+- Canal 2 **"Historia en 60 Segundos"** (historia narrada/episodio): EN MARCHA —
+  registro multi-canal + `series_historia` (ep. 1-10) listos; horarios 12:30/19:30.
+  Spec: docs/superpowers/specs/2026-10-01-canal2-historia-design.md
 - Canal 3: **Historias de Reddit** (narración sobre gameplay)
 - Canal 4: **Clips de streamers** (pipeline original `src/highlights.py`, con permisos)

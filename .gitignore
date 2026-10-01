@@ -20,7 +20,7 @@ models/
 
 # Estado/log de la automatización (local)
 automation_state.json
-automation.log
+automation*.log
 
 # Python
 __pycache__/
