@@ -52,7 +52,13 @@ def _audio_dur(path: Path) -> float:
     return int(hh) * 3600 + int(mm) * 60 + float(ss)
 
 
-def _music_credit() -> str:
+def _music_credit(track: Path | None = None) -> str:
+    """Crédito de la música: el de la pista (music/<stem>.credit.txt) si existe,
+    si no el global music/CREDITS.txt (pista original del canal 1)."""
+    if track is not None:
+        per_track = MUSIC_DIR / f"{Path(track).stem}.credit.txt"
+        if per_track.exists():
+            return per_track.read_text(encoding="utf-8").strip()
     f = MUSIC_DIR / "CREDITS.txt"
     return f.read_text(encoding="utf-8").strip() if f.exists() else ""
 

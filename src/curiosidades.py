@@ -231,7 +231,7 @@ def generate(
     else:
         facts_txt = " ".join(s["text"] for s in segments if s["kind"] == "fact")
         desc = facts_txt[:350] + "\n\n" + " ".join(tags)
-    credit = _music_credit()
+    credit = _music_credit(track)
     if credit:
         desc += "\n\n" + credit
     (out_dir / f"{slug}.json").write_text(
