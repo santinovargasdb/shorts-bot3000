@@ -188,7 +188,17 @@ def main() -> None:
     print(f"Video title: {title}")
     print(f"Video: {DIRECT_VIDEO.name} ({DIRECT_VIDEO.stat().st_size / 1e6:.1f} MB)")
     time.sleep(4)   # pausa para que el revisor lea las opciones en camara
-    direct_id = publish_direct(DIRECT_VIDEO, title=title, privacy_level=privacy)
+    try:
+        direct_id = publish_direct(DIRECT_VIDEO, title=title, privacy_level=privacy)
+    except RuntimeError as e:
+        if "unaudited_client_can_only_post_to_private_accounts" in str(e):
+            print()
+            print("[!] TikTok rejected the direct post: while the app is unaudited,")
+            print("    direct posting only works if the TikTok ACCOUNT is private.")
+            print("    Set the account to private (Settings > Privacy) and run again.")
+            time.sleep(10)
+            raise SystemExit(1)
+        raise
 
     banner("STEP 7/7", "Check the direct post status via the API")
     wait_status(token, direct_id, done="PUBLISH_COMPLETE")
