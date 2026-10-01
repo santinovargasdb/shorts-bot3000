@@ -123,7 +123,7 @@ def _ig_creds(ctx: dict) -> dict | None:
     return json.loads(f.read_text(encoding="utf-8"))
 
 
-def _refresh_ig_token_env(st: dict) -> None:
+def _refresh_ig_token_env(st: dict, ctx: dict) -> None:
     """Renovación semanal del token del canal 1 (vive en .env). Sin cambios."""
     import re
 
@@ -147,17 +147,17 @@ def _refresh_ig_token_env(st: dict) -> None:
             env_path.write_text(txt, encoding="utf-8")
             os.environ["IG_ACCESS_TOKEN"] = data["access_token"]
             st["instagram"]["token_refreshed"] = f"{datetime.now():%Y-%m-%d}"
-            print(f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
+            _log(ctx, f"[IG] Token renovado (+{round(data.get('expires_in', 0) / 86400)} días).")
         else:
-            print(f"[IG] ⚠️  No se pudo renovar el token: {data}")
+            _log(ctx, f"[IG] ⚠️  No se pudo renovar el token: {data}")
     except Exception as e:
-        print(f"[IG] ⚠️  Error renovando token (sigo igual): {e}")
+        _log(ctx, f"[IG] ⚠️  Error renovando token (sigo igual): {e}")
 
 
 def _refresh_ig_token(st: dict, ctx: dict) -> None:
     """Renueva el token de IG del canal (vence a los 60 días) una vez por semana."""
     if ctx["ig_creds"] is None:
-        _refresh_ig_token_env(st)
+        _refresh_ig_token_env(st, ctx)
         return
     import requests
     f = ROOT / ctx["ig_creds"]
