@@ -10,6 +10,7 @@ y video.publish (publicación directa con creator_info + elección de privacidad
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import time
 import webbrowser
@@ -31,7 +32,7 @@ from uploaders.tiktok_upload import (
 
 TOKEN_FILE = ROOT / "secrets" / "tiktok_token.json"
 USER_INFO_URL = "https://open.tiktokapis.com/v2/user/info/"
-INBOX_VIDEO = ROOT / "output" / "faceless" / "datos_para_parecer_inteligente_pt_1.mp4"
+INBOX_VIDEO = ROOT / "output" / "faceless" / "7_datos_que_no_sab_as.mp4"
 DIRECT_VIDEO = ROOT / "output" / "faceless" / "7_datos_que_no_sab_as.mp4"
 DEFAULT_TITLE = "Did you know? 5 facts in 60 seconds #facts #learnontiktok"
 
@@ -43,8 +44,34 @@ def banner(step: str, title: str) -> None:
     print("=" * 62)
 
 
+def _clipboard() -> str:
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-Clipboard -Raw"],
+                           capture_output=True, text=True, timeout=10)
+        return (r.stdout or "").strip()
+    except Exception:
+        return ""
+
+
+def wait_code_from_clipboard(timeout_s: int = 300) -> str:
+    """Espera a que el usuario toque 'Copy code' en el callback (lee el portapapeles).
+    Así no hay que tipear nada en la consola durante la grabación."""
+    print('Authorize the app, then click "Copy code" on the redirect page.')
+    print("The demo picks the code up from the clipboard automatically...")
+    initial = _clipboard()
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        clip = _clipboard()
+        if clip and clip != initial and len(clip) > 40 and "\n" not in clip and " " not in clip:
+            print("[OK] Authorization code received.")
+            return clip
+        time.sleep(1)
+    raise SystemExit("No authorization code appeared in the clipboard.")
+
+
 def wait_status(token: str, publish_id: str, done: str) -> None:
     """Consulta el status cada 5s hasta `done` o FAILED (máx ~3 min)."""
+    print("(Polling every 5s - this can take a minute or two. No action needed.)")
     for _ in range(36):
         st = requests.post(STATUS_URL, headers={
             "Authorization": f"Bearer {token}",
@@ -74,7 +101,7 @@ def main() -> None:
     webbrowser.open(auth_url() + "&disable_auto_auth=1")
 
     banner("STEP 2/7", "Exchange the authorization code for an access token")
-    code = input("Paste the authorization code shown on the redirect page: ").strip()
+    code = wait_code_from_clipboard()
     r = requests.post(TOKEN_URL, data={
         "client_key": _env("TIKTOK_CLIENT_KEY"),
         "client_secret": _env("TIKTOK_CLIENT_SECRET"),
@@ -155,7 +182,8 @@ def main() -> None:
     print()
     print("[DONE] Demo complete: OAuth consent, user.info.basic, video.upload")
     print("(inbox/drafts) and video.publish (direct post) shown end to end.")
-    input("\nPress ENTER to stop the screen recording...")
+    print("\nThe screen recording stops in 10 seconds...")
+    time.sleep(10)
 
 
 if __name__ == "__main__":
