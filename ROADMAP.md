@@ -9,8 +9,12 @@
 
 ## 🔜 Pendiente corto plazo
 - [ ] **Demo video de TikTok** (grabación del flujo OAuth + subida) → **Submit for review**
-  - Kit listo: correr `grabar_demo_tiktok.bat` (graba pantalla + corre `tiktok_demo.py`,
-    deja `tiktok_review_demo.mp4`). Solo falta grabarlo y subirlo al formulario.
+  - Kit listo y probado: `grabar_demo_tiktok.bat` (2 clicks en el navegador, resto solo;
+    deja `tiktok_review_demo.mp4` + `demo_log.txt`). Textos del formulario en
+    `tiktok_review_form.md`.
+  - Requisitos de la toma: cuenta en PRIVADO (direct post sin auditar) y cupo de
+    inbox libre (máx 5 subidas pendientes/24h; el 2026-10-01 se agotó con las tomas
+    de prueba → grabar a partir del 2026-10-02 ~8:30).
   → al aprobarse: cambiar `.env` a credenciales de producción + scope `video.publish` = TikTok full-auto
 - [ ] Recargar backlog cuando queden <4 partes (generar pt.11+)
 
