@@ -130,23 +130,22 @@ def main() -> None:
     print("  -> The video reached the user's TikTok inbox (drafts).")
     print("     The user finishes editing and publishing inside the TikTok app.")
 
-    banner("STEP 6/7", "video.publish - direct post (creator info + user choices)")
+    banner("STEP 6/7", "video.publish - direct post (creator info + post settings)")
     ci = creator_info()
     nickname = ci.get("creator_nickname")
     options = ci.get("privacy_level_options", [])
     print(f"Posting to TikTok account: @{nickname}")
     print(f"Max video duration allowed: {ci.get('max_video_post_duration_sec')}s")
-    title = input(f"Video title [{DEFAULT_TITLE}]: ").strip() or DEFAULT_TITLE
-    print("Available privacy levels for this account:")
-    for i, opt in enumerate(options, 1):
-        print(f"  {i}. {opt}")
-    choice = input(f"Choose privacy level [1-{len(options)}]: ").strip()
-    privacy = options[int(choice) - 1] if choice.isdigit() and 0 < int(choice) <= len(options) else options[0]
-    comments = input("Allow comments? [Y/n]: ").strip().lower() != "n"
-    print(f"Posting '{title}' as {privacy} (comments {'on' if comments else 'off'})...")
+    print(f"Privacy levels available for this account: {', '.join(options)}")
+    privacy = "SELF_ONLY" if "SELF_ONLY" in options else options[0]
+    print(f"Selected privacy level: {privacy}")
+    print("(Unaudited/sandbox apps may only post privately; after the app is")
+    print(" approved, the user can choose any of the levels listed above.)")
+    title = DEFAULT_TITLE
+    print(f"Video title: {title}")
     print(f"Video: {DIRECT_VIDEO.name} ({DIRECT_VIDEO.stat().st_size / 1e6:.1f} MB)")
-    direct_id = publish_direct(DIRECT_VIDEO, title=title, privacy_level=privacy,
-                               disable_comment=not comments)
+    time.sleep(4)   # pausa para que el revisor lea las opciones en camara
+    direct_id = publish_direct(DIRECT_VIDEO, title=title, privacy_level=privacy)
 
     banner("STEP 7/7", "Check the direct post status via the API")
     wait_status(token, direct_id, done="PUBLISH_COMPLETE")
