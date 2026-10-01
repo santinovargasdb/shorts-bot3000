@@ -85,7 +85,7 @@ def publish_reel(
     )
     p.raise_for_status()
     media_id = p.json()["id"]
-    print(f"  ✅ Reel publicado. media_id={media_id}")
+    print(f"  [OK] Reel publicado. media_id={media_id}")
     return media_id
 
 

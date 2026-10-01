@@ -85,7 +85,7 @@ def upload(
         if status:
             print(f"  Subiendo... {int(status.progress() * 100)}%")
     video_id = response["id"]
-    print(f"  ✅ Publicado: https://youtube.com/shorts/{video_id}  (privacy={privacy})")
+    print(f"  [OK] Publicado: https://youtube.com/shorts/{video_id}  (privacy={privacy})")
     return video_id
 
 
