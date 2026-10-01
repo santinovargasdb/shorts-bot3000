@@ -4,7 +4,7 @@ import channels_registry as reg
 
 
 def test_canales_registrados():
-    assert set(reg.CHANNELS) == {"faceless", "historia"}
+    assert set(reg.CHANNELS) == {"faceless", "historia", "misterios"}
 
 
 def test_contexto_historia():
@@ -23,6 +23,15 @@ def test_contexto_faceless_legacy():
     assert ctx["platforms"] == ("yt", "ig", "tt")
 
 
+def test_contexto_misterios():
+    ctx = reg.get_channel("misterios")
+    assert ctx["display"] == "Misterios en 60 Segundos"
+    assert ctx["platforms"] == ("yt", "ig")
+    assert ctx["yt_token"] == "secrets/misterios/token.json"
+    assert ctx["ig_creds"] == "secrets/misterios/instagram.json"
+    assert ctx["music"] == "music/misterios_tema.mp3"
+
+
 def test_canal_inexistente():
     with pytest.raises(KeyError):
         reg.get_channel("reddit")
@@ -39,3 +48,5 @@ def test_perfil_motor_existe():
     from src import config as cfg
     ch = cfg.load_channel("historia")
     assert ch.get("tts_voice", "").startswith("es-")
+    ch_misterios = cfg.load_channel("misterios")
+    assert ch_misterios.get("tts_voice", "").startswith("es-")

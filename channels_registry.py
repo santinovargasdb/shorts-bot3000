@@ -27,6 +27,15 @@ CHANNELS = {
         "ig_creds": "secrets/historia/instagram.json",
         "platforms": ("yt", "ig"),   # TikTok se activa cuando aprueben la app
     },
+    "misterios": {
+        "display": "Misterios en 60 Segundos",
+        "series": "series_misterios",
+        "engine_channel": "misterios",
+        "music": "music/misterios_tema.mp3",
+        "yt_token": "secrets/misterios/token.json",
+        "ig_creds": "secrets/misterios/instagram.json",
+        "platforms": ("yt", "ig"),
+    },
 }
 
 

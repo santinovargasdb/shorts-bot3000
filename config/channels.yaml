@@ -77,3 +77,18 @@ historia:
   caption:
     highlight_color: "&H0000A5FF"  # dorado/ámbar para diferenciar el canal
   legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."
+
+# -------------------------------------------------------------------------
+# CANAL 3 — Misterios en 60 Segundos (faceless de misterios reales)
+# -------------------------------------------------------------------------
+misterios:
+  display_name: "Misterios en 60 Segundos"
+  whisper_model: "small"
+  crop_mode: "blur"
+  clips_per_source: 1
+  hook_text: ""
+  tts_voice: "es-CO-GonzaloNeural" # voz elegida por el usuario: más narrativa y pausada
+  tts_rate: "+2%"                  # más pausado, clima de misterio
+  caption:
+    highlight_color: "&H00E22B8A"  # violeta para diferenciar el canal
+  legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."

@@ -34,5 +34,9 @@ Reels en FB automáticamente falta:
 - Canal 2 **"Historia en 60 Segundos"** (historia narrada/episodio): EN MARCHA —
   registro multi-canal + `series_historia` (ep. 1-10) listos; horarios 12:30/19:30.
   Spec: docs/superpowers/specs/2026-10-01-canal2-historia-design.md
-- Canal 3: **Historias de Reddit** (narración sobre gameplay)
-- Canal 4: **Clips de streamers** (pipeline original `src/highlights.py`, con permisos)
+- Canal 3 **"Misterios en 60 Segundos"** (misterio narrado/episodio): EN MARCHA —
+  series_misterios (ep. 1-10) + registro listos; horarios 13:30/20:30.
+- Fase 2: **Historias de Reddit** (requiere pipeline de sourcing propio) y **Clips de streamers**.
+
+### Nota de cuota YT
+3 canales a 2 subidas/día ≈ 9.600 de 10.000 unidades diarias de la API (tope). Un 4to canal requiere 1/día, aumento de cuota o segundo proyecto Cloud.
