@@ -7,7 +7,7 @@ set PYTHONIOENCODING=utf-8
 
 echo La grabacion de pantalla empieza en 3 segundos (cerra ventanas privadas)...
 timeout /t 3 >nul
-start "REC-ffmpeg" /min cmd /c "ffmpeg -y -f gdigrab -rtbufsize 512M -framerate 30 -i desktop -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p tiktok_demo_raw.mkv 2> rec_ffmpeg.log"
+start "REC-ffmpeg" /min cmd /c "ffmpeg -y -f gdigrab -rtbufsize 512M -framerate 30 -i desktop -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -flush_packets 1 -cluster_time_limit 1000 tiktok_demo_raw.mkv 2> rec_ffmpeg.log"
 
 python tiktok_demo.py %*
 
