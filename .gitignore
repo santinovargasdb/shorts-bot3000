@@ -33,3 +33,4 @@ venv/
 Thumbs.db
 demo_log.txt
 rec_ffmpeg.log
+.playwright-mcp/
