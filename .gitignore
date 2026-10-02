@@ -32,3 +32,4 @@ venv/
 .DS_Store
 Thumbs.db
 demo_log.txt
+rec_ffmpeg.log
