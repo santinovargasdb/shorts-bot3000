@@ -36,6 +36,26 @@ BACKGROUNDS = [
     "backgrounds/bg_gta.mp4",          # mega rampas de GTA V
     "backgrounds/bg_slime.mp4",        # slime
     "backgrounds/bg_satisfying.mp4",   # videos satisfactorios
+    # variantes 2 (minecraft)
+    "backgrounds/bg_minecraft_2.mp4",
+    # variantes 2 (subway)
+    "backgrounds/bg_subway_2.mp4",
+    # variantes 2 (gta)
+    "backgrounds/bg_gta_2.mp4",
+    # variantes 2 (slime)
+    "backgrounds/bg_slime_2.mp4",
+    # variantes 2 (satisfying)
+    "backgrounds/bg_satisfying_2.mp4",
+    # variantes 3 (minecraft)
+    "backgrounds/bg_minecraft_3.mp4",
+    # variantes 3 (subway)
+    "backgrounds/bg_subway_3.mp4",
+    # variantes 3 (gta)
+    "backgrounds/bg_gta_3.mp4",
+    # variantes 3 (slime)
+    "backgrounds/bg_slime_3.mp4",
+    # variantes 3 (satisfying)
+    "backgrounds/bg_satisfying_3.mp4",
 ]
 
 
