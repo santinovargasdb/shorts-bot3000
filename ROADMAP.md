@@ -8,15 +8,17 @@
 - Captions de TikTok listas (`captions_tiktok/`)
 
 ## 🔜 Pendiente corto plazo
-- [ ] **Demo video de TikTok** (grabación del flujo OAuth + subida) → **Submit for review**
-  - Kit listo y probado: `grabar_demo_tiktok.bat` (2 clicks en el navegador, resto solo;
-    deja `tiktok_review_demo.mp4` + `demo_log.txt`). Textos del formulario en
-    `tiktok_review_form.md`.
-  - Requisitos de la toma: cuenta en PRIVADO (direct post sin auditar) y cupo de
-    inbox libre (máx 5 subidas pendientes/24h; el 2026-10-01 se agotó con las tomas
-    de prueba → grabar a partir del 2026-10-02 ~8:30).
-  → al aprobarse: cambiar `.env` a credenciales de producción + scope `video.publish` = TikTok full-auto
-- [ ] Recargar backlog cuando queden <4 partes (generar pt.11+)
+- [x] **Demo video de TikTok ENVIADO A REVISIÓN (2026-10-02)** — demo de 118s con el
+  flujo completo (consentimiento OAuth, user.info, inbox upload → SEND_TO_USER_INBOX,
+  direct post → PUBLISH_COMPLETE). Kit: `grabar_demo_tiktok.bat` + textos en
+  `tiktok_review_form.md`.
+  → **Al llegar la aprobación**: (1) `.env` a credenciales `TIKTOK_PROD_*`; (2) adaptar
+  el OAuth a redirect localhost (la app de producción registra `http://localhost:*/callback/`
+  para Desktop — servidor local tipo YouTube, sin copiar códigos); (3) re-autorizar;
+  (4) migrar `daily_post.do_tiktok` de `upload_draft` a `publish_direct` = full-auto.
+- [ ] Activar canal Historia: canal de marca YT (verificación de Google YA aprobada)
+  + OAuth + IG @historia.en60segundos + schtasks 12:30/19:30
+- [ ] Recargar backlog cuando queden <4 partes (faceless pt.11+; historia/misterios ep.11+)
 
 ## 📘 Facebook (declarado: se quiere sumar a la automatización)
 La Página "En 60 Segundos" ya existe (hoy es solo el puente de la API de IG). Para postear
