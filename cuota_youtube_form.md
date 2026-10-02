@@ -21,7 +21,7 @@ Completarlo logueado con **nofaceshortvids@gmail.com**.
 | Link to client / website | https://santinovargasdb.github.io/shorts-bot3000/ |
 | APIs/endpoints used | YouTube Data API v3 — videos.insert (uploads only) |
 | Current daily quota | 10,000 units |
-| Requested daily quota | 20,000 units |
+| Requested daily quota | 50,000 units |
 
 **Use case description:**
 ```
@@ -37,10 +37,11 @@ usage is uploading my own content to my own channels.
 **Why the increase:**
 ```
 Each upload costs ~1,600 units. With 3 channels x 2 daily uploads the
-project consumes ~9,600 of the 10,000 daily units, leaving no headroom and
-blocking planned growth to 4-5 channels (~16,000 units/day). Requesting
-20,000 units/day to cover current usage plus planned channels with a
-safety margin.
+project already consumes ~9,600 of the 10,000 daily units, leaving no
+headroom. The roadmap scales the same tool to 8-10 niche channels over the
+coming months (all my own channels, same single-user setup), which at 2
+uploads per day each means ~25,600-32,000 units/day. Requesting 50,000
+units/day to cover that growth with a safety margin for retries.
 ```
 
 **Compliance (si pregunta por datos de usuarios / ToS):**
