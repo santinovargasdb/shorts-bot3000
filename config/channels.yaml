@@ -87,8 +87,8 @@ misterios:
   crop_mode: "blur"
   clips_per_source: 1
   hook_text: ""
-  tts_voice: "es-CO-GonzaloNeural" # voz elegida por el usuario: más narrativa y pausada
-  tts_rate: "+2%"                  # más pausado, clima de misterio
+  tts_voice: "es-MX-DaliaNeural" # voz elegida por el usuario: más narrativa y pausada
+  tts_rate: "+8%"                  # más pausado, clima de misterio
   caption:
     highlight_color: "&H00E22B8A"  # violeta para diferenciar el canal
   legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."
