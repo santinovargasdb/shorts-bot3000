@@ -18,7 +18,12 @@
   (4) migrar `daily_post.do_tiktok` de `upload_draft` a `publish_direct` = full-auto.
 - [ ] Activar canal Historia: canal de marca YT (verificación de Google YA aprobada)
   + OAuth + IG @historia.en60segundos + schtasks 12:30/19:30
+- [x] **Pedido de cuota de YouTube ENVIADO (2026-10-04)** — 50.000 unidades/día de
+  videos.insert para escalar a 8-10 canales. Machete y evidencia: `cuota_youtube_form.md`
+  + PDFs en Descargas. Respuesta esperada por mail en días/semanas.
 - [ ] Recargar backlog cuando queden <4 partes (faceless pt.11+; historia/misterios ep.11+)
+- [ ] Al aprobarse la cuota: armar canal 4 "Mente en 60 Segundos" (receta de misterios)
+  y diseñar pipeline de Historias de Reddit (fase 2)
 
 ## 📘 Facebook (declarado: se quiere sumar a la automatización)
 La Página "En 60 Segundos" ya existe (hoy es solo el puente de la API de IG). Para postear
