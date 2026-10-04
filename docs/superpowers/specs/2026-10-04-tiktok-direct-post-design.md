@@ -78,6 +78,25 @@ embebido. Objetivo: eliminar el paso manual por completo.
   borrar el video de prueba, retroceder `next_part` de tiktok en
   `automation_state.json` y cambiar a `PUBLIC_TO_EVERYONE`.
 
+## Addendum de implementación (2026-10-04)
+
+Al implementar se descubrió que el `.env` seguía con las credenciales sandbox
+activas y el token de `secrets/` pertenecía a la app sandbox, así que "Lo que
+NO cambia" quedó parcialmente desactualizado:
+
+- `uploaders/tiktok_upload.py` SÍ cambió: se agregó `auth_local()` (OAuth con
+  servidor en `http://localhost:PUERTO/callback/`, abre el navegador y canjea
+  el code solo — la app de producción Desktop lo exige), `_parse_callback()`
+  con validación de state, y `auth_url`/`exchange_code` aceptan
+  `redirect_uri`/`state` opcionales. El flujo manual quedó como `auth-manual`.
+- `.env`: `TIKTOK_CLIENT_KEY/SECRET` ahora apuntan a la app de producción;
+  las sandbox quedaron respaldadas como `TIKTOK_SANDBOX_*`.
+- `secrets/tiktok_token.json` (sandbox) se archivó como
+  `tiktok_token.sandbox.bak`: hasta re-autorizar, `do_tiktok` saltea con
+  "No configurado (sin token)" en vez de fallar con un token ajeno.
+- Paso manual previo al ensayo: `python -m uploaders.tiktok_upload auth`
+  logueándose con @en60segundos.
+
 ## Fuera de alcance (futuro)
 
 - TikTok para historia/misterios: requiere cuenta TikTok propia por canal y

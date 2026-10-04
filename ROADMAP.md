@@ -8,14 +8,17 @@
 - Captions de TikTok listas (`captions_tiktok/`)
 
 ## 🔜 Pendiente corto plazo
-- [x] **Demo video de TikTok ENVIADO A REVISIÓN (2026-10-02)** — demo de 118s con el
-  flujo completo (consentimiento OAuth, user.info, inbox upload → SEND_TO_USER_INBOX,
-  direct post → PUBLISH_COMPLETE). Kit: `grabar_demo_tiktok.bat` + textos en
-  `tiktok_review_form.md`.
-  → **Al llegar la aprobación**: (1) `.env` a credenciales `TIKTOK_PROD_*`; (2) adaptar
-  el OAuth a redirect localhost (la app de producción registra `http://localhost:*/callback/`
-  para Desktop — servidor local tipo YouTube, sin copiar códigos); (3) re-autorizar;
-  (4) migrar `daily_post.do_tiktok` de `upload_draft` a `publish_direct` = full-auto.
+- [x] **App de TikTok APROBADA (2026-10-04)** — hecho: `daily_post.do_tiktok` migrado
+  de `upload_draft` a `publish_direct` con caption embebido (título + hashtags) y
+  fallback a borradores si la privacidad no está disponible; OAuth de producción con
+  servidor localhost (`python -m uploaders.tiktok_upload auth`); `.env` activo con
+  credenciales de producción (sandbox respaldada como `TIKTOK_SANDBOX_*`; token viejo
+  en `secrets/tiktok_token.sandbox.bak`). Spec: docs/superpowers/specs/2026-10-04-tiktok-direct-post-design.md
+  → **Queda (manual)**: (1) re-autorizar: `python -m uploaders.tiktok_upload auth`
+  con la cuenta @en60segundos; (2) validar el run de ensayo (`TT_PRIVACY="SELF_ONLY"`:
+  video privado con caption OK → borrarlo y retroceder `next_part` de tiktok en
+  `automation_state.json`); (3) pasar `TT_PRIVACY` a `"PUBLIC_TO_EVERYONE"` en
+  `daily_post.py` = full-auto.
 - [ ] Activar canal Historia: canal de marca YT (verificación de Google YA aprobada)
   + OAuth + IG @historia.en60segundos + schtasks 12:30/19:30
 - [x] **Pedido de cuota de YouTube ENVIADO (2026-10-04)** — 50.000 unidades/día de

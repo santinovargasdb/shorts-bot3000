@@ -5,7 +5,8 @@ TikTok y el dueño de la cuenta completa la publicación en la app (2 toques).
 Cuando la app pase la auditoría se puede migrar a publicación directa.
 
 Comandos:
-  python -m uploaders.tiktok_upload auth            # imprime la URL para autorizar
+  python -m uploaders.tiktok_upload auth            # OAuth con servidor localhost (prod)
+  python -m uploaders.tiktok_upload auth-manual     # imprime la URL (flujo viejo, copiar code)
   python -m uploaders.tiktok_upload code <CODE>     # canjea el código por tokens
   python -m uploaders.tiktok_upload upload <video>  # sube un mp4 a borradores
   python -m uploaders.tiktok_upload publish <video> [titulo]  # direct post PRIVADO (test)
@@ -56,7 +57,7 @@ def _env(name: str) -> str:
 
 
 # ---------------------------------------------------------------- OAuth
-def auth_url() -> str:
+def auth_url(redirect_uri: str | None = None, state: str | None = None) -> str:
     """URL para que el dueño de la cuenta autorice la app (abrir en navegador)."""
     from urllib.parse import urlencode
 
@@ -64,20 +65,86 @@ def auth_url() -> str:
         "client_key": _env("TIKTOK_CLIENT_KEY"),
         "scope": SCOPES,
         "response_type": "code",
-        "redirect_uri": _env("TIKTOK_REDIRECT_URI"),
-        "state": pysecrets.token_urlsafe(16),
+        "redirect_uri": redirect_uri or _env("TIKTOK_REDIRECT_URI"),
+        "state": state or pysecrets.token_urlsafe(16),
     }
     return f"{AUTH_URL}?{urlencode(params)}"
 
 
-def exchange_code(code: str) -> dict:
+def _parse_callback(path: str, expected_state: str) -> str:
+    """Extrae el code del path del callback OAuth, validando el state."""
+    from urllib.parse import parse_qs, urlparse
+
+    q = parse_qs(urlparse(path).query)
+    if "error" in q:
+        detalle = q.get("error_description", q["error"])[0]
+        raise RuntimeError(f"TikTok devolvió error: {detalle}")
+    if q.get("state", [None])[0] != expected_state:
+        raise RuntimeError("state inválido en el callback (posible CSRF); reintentá el auth.")
+    code = q.get("code", [None])[0]
+    if not code:
+        raise RuntimeError(f"Callback sin code: {path}")
+    return code
+
+
+def auth_local() -> None:
+    """OAuth de la app de producción (Desktop): levanta un servidor local en
+    http://localhost:PUERTO/callback/, abre el navegador y canjea el code solo
+    — sin copiar códigos a mano (mismo esquema que el uploader de YouTube)."""
+    import socket
+    import webbrowser
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    state = pysecrets.token_urlsafe(16)
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    redirect = f"http://localhost:{port}/callback/"
+    resultado: dict = {}
+
+    class _Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if not self.path.startswith("/callback"):   # favicon y demás
+                self.send_response(404)
+                self.end_headers()
+                return
+            try:
+                resultado["code"] = _parse_callback(self.path, state)
+                cuerpo = "✅ Autorizado. Cerrá esta pestaña y volvé a la terminal."
+            except Exception as e:
+                resultado["error"] = str(e)
+                cuerpo = f"⚠️ {e}"
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(f"<h2 style='font-family:sans-serif'>{cuerpo}</h2>".encode())
+
+        def log_message(self, *args):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", port), _Handler)
+    url = auth_url(redirect_uri=redirect, state=state)
+    print("Abriendo el navegador: logueate con la cuenta de TikTok del canal y autorizá.")
+    print(f"Si no se abre solo, pegá esta URL:\n{url}")
+    webbrowser.open(url)
+    try:
+        while "code" not in resultado and "error" not in resultado:
+            srv.handle_request()
+    finally:
+        srv.server_close()
+    if "error" in resultado:
+        raise RuntimeError(resultado["error"])
+    exchange_code(resultado["code"], redirect_uri=redirect)
+
+
+def exchange_code(code: str, redirect_uri: str | None = None) -> dict:
     """Canjea el código del callback por access_token + refresh_token."""
     r = requests.post(TOKEN_URL, data={
         "client_key": _env("TIKTOK_CLIENT_KEY"),
         "client_secret": _env("TIKTOK_CLIENT_SECRET"),
         "code": code,
         "grant_type": "authorization_code",
-        "redirect_uri": _env("TIKTOK_REDIRECT_URI"),
+        "redirect_uri": redirect_uri or _env("TIKTOK_REDIRECT_URI"),
     }, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=60)
     data = r.json()
     if "access_token" not in data:
@@ -224,6 +291,8 @@ if __name__ == "__main__":
         raise SystemExit(1)
     cmd = sys.argv[1]
     if cmd == "auth":
+        auth_local()
+    elif cmd == "auth-manual":
         print("Abrí esta URL, logueate con la cuenta de TikTok del canal y autorizá:")
         print(auth_url())
     elif cmd == "code":

@@ -31,6 +31,8 @@ STATE = ROOT / "automation_state.json"
 
 # ─── Configuración ───────────────────────────────────────────────
 YT_PRIVACY = "public"     # "public" (auto viral) | "unlisted" | "private"
+TT_PRIVACY = "SELF_ONLY"  # ensayo del direct post; pasar a "PUBLIC_TO_EVERYONE"
+                          # tras validar el primer run (spec 2026-10-04)
 # ─────────────────────────────────────────────────────────────────
 
 _PLATAFORMAS = ("youtube", "instagram", "tiktok")
@@ -105,6 +107,21 @@ def _caption(video: Path) -> str:
     if meta.exists():
         return json.loads(meta.read_text(encoding="utf-8")).get("description", video.stem)
     return video.stem
+
+
+def _tt_caption(video: Path) -> str:
+    """Caption para TikTok: título + línea de hashtags, sin el bloque SEO
+    (la descripción completa queda spammy visible bajo el video)."""
+    meta = video.with_suffix(".json")
+    if not meta.exists():
+        return video.stem
+    data = json.loads(meta.read_text(encoding="utf-8"))
+    title = data.get("title", video.stem)
+    # La línea de hashtags no siempre es la última: el crédito de música
+    # puede venir después. Se busca la primera línea que empieza con '#'.
+    hashtags = next((ln.strip() for ln in data.get("description", "").splitlines()
+                     if ln.strip().startswith("#")), "")
+    return f"{title}\n\n{hashtags}" if hashtags else title
 
 
 def do_youtube(st: dict, ctx: dict, series) -> None:
@@ -238,9 +255,34 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
     _log(ctx, f"[IG] ✅ Parte {part}: Reel {media_id}")
 
 
+def _tt_wait_status(ctx: dict, publish_id: str, timeout: int = 90) -> None:
+    """Poll corto del estado de la publicación, solo informativo: el contador
+    ya avanzó con la subida OK (mismo criterio optimista que siempre)."""
+    import time
+
+    from uploaders.tiktok_upload import fetch_status
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            status = fetch_status(publish_id).get("data", {}).get("status")
+        except Exception as e:
+            _log(ctx, f"[TT] (status) No se pudo consultar: {e}")
+            return
+        if status == "PUBLISH_COMPLETE":
+            _log(ctx, "[TT] PUBLISH_COMPLETE 🎉")
+            return
+        if status and "FAILED" in status:
+            _log(ctx, f"[TT] ⚠️  TikTok reportó {status} (revisá la app).")
+            return
+        time.sleep(5)
+    _log(ctx, f"[TT] Sigue procesando; consultá luego: python -m uploaders.tiktok_upload status {publish_id}")
+
+
 def do_tiktok(st: dict, ctx: dict, series) -> None:
-    """Sube la próxima parte a los BORRADORES de TikTok (solo canales con 'tt';
-    el token sigue siendo el global de secrets/ hasta que aprueben la app)."""
+    """Publica la próxima parte DIRECTO en TikTok con el caption embebido
+    (app ya auditada). Si la privacidad pedida no está disponible (ej. cuenta
+    en privado) cae a borradores para no perder el día. Token global de
+    secrets/ (solo canales con 'tt')."""
     from uploaders.tiktok_upload import TOKEN_FILE
     if not TOKEN_FILE.exists():
         _log(ctx, "[TT] No configurado (sin token), lo salteo.")
@@ -254,15 +296,28 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
         return
     video = _ensure_video(part, ctx, series)
     try:
-        from uploaders.tiktok_upload import upload_draft
-        _log(ctx, f"[TT] Subiendo parte {part} a borradores...")
-        publish_id = upload_draft(video)
+        from uploaders.tiktok_upload import creator_info, publish_direct, upload_draft
+        opciones = creator_info().get("privacy_level_options", [])
+        if TT_PRIVACY in opciones:
+            _log(ctx, f"[TT] Publicando parte {part} directo ({TT_PRIVACY})...")
+            publish_id = publish_direct(video, title=_tt_caption(video),
+                                        privacy_level=TT_PRIVACY)
+            modo = "directo"
+        else:
+            _log(ctx, f"[TT] ⚠️  La cuenta no permite {TT_PRIVACY} (opciones: {opciones}). Subo a borradores.")
+            publish_id = upload_draft(video)
+            modo = "borrador"
     except Exception as e:
         _log(ctx, f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
     st["tiktok"]["next_part"] = part + 1
-    st["tiktok"]["posted"].append({"part": part, "publish_id": publish_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
-    _log(ctx, f"[TT] ✅ Parte {part} en borradores de TikTok (publicala desde la app).")
+    st["tiktok"]["posted"].append({"part": part, "publish_id": publish_id, "modo": modo,
+                                   "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
+    if modo == "directo":
+        _log(ctx, f"[TT] ✅ Parte {part} publicada directo ({TT_PRIVACY}).")
+        _tt_wait_status(ctx, publish_id)
+    else:
+        _log(ctx, f"[TT] ✅ Parte {part} en borradores de TikTok (publicala desde la app).")
 
 
 def _in_env(key: str) -> bool:
