@@ -270,6 +270,15 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
     st["instagram"]["next_part"] = part + 1
     st["instagram"]["posted"].append({"part": part, "media_id": media_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
     _log(ctx, f"[IG] ✅ Parte {part}: Reel {media_id}")
+    comentario = ctx.get("first_comment")
+    if comentario:
+        try:
+            from uploaders.instagram_upload import post_comment
+            post_comment(media_id, comentario, access_token=creds["access_token"])
+            _log(ctx, "[IG] Primer comentario publicado 💬")
+        except Exception as e:
+            _log(ctx, f"[IG] ⚠️  No salió el primer comentario (el Reel quedó publicado igual; "
+                      f"si es de permisos, el token necesita instagram_business_manage_comments): {e}")
 
 
 def _tt_wait_status(ctx: dict, publish_id: str, timeout: int = 90) -> None:

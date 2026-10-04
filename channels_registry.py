@@ -17,6 +17,7 @@ CHANNELS = {
         "yt_token": None,     # None = secrets/token.json (legacy, no tocar)
         "ig_creds": None,     # None = IG_USER_ID/IG_ACCESS_TOKEN del .env (legacy)
         "platforms": ("yt", "ig", "tt"),
+        "first_comment": "¿Cuál de estos datos no conocías? 👇",
     },
     "historia": {
         "display": "Historia en 60 Segundos",
@@ -25,7 +26,8 @@ CHANNELS = {
         "music": "music/historia_tema.mp3",
         "yt_token": "secrets/historia/token.json",
         "ig_creds": "secrets/historia/instagram.json",
-        "platforms": ("yt", "ig"),   # TikTok se activa cuando aprueben la app
+        "platforms": ("yt", "ig"),   # TikTok: falta cuenta propia + tt_token por canal
+        "first_comment": "¿Ya conocías esta historia? 👇",
     },
     "misterios": {
         "display": "Misterios en 60 Segundos",
@@ -35,6 +37,7 @@ CHANNELS = {
         "yt_token": "secrets/misterios/token.json",
         "ig_creds": "secrets/misterios/instagram.json",
         "platforms": ("yt", "ig"),
+        "first_comment": "¿Vos qué creés que pasó de verdad? 👇",
     },
 }
 

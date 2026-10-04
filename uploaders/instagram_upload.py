@@ -89,6 +89,19 @@ def publish_reel(
     return media_id
 
 
+def post_comment(media_id: str, message: str, access_token: str | None = None) -> str:
+    """Comenta un media PROPIO (requiere el permiso
+    instagram_business_manage_comments en el token). Devuelve el ID del comentario."""
+    access_token = access_token or _env("IG_ACCESS_TOKEN")
+    r = requests.post(
+        f"{GRAPH}/{media_id}/comments",
+        data={"message": message, "access_token": access_token},
+        timeout=60,
+    )
+    r.raise_for_status()
+    return r.json()["id"]
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print('Uso: python -m uploaders.instagram_upload <video_url_publica> ["caption"]')
