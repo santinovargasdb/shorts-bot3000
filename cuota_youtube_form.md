@@ -1,58 +1,112 @@
-# Pedido de aumento de cuota — YouTube Data API v3
+# MACHETE COMPLETO — Formulario de cuota YouTube Data API (pasada única)
 
-Formulario oficial: **https://support.google.com/youtube/contact/yt_api_form**
-("YouTube API Services - Audit and Quota Extension Form")
-Completarlo logueado con **nofaceshortvids@gmail.com**.
+Form: **https://support.google.com/youtube/contact/yt_api_form**
+⚠️ Abrirlo en **INCÓGNITO** logueado con nofaceshortvids@gmail.com y completarlo
+de UNA pasada. Subir los archivos AL FINAL, justo antes de Submit.
+Archivos listos en **Descargas** (versiones livianas, total 13.2MB).
 
-## Dato previo que te va a pedir: el NÚMERO de proyecto
+---
 
-[console.cloud.google.com](https://console.cloud.google.com) → proyecto
-`project-f5bb7e33-...` → en el panel principal ("Cloud overview") aparece
-**Project number** (es numérico, distinto del ID). Copialo antes de empezar.
+## Section 2 — Organization and Contact
 
-## Respuestas por campo (los nombres pueden variar un poco)
-
-| Campo | Respuesta |
+| Campo | Valor |
 |---|---|
-| Contact email | nofaceshortvids@gmail.com |
-| Individual or organization | Individual developer |
-| API Client name | En 60 Segundos uploader (shorts-bot3000) |
-| Project number | (el numérico del console) |
-| Link to client / website | https://santinovargasdb.github.io/shorts-bot3000/ |
-| APIs/endpoints used | YouTube Data API v3 — videos.insert (uploads only) |
-| Current daily quota | 10,000 units |
-| Requested daily quota | 50,000 units |
+| Applying as | **As an individual user** |
+| Full Legal Name | (tu nombre y apellido del DNI) |
+| Organization's Legal Name | `self` |
+| Parent Company | `self` |
+| Primary Website | `https://santinovargasdb.github.io/shorts-bot3000/` |
+| Country / Address | Argentina · Juana Azurduy 5959 · Ciudad Jardín Lomas del Palomar · Buenos Aires · B1684 |
+| Category | Media & Entertainment (o similar) |
+| Organization Size | **Independent Developer/Sole Proprietor** |
+| Primary Contact | tu nombre real + nofaceshortvids@gmail.com |
+| Technical/Business Contact | Same as Primary |
 
-**Use case description:**
+## Section 3 — Work & audience
+
+**Describe your organization's work:**
 ```
-Personal desktop automation tool that uploads my own original short
-educational videos (Spanish-language "60 seconds" series) to my own three
-YouTube channels (one Google account, brand channels). The tool generates
-the videos locally (AI voice-over, captions, licensed footage) and uploads
-2 videos per day per channel via videos.insert using OAuth tokens for my
-own channels only. No third-party users, no data collection: the only API
-usage is uploading my own content to my own channels.
+I am an individual developer running a small personal automation tool for
+my own YouTube channels. I produce original short educational videos in
+Spanish (the "60 segundos" family of channels: general facts, history and
+mysteries, told in 60-second vertical videos). The videos are generated
+locally on my computer with AI voice-over, subtitles and royalty-free
+background footage and music (properly credited).
+
+The tool's only interaction with YouTube API Services is uploading these
+finished videos (videos.insert) to my own three brand channels, on a fixed
+schedule of 2 uploads per channel per day, using OAuth tokens I authorized
+myself for my own channels. There are no third-party users: nobody else
+uses the tool, it manages no other accounts, it does not read, store or
+process any YouTube user data, and it does not display YouTube content
+anywhere.
+
+Value provided: as an independent creator, the tool lets me publish
+consistent daily educational content in Spanish that viewers can consume
+in under a minute. The plan is to scale the same single-user setup to 8-10
+niche channels of my own, which is the reason for this quota request. No
+existing YouTube functionality is replaced or replicated.
 ```
 
-**Why the increase:**
+- Target audience: **Internal Users** (+ Individual Content Creators si deja varias)
+- Monetization: **Free service (we do not charge users)**
+- Google representative: **No**
+- How did you learn about the API: `Official YouTube developer documentation (developers.google.com)`
+- Content Owner IDs / Google Ads IDs: **vacío**
+
+## Section 4 — API Client
+
+| Campo | Valor |
+|---|---|
+| API Client Name | `En 60 Segundos Uploader` |
+| ¿Contiene "YouTube"? | **No** |
+| Primary Access URL | `https://santinovargasdb.github.io/shorts-bot3000/` |
+| Privacy Policy URL | `https://santinovargasdb.github.io/shorts-bot3000/privacy.html` |
+| Terms URL | `https://santinovargasdb.github.io/shorts-bot3000/terms.html` |
+| Publicly accessible? | **No** |
+
+**Demo Account Credentials: NO PONER CONTRASEÑAS.** Username/Password/Login
+URL vacíos (o `N/A`). En Special Instructions:
 ```
-Each upload costs ~1,600 units. With 3 channels x 2 daily uploads the
-project already consumes ~9,600 of the 10,000 daily units, leaving no
-headroom. The roadmap scales the same tool to 8-10 niche channels over the
-coming months (all my own channels, same single-user setup), which at 2
-uploads per day each means ~25,600-32,000 units/day. Requesting 50,000
-units/day to cover that growth with a safety margin for retries.
+Not applicable: this API Client is a single-user desktop tool that runs
+locally on my own computer. It has no login system, no hosted web app and
+no user accounts of any kind — the URL provided is an informational site.
+The tool simply uploads my own videos to my own channels via OAuth. I can
+provide a screen recording demonstrating the full upload flow on request.
 ```
 
-**Compliance (si pregunta por datos de usuarios / ToS):**
-```
-Single-user tool: only the developer authorizes it. It does not access,
-store or process any other user's data. It complies with the YouTube API
-Services Terms of Service; tokens are stored locally on the developer's
-machine.
-```
+## Section 5 — Project & quota
 
-Si piden un **screencast/demo del cliente**: avisarle a Claude — tenemos el
-kit de grabación del demo de TikTok adaptable en minutos.
+- Projects: **1**
+- **Project Number: `927702472633`**
+- Use Case Categories: **Video Uploading & Account Management** + **Internal Company Tool**
+- OAuth 2.0: **Yes**
+- Expected API Usage Volume:
+```
+Currently ~6 videos.insert calls per day (3 channels x 2 uploads ≈ 9,600
+units/day). Scaling to 8-10 of my own channels at 2 uploads/day each:
+16-20 calls/day ≈ 26,000-32,000 units. Requesting 50,000 units/day for
+videos.insert to cover growth plus retry margin. No other endpoints are
+used.
+```
+- Lista de endpoints: **ninguno marcado** (videos.insert se pide aparte)
+- Total quota: **Above Default quota**
+- **videos.insert (campo separado): 50,000** · search.list: 0/vacío
 
-Respuesta típica del equipo de YouTube: días a ~2 semanas, por mail.
+## Section 6 — Evidencia (subir AL FINAL)
+
+| Campo | Archivo en Descargas |
+|---|---|
+| Privacy Policy Screenshots | `privacy-policy-page.pdf` |
+| Homepage Screenshot | `homepage-with-policy-links.pdf` |
+| Terms of Service Documentation | `terms-of-service-page.pdf` |
+| Conditional Evidence (OAuth+CLI) | `evidencia_4_condicional.pdf` |
+| Architecture Diagram (opcional) | `architecture-diagram.png` |
+| User Flow / Other | vacíos |
+
+## Section 7 — Attestations
+
+Tildar **todas** (son ciertas en este caso de uso) → **Submit**.
+
+Nota post-aprobación: si el caso de uso declarado cambia alguna vez
+(dejar de ser single-user), hay que avisar a YouTube por escrito antes.
