@@ -102,11 +102,28 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
     return video
 
 
-def _caption(video: Path) -> str:
+def _ig_caption(video: Path) -> str:
+    """Caption corto para IG: título + gancho + hasta 5 hashtags (sin #shorts,
+    que es de YouTube) + crédito de música (CC-BY, obligatorio conservarlo).
+    El bloque SEO completo queda solo para la descripción de YouTube."""
     meta = video.with_suffix(".json")
-    if meta.exists():
-        return json.loads(meta.read_text(encoding="utf-8")).get("description", video.stem)
-    return video.stem
+    if not meta.exists():
+        return video.stem
+    data = json.loads(meta.read_text(encoding="utf-8"))
+    lineas = data.get("description", "").splitlines()
+    partes = [data.get("title", video.stem)]
+    gancho = next((ln.strip() for ln in lineas if ln.strip()), "")
+    if gancho:
+        partes.append(gancho)
+    idx = next((i for i, ln in enumerate(lineas) if ln.strip().startswith("#")), None)
+    if idx is not None:
+        tags = [t for t in lineas[idx].split() if t != "#shorts"][:5]
+        if tags:
+            partes.append(" ".join(tags))
+        credito = "\n".join(ln for ln in lineas[idx + 1:] if ln.strip())
+        if credito:
+            partes.append(credito)
+    return "\n\n".join(partes)
 
 
 def _tt_caption(video: Path) -> str:
@@ -244,7 +261,7 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
         _log(ctx, f"[IG] Parte {part}: subiendo mp4 a hosting...")
         url = gh_upload(video)
         _log(ctx, "[IG] Publicando Reel...")
-        media_id = publish_reel(url, caption=_caption(video),
+        media_id = publish_reel(url, caption=_ig_caption(video),
                                 ig_user_id=creds["user_id"],
                                 access_token=creds["access_token"])
     except Exception as e:
