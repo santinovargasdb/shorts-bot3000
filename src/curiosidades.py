@@ -193,7 +193,8 @@ def generate(
 
     # Audio: voz + música baja + whoosh en cada aparición de imagen
     F = len(events)
-    LEAD = 0.12   # el whoosh arranca un poco antes de la imagen (sensación de transición)
+    LEAD = 0.12      # el whoosh arranca un poco antes de la imagen (sensación de transición)
+    SFX_VOL = 0.18   # feedback 2026-10-04: a 0.4 tapaba la voz, "re alto"
     aparts = [f"[{narr_i}:a]volume=1.0[voz]"]
     mix = ["[voz]"]
     if track:
@@ -201,7 +202,7 @@ def generate(
         mix.append("[mus]")
     if F:
         # whoosh en cada aparición de imagen (volumen bajo, no debe tapar la voz)
-        aparts.append(f"[{pop_i}:a]volume=0.4,asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
+        aparts.append(f"[{pop_i}:a]volume={SFX_VOL},asplit={F}" + "".join(f"[ps{j}]" for j in range(F)))
         for j, ev in enumerate(events):
             ms = max(0, int((ev["start"] - LEAD) * 1000))
             aparts.append(f"[ps{j}]adelay={ms}|{ms}[pd{j}]")
