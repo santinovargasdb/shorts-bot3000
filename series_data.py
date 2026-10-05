@@ -56,6 +56,11 @@ BACKGROUNDS = [
     "backgrounds/bg_slime_3.mp4",
     # variantes 3 (satisfying)
     "backgrounds/bg_satisfying_3.mp4",
+    # variantes 4 (cortadas del tramo final de los *_raw2, metraje sin usar;
+    # slime/satisfying no tienen v4: falta materia prima nueva)
+    "backgrounds/bg_minecraft_4.mp4",
+    "backgrounds/bg_subway_4.mp4",
+    "backgrounds/bg_gta_4.mp4",
 ]
 
 
