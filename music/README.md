@@ -1,26 +1,23 @@
-# Música de fondo (volumen bajo)
+# Música por nicho (fórmula §5)
 
-Dejá acá tus pistas (`.mp3`, `.m4a`, `.wav`). El generador faceless mezcla una
-debajo de la narración a volumen bajo (~12%) para que no quede vacío.
+El motor soporta **carpeta por canal**: si `music` en `channels_registry.py` apunta a
+una carpeta, `_resolve_music` elige una pista de ahí. Para migrar del Kevin MacLeod
+único ("suena a documental 2015") a música por nicho:
 
-Uso:
-```bash
-python faceless_run.py --file guiones/venus.txt --title "..." \
-  --bg backgrounds/minecraft_parkour.mp4 --music music/lofi_chill.mp3
-# O dejá varias acá y se elige una automáticamente.
-```
+1. Bajá 2-3 pistas CC por carpeta (SIN cadencia final — el loop no debe "terminar"):
+   - `music/phonk/` → **datos/curiosidades**: phonk suave / lo-fi. Pixabay Music
+     (buscar "phonk", "lofi beat") o YouTube Audio Library (Hip-Hop).
+   - `music/dark_ambient/` → **misterios**: drones graves, piano minimalista.
+     Pixabay ("dark ambient", "suspense"), Fesliyan ("mysterious"), YT Audio Library
+     (Cinematic > Dark). Referencia del género: Øneheart "Snowfall".
+   - `music/cinematic/` → **historia**: cinematic suave. Pixabay ("cinematic
+     emotional"), YT Audio Library (Cinematic).
+2. Por CADA pista agregá su crédito si la licencia lo pide (CC-BY):
+   `music/<carpeta>/<nombre>.credit.txt` (mismo formato que los existentes).
+   Pixabay Content License no exige atribución; CC-BY sí.
+3. Apuntá el canal a la carpeta en `channels_registry.py`, ej.:
+   `"music": "music/dark_ambient"` — y listo, sin tocar más código.
 
-## De dónde sacar música libre de copyright
-- **Pixabay Music** — https://pixabay.com/music/ (CC0, sin atribución)
-- **YouTube Audio Library** — https://studio.youtube.com (biblioteca gratis)
-- **Incompetech** (Kevin MacLeod) — CC-BY (requiere atribución en la descripción)
-- Canales "No Copyright Music" (revisá los términos de cada uno)
-
-Bajar audio de un video con yt-dlp (cliente android evita el throttling):
-```bash
-yt-dlp --extractor-args "youtube:player_client=android" -f "ba/18" \
-  -x --audio-format mp3 --download-sections "*60-102" \
-  -o "music/mi_track.%(ext)s" "URL_DEL_VIDEO"
-```
-
-> Los archivos de audio de esta carpeta están en `.gitignore` (no se suben al repo).
+> Los tracks comerciales trending (Memory Reboot, Snowfall, After Dark, Experience)
+> NUNCA van acá: se agregan desde la app de IG/TikTok a volumen bajo sobre el video
+> ya publicado con música CC (ver docs/formula-faceless-viral.md §5).

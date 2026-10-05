@@ -35,6 +35,7 @@ def main() -> int:
         hashtags=KEYWORDS,
         background=background_for(args.part),
         music="music/monkeys_spinning_monkeys.mp3",
+        question=part.get("pregunta"),
     )
     print("\nShort:", out)
     return 0

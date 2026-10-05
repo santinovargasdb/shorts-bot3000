@@ -81,10 +81,14 @@ def build_ass(
     center_start: float = 0.0,
     center_end: float = 0.0,
     boundaries: list[float] | None = None,
+    question_text: str = "",
+    question_start: float = 0.0,
 ) -> Path:
     """Escribe el .ass. `offset` resta el tiempo de inicio del clip. `hook_text`
     pinta un texto fijo arriba todo el clip. `center_title` pinta un título
-    grande al centro entre [center_start, center_end] (para el momento del título)."""
+    grande al centro entre [center_start, center_end] (para el momento del título).
+    `question_text` pinta la pregunta binaria del remate desde `question_start`
+    hasta el final, debajo del karaoke pero dentro de la zona segura (y<1420)."""
     out_path = Path(out_path)
     font = caption.get("font", "Arial Black")
     size = int(caption.get("font_size", 90))
@@ -95,7 +99,14 @@ def build_ass(
     margin_v = caption.get("margin_v", 260)
     uppercase = caption.get("uppercase", True)
     hook_size = int(size * 0.62)   # más chico para que el título entre y pueda envolver
-    title_size = int(size * 1.15)  # título grande centrado (momento del título)
+    # El título ya no tiene ventana propia: convive con el dato 1 (fórmula §2),
+    # en la banda libre entre la tarjeta de imagen (termina y≈830) y el karaoke.
+    title_size = int(size * 0.58)
+    title_margin = int(target_height * 0.44)
+    quest_size = int(size * 0.62)  # pregunta del remate (abajo del karaoke, zona segura)
+    # La pregunta vive entre el karaoke (termina ~y=1220 con margin_v 700) y el
+    # borde de la UI de Shorts/TikTok (y≈1440): top-anchored en y=1250.
+    quest_margin = max(0, target_height - 670)
 
     # Estilos: Cap (abajo-centro) y Hook (arriba-centro). Colores se pisan inline.
     header = f"""[Script Info]
@@ -109,7 +120,8 @@ ScaledBorderAndShadow: yes
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,{font},{size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},2,60,60,{margin_v},1
 Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,180,1
-Style: Titulo,{font},{title_size},{highlight},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline+3},{shadow},5,80,80,0,1
+Style: Titulo,{font},{title_size},{highlight},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,80,80,{title_margin},1
+Style: Pregunta,{font},{quest_size},{highlight},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{quest_margin},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -130,9 +142,18 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     if center_title and center_end > center_start:
         ttxt = (center_title.upper() if uppercase else center_title)
         ttxt = ttxt.replace("{", "(").replace("}", ")")
-        ttxt = _wrap(ttxt, max_chars=14)
+        ttxt = _wrap(ttxt, max_chars=20)
         lines.append(
             f"Dialogue: 0,{_fmt_time(center_start)},{_fmt_time(center_end)},Titulo,,0,0,0,,{ttxt}\n"
+        )
+
+    # Pregunta binaria del remate: fija desde question_start hasta el final
+    if question_text and clip_duration and clip_duration > question_start:
+        qtxt = (question_text.upper() if uppercase else question_text)
+        qtxt = qtxt.replace("{", "(").replace("}", ")")
+        qtxt = _wrap(qtxt, max_chars=22)
+        lines.append(
+            f"Dialogue: 0,{_fmt_time(question_start)},{_fmt_time(clip_duration)},Pregunta,,0,0,0,,{qtxt}\n"
         )
 
     groups = _group_words(words, max_words, max_chars, boundaries=boundaries)

@@ -98,6 +98,8 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
                  title_meta=title,
                  description=series.descripcion(part, series.PARTS[part]["resumen"]),
                  hashtags=series.KEYWORDS,
+                 sfx_style=ctx.get("sfx_style", "datos"),
+                 question=series.PARTS[part].get("pregunta"),
                  verbose=False)
     return video
 

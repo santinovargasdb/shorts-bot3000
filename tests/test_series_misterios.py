@@ -30,6 +30,9 @@ def test_interfaz_serie():
     assert "1" in desc or "misterio" in desc.lower()
 
 
-def test_remate_invita_a_seguir():
+def test_remate_sin_cta_hablada():
+    # Invertido el 2026-10-05 (fórmula §7/§9): el "Seguime..." hablado rompe el
+    # loop y roza engagement bait; el cierre ahora es la pregunta binaria en pantalla.
     for n, ep in sm.MISTERIOS.items():
-        assert "eguime" in ep["segments"][-1]["text"], f"ep {n} sin CTA de seguir"
+        assert "eguime" not in ep["segments"][-1]["text"], f"ep {n} con CTA hablada"
+        assert ep["pregunta"].strip().endswith("?"), f"ep {n} sin pregunta de remate"
