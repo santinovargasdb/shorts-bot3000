@@ -1,4 +1,5 @@
 # tests/test_tiktok_oauth.py
+import hashlib
 from urllib.parse import parse_qs, urlparse
 
 import pytest
@@ -36,3 +37,35 @@ def test_auth_url_acepta_redirect_y_state_propios(monkeypatch):
     assert q["redirect_uri"] == ["http://localhost:5555/callback/"]
     assert q["state"] == ["est4do"]
     assert q["response_type"] == ["code"]
+
+
+def test_pkce_challenge_es_sha256_hex():
+    # TikTok usa SHA256 en HEX (no base64url); debe ser 64 chars hex.
+    verifier = "abc123-_.~ABC"
+    challenge = tt._pkce_challenge(verifier)
+    assert challenge == hashlib.sha256(verifier.encode("ascii")).hexdigest()
+    assert len(challenge) == 64
+    assert all(c in "0123456789abcdef" for c in challenge)
+
+
+def test_pkce_verifier_longitud_valida():
+    # El code_verifier debe entrar en el rango 43-128 que exige TikTok.
+    v = tt._pkce_verifier()
+    assert 43 <= len(v) <= 128
+
+
+def test_auth_url_incluye_pkce_cuando_hay_challenge(monkeypatch):
+    monkeypatch.setenv("TIKTOK_CLIENT_KEY", "ckey-test")
+    url = tt.auth_url(redirect_uri="http://localhost:5555/callback/",
+                      state="est4do", code_challenge="ch4llenge")
+    q = parse_qs(urlparse(url).query)
+    assert q["code_challenge"] == ["ch4llenge"]
+    assert q["code_challenge_method"] == ["S256"]
+
+
+def test_auth_url_sin_pkce_no_agrega_challenge(monkeypatch):
+    monkeypatch.setenv("TIKTOK_CLIENT_KEY", "ckey-test")
+    url = tt.auth_url(redirect_uri="http://localhost:5555/callback/", state="est4do")
+    q = parse_qs(urlparse(url).query)
+    assert "code_challenge" not in q
+    assert "code_challenge_method" not in q

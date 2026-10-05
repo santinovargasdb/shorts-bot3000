@@ -17,6 +17,7 @@ Tokens en secrets/tiktok_token.json (access 24h, refresh ~1 año; se renueva sol
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import secrets as pysecrets
@@ -28,6 +29,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 TOKEN_FILE = ROOT / "secrets" / "tiktok_token.json"
+PKCE_FILE = ROOT / "secrets" / "tiktok_pkce.tmp"
 AUTH_URL = "https://www.tiktok.com/v2/auth/authorize/"
 TOKEN_URL = "https://open.tiktokapis.com/v2/oauth/token/"
 INBOX_INIT_URL = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/"
@@ -57,8 +59,22 @@ def _env(name: str) -> str:
 
 
 # ---------------------------------------------------------------- OAuth
-def auth_url(redirect_uri: str | None = None, state: str | None = None) -> str:
-    """URL para que el dueño de la cuenta autorice la app (abrir en navegador)."""
+def _pkce_verifier() -> str:
+    """code_verifier PKCE: aleatorio URL-safe (~86 chars, dentro de 43-128)."""
+    return pysecrets.token_urlsafe(64)
+
+
+def _pkce_challenge(verifier: str) -> str:
+    """code_challenge de TikTok: SHA256 del verifier en HEX (no base64url)."""
+    return hashlib.sha256(verifier.encode("ascii")).hexdigest()
+
+
+def auth_url(redirect_uri: str | None = None, state: str | None = None,
+             code_challenge: str | None = None) -> str:
+    """URL para que el dueño de la cuenta autorice la app (abrir en navegador).
+
+    La app Desktop de TikTok exige PKCE: si se pasa `code_challenge` se agregan
+    `code_challenge` + `code_challenge_method=S256` a la URL."""
     from urllib.parse import urlencode
 
     params = {
@@ -68,6 +84,9 @@ def auth_url(redirect_uri: str | None = None, state: str | None = None) -> str:
         "redirect_uri": redirect_uri or _env("TIKTOK_REDIRECT_URI"),
         "state": state or pysecrets.token_urlsafe(16),
     }
+    if code_challenge:
+        params["code_challenge"] = code_challenge
+        params["code_challenge_method"] = "S256"
     return f"{AUTH_URL}?{urlencode(params)}"
 
 
@@ -96,6 +115,8 @@ def auth_local() -> None:
     from http.server import BaseHTTPRequestHandler, HTTPServer
 
     state = pysecrets.token_urlsafe(16)
+    verifier = _pkce_verifier()
+    challenge = _pkce_challenge(verifier)
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
         port = s.getsockname()[1]
@@ -123,7 +144,7 @@ def auth_local() -> None:
             pass
 
     srv = HTTPServer(("127.0.0.1", port), _Handler)
-    url = auth_url(redirect_uri=redirect, state=state)
+    url = auth_url(redirect_uri=redirect, state=state, code_challenge=challenge)
     print("Abriendo el navegador: logueate con la cuenta de TikTok del canal y autorizá.")
     print(f"Si no se abre solo, pegá esta URL:\n{url}")
     webbrowser.open(url)
@@ -134,18 +155,25 @@ def auth_local() -> None:
         srv.server_close()
     if "error" in resultado:
         raise RuntimeError(resultado["error"])
-    exchange_code(resultado["code"], redirect_uri=redirect)
+    exchange_code(resultado["code"], redirect_uri=redirect, code_verifier=verifier)
 
 
-def exchange_code(code: str, redirect_uri: str | None = None) -> dict:
-    """Canjea el código del callback por access_token + refresh_token."""
-    r = requests.post(TOKEN_URL, data={
+def exchange_code(code: str, redirect_uri: str | None = None,
+                  code_verifier: str | None = None) -> dict:
+    """Canjea el código del callback por access_token + refresh_token.
+
+    `code_verifier` es obligatorio para la app Desktop (PKCE)."""
+    payload = {
         "client_key": _env("TIKTOK_CLIENT_KEY"),
         "client_secret": _env("TIKTOK_CLIENT_SECRET"),
         "code": code,
         "grant_type": "authorization_code",
         "redirect_uri": redirect_uri or _env("TIKTOK_REDIRECT_URI"),
-    }, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=60)
+    }
+    if code_verifier:
+        payload["code_verifier"] = code_verifier
+    r = requests.post(TOKEN_URL, data=payload,
+                      headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=60)
     data = r.json()
     if "access_token" not in data:
         raise RuntimeError(f"TikTok no devolvió token: {data}")
@@ -293,10 +321,16 @@ if __name__ == "__main__":
     if cmd == "auth":
         auth_local()
     elif cmd == "auth-manual":
+        _ver = _pkce_verifier()
+        PKCE_FILE.parent.mkdir(exist_ok=True)
+        PKCE_FILE.write_text(_ver, encoding="utf-8")
         print("Abrí esta URL, logueate con la cuenta de TikTok del canal y autorizá:")
-        print(auth_url())
+        print(auth_url(code_challenge=_pkce_challenge(_ver)))
     elif cmd == "code":
-        exchange_code(sys.argv[2])
+        _ver = PKCE_FILE.read_text(encoding="utf-8").strip() if PKCE_FILE.exists() else None
+        exchange_code(sys.argv[2], code_verifier=_ver)
+        if PKCE_FILE.exists():
+            PKCE_FILE.unlink()
     elif cmd == "upload":
         upload_draft(sys.argv[2])
     elif cmd == "publish":

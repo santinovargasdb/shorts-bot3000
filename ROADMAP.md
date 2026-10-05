@@ -17,26 +17,32 @@
 ## 🔜 Pendiente corto plazo
 - [ ] **Tanda 3 de la fórmula (manual)**: (1) ~~gameplay propio~~ (el usuario no va a
   grabar) y ~~cuentas a Creador~~ (ya eran Creador de origen — el item solo aplicaba
-  a cuentas Empresa); (2) PRIORIDAD: re-autorizar TikTok (`python -m
-  uploaders.tiktok_upload auth`) — es LA plataforma viva (~300 views, ~30 likes/video)
-  y está pausada esperando el auth; (3) bajar el pack de SFX de Pixabay (reemplazar sfx/pop|riser|boom.wav
+  a cuentas Empresa); (2) ~~re-autorizar TikTok~~ HECHO 2026-10-05 (sandbox restaurado;
+  producción sigue pendiente de auditoría — ver abajo); (3) bajar el pack de SFX de Pixabay (reemplazar sfx/pop|riser|boom.wav
   sintéticos) y 2-3 pistas CC por carpeta de music/phonk|dark_ambient|cinematic
   (ver music/README.md). El usuario NO va a grabar gameplay propio (2026-10-05):
   si el alcance de IG sigue nulo en ~3 semanas, considerar comprar/conseguir
   metraje propio de otra forma. bg_slime_2 ya reemplazado por slime real
   (yt-dlp "no copyright", crudo en backgrounds/slime_raw3.mp4; en Pixabay
   "slime" devuelve BABOSAS — no volver a usar esa query para videos).
-- [x] **App de TikTok APROBADA (2026-10-04)** — hecho: `daily_post.do_tiktok` migrado
-  de `upload_draft` a `publish_direct` con caption embebido (título + hashtags) y
-  fallback a borradores si la privacidad no está disponible; OAuth de producción con
-  servidor localhost (`python -m uploaders.tiktok_upload auth`); `.env` activo con
-  credenciales de producción (sandbox respaldada como `TIKTOK_SANDBOX_*`; token viejo
-  en `secrets/tiktok_token.sandbox.bak`). Spec: docs/superpowers/specs/2026-10-04-tiktok-direct-post-design.md
-  → **Queda (manual)**: (1) re-autorizar: `python -m uploaders.tiktok_upload auth`
-  con la cuenta @en60segundos; (2) validar el run de ensayo (`TT_PRIVACY="SELF_ONLY"`:
-  video privado con caption OK → borrarlo y retroceder `next_part` de tiktok en
-  `automation_state.json`); (3) pasar `TT_PRIVACY` a `"PUBLIC_TO_EVERYONE"` en
-  `daily_post.py` = full-auto.
+- [ ] **App de TikTok: producción PENDIENTE de auditoría (al 2026-10-05)** — corrección:
+  la nota anterior decía "APROBADA" pero NO lo está; producción sigue esperando la
+  auditoría. El `.env` había quedado con el client_key de producción (`aw...`) y TikTok
+  lo RECHAZA con error `client_key` hasta que pase la auditoría. Diagnóstico 2026-10-05:
+  probado que no era scope ni redirect ni PKCE — es que el key de prod aún no está vivo.
+  - **Corrido ahora (sandbox):** `.env` activo revertido a `TIKTOK_SANDBOX_*`; token
+    restaurado desde `secrets/tiktok_token.sandbox.bak` y refrescado OK (vigente,
+    auto-renovable ~1 año). `creator_info` responde con la cuenta @en60segundos.
+    OJO: sandbox FUERZA los posteos a privados (no hay público automático hasta la
+    auditoría); sirve el flujo de borradores (video al inbox → publicar a mano).
+  - **Fix de código (2026-10-05):** `uploaders/tiktok_upload.py` ahora implementa PKCE
+    (la app Desktop lo exige): `code_challenge` = SHA256 del verifier en HEX + `S256`,
+    y `code_verifier` en el canje. Sin esto el OAuth daba error `code_challenge`.
+    Tests en `tests/test_tiktok_oauth.py`.
+  - **Cuando aprueben producción:** revertir `.env` a `TIKTOK_PROD_*`, re-autorizar
+    (`python -m uploaders.tiktok_upload auth` — localhost + PKCE ya listo) con
+    @en60segundos, y pasar `TT_PRIVACY` a `"PUBLIC_TO_EVERYONE"` en `daily_post.py`.
+  Spec: docs/superpowers/specs/2026-10-04-tiktok-direct-post-design.md
 - [ ] Activar canal Historia: canal de marca YT (verificación de Google YA aprobada)
   + OAuth + IG @historia.en60segundos + schtasks 12:30/19:30
 - [x] **Pedido de cuota de YouTube ENVIADO (2026-10-04)** — 50.000 unidades/día de
