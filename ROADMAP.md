@@ -20,7 +20,11 @@
   del alcance nulo; (2) pasar las 3 cuentas IG a tipo CREADOR (Empresa no ve audios
   trending); (3) bajar el pack de SFX de Pixabay (reemplazar sfx/pop|riser|boom.wav
   sintéticos) y 2-3 pistas CC por carpeta de music/phonk|dark_ambient|cinematic
-  (ver music/README.md). OJO: bg_slime_2 es una BABOSA, no slime — revisar/reemplazar.
+  (ver music/README.md). El usuario NO va a grabar gameplay propio (2026-10-05):
+  si el alcance de IG sigue nulo en ~3 semanas, considerar comprar/conseguir
+  metraje propio de otra forma. bg_slime_2 ya reemplazado por slime real
+  (yt-dlp "no copyright", crudo en backgrounds/slime_raw3.mp4; en Pixabay
+  "slime" devuelve BABOSAS — no volver a usar esa query para videos).
 - [x] **App de TikTok APROBADA (2026-10-04)** — hecho: `daily_post.do_tiktok` migrado
   de `upload_draft` a `publish_direct` con caption embebido (título + hashtags) y
   fallback a borradores si la privacidad no está disponible; OAuth de producción con
