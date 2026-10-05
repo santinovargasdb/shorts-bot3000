@@ -7,7 +7,20 @@
 - Tokens con auto-renovación (YT, IG semanal, TikTok)
 - Captions de TikTok listas (`captions_tiktok/`)
 
+- **Fórmula viral APLICADA (2026-10-05)** — tandas 1 y 2 completas (ver
+  docs/formula-faceless-viral.md): título sin voz (tarjeta visual), loudnorm -14 LUFS,
+  Ken Burns + corte aleatorio, SFX por canal (pop/riser+corte de música/boom),
+  pregunta binaria en pantalla, karaoke fuera de la UI (margin_v 700), rojo en
+  misterios, 30 guiones sin "Seguime" + 11 aperturas in medias res. Verificado con
+  3 videos reales (faceless pt.9, misterios ep.4, historia ep.4).
+
 ## 🔜 Pendiente corto plazo
+- [ ] **Tanda 3 de la fórmula (manual)**: (1) grabar gameplay PROPIO (OBS; Minecraft
+  gratis) y reemplazar los 18 bg_* — riesgo de originalidad IG/YT, causa probable
+  del alcance nulo; (2) pasar las 3 cuentas IG a tipo CREADOR (Empresa no ve audios
+  trending); (3) bajar el pack de SFX de Pixabay (reemplazar sfx/pop|riser|boom.wav
+  sintéticos) y 2-3 pistas CC por carpeta de music/phonk|dark_ambient|cinematic
+  (ver music/README.md). OJO: bg_slime_2 es una BABOSA, no slime — revisar/reemplazar.
 - [x] **App de TikTok APROBADA (2026-10-04)** — hecho: `daily_post.do_tiktok` migrado
   de `upload_draft` a `publish_direct` con caption embebido (título + hashtags) y
   fallback a borradores si la privacidad no está disponible; OAuth de producción con
