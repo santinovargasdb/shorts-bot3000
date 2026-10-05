@@ -15,10 +15,11 @@
   3 videos reales (faceless pt.9, misterios ep.4, historia ep.4).
 
 ## 🔜 Pendiente corto plazo
-- [ ] **Tanda 3 de la fórmula (manual)**: (1) grabar gameplay PROPIO (OBS; Minecraft
-  gratis) y reemplazar los 18 bg_* — riesgo de originalidad IG/YT, causa probable
-  del alcance nulo; (2) pasar las 3 cuentas IG a tipo CREADOR (Empresa no ve audios
-  trending); (3) bajar el pack de SFX de Pixabay (reemplazar sfx/pop|riser|boom.wav
+- [ ] **Tanda 3 de la fórmula (manual)**: (1) ~~gameplay propio~~ (el usuario no va a
+  grabar) y ~~cuentas a Creador~~ (ya eran Creador de origen — el item solo aplicaba
+  a cuentas Empresa); (2) PRIORIDAD: re-autorizar TikTok (`python -m
+  uploaders.tiktok_upload auth`) — es LA plataforma viva (~300 views, ~30 likes/video)
+  y está pausada esperando el auth; (3) bajar el pack de SFX de Pixabay (reemplazar sfx/pop|riser|boom.wav
   sintéticos) y 2-3 pistas CC por carpeta de music/phonk|dark_ambient|cinematic
   (ver music/README.md). El usuario NO va a grabar gameplay propio (2026-10-05):
   si el alcance de IG sigue nulo en ~3 semanas, considerar comprar/conseguir
