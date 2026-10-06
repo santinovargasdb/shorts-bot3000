@@ -53,12 +53,20 @@ def _audio_dur(path: Path) -> float:
 
 
 def _music_credit(track: Path | None = None) -> str:
-    """Crédito de la música: el de la pista (music/<stem>.credit.txt) si existe,
-    si no el global music/CREDITS.txt (pista original del canal 1)."""
+    """Crédito de la música. Busca el `<stem>.credit.txt` de la pista, primero
+    al lado del archivo (carpeta de nicho) y luego en la raíz music/. Si la pista
+    vive en una SUBCARPETA de nicho y no tiene crédito propio, no lleva crédito
+    (pistas sin atribución tipo Mixkit): NO hereda el CREDITS.txt global, para no
+    atribuir falsamente a Kevin MacLeod. Solo las pistas legacy en la raíz de
+    music/ caen al CREDITS.txt global."""
     if track is not None:
-        per_track = MUSIC_DIR / f"{Path(track).stem}.credit.txt"
-        if per_track.exists():
-            return per_track.read_text(encoding="utf-8").strip()
+        track = Path(track)
+        for cand in (track.with_name(f"{track.stem}.credit.txt"),
+                     MUSIC_DIR / f"{track.stem}.credit.txt"):
+            if cand.exists():
+                return cand.read_text(encoding="utf-8").strip()
+        if track.parent.resolve() != MUSIC_DIR.resolve():
+            return ""   # pista de nicho sin crédito => sin atribución
     f = MUSIC_DIR / "CREDITS.txt"
     return f.read_text(encoding="utf-8").strip() if f.exists() else ""
 

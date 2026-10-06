@@ -170,7 +170,9 @@ def generate(
         for j, card in enumerate(cards):
             events.append({"card": card, "start": cortes[j], "end": cortes[j + 1],
                            "first": j == 0})
-    track = _resolve_music(music, 0)
+    # Índice determinístico por episodio: si `music` es una carpeta de nicho,
+    # rota entre sus pistas (semilla propia para no tocar el stream de `rng`).
+    track = _resolve_music(music, random.Random(slug + "|music").randrange(10_000))
 
     cmd = ["ffmpeg", "-y",
            "-stream_loop", "-1", "-t", f"{duration:.3f}", "-i", str(Path(background).resolve())]

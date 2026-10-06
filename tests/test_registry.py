@@ -13,7 +13,7 @@ def test_contexto_historia():
     assert ctx["platforms"] == ("yt", "ig")
     assert ctx["yt_token"] == "secrets/historia/token.json"
     assert ctx["ig_creds"] == "secrets/historia/instagram.json"
-    assert ctx["music"] == "music/historia_tema.mp3"
+    assert ctx["music"] == "music/cinematic"
 
 
 def test_contexto_faceless_legacy():
@@ -21,6 +21,7 @@ def test_contexto_faceless_legacy():
     assert ctx["yt_token"] is None      # usa secrets/token.json (legacy)
     assert ctx["ig_creds"] is None      # usa .env (legacy)
     assert ctx["platforms"] == ("yt", "ig", "tt")
+    assert ctx["music"] == "music/lofi"
 
 
 def test_contexto_misterios():
@@ -29,7 +30,7 @@ def test_contexto_misterios():
     assert ctx["platforms"] == ("yt", "ig")
     assert ctx["yt_token"] == "secrets/misterios/token.json"
     assert ctx["ig_creds"] == "secrets/misterios/instagram.json"
-    assert ctx["music"] == "music/misterios_tema.mp3"
+    assert ctx["music"] == "music/dark_ambient"
 
 
 def test_canal_inexistente():
