@@ -24,7 +24,7 @@ sponsors / producto propio / embudo (ver §9).
 | # | Decisión | Elección | Por qué |
 |---|---|---|---|
 | 1 | **Ángulo/lane** | Drama de **relaciones + venganza** (infidelidad, familia/suegras, karma), ancla "¿soy el malo?" | Máxima resonancia hispana + payoff satisfactorio; menos saturado que AITA puro; motor de comentarios. |
-| 2 | **Marca** | **Sub-marca "¿Soy el Malo?"** emparentada con "En 60 Segundos" | Identidad propia para el drama sin diluir la marca informativa; reusa sistema de diseño + link hub. |
+| 2 | **Marca** | **Sub-marca "¿Soy el Malo?"** (acento **naranja Reddit**; logo = cronómetro con la cara del marcianito de Reddit/Snoo) | Identidad propia para el drama sin diluir la marca informativa; reusa sistema de diseño + link hub; el naranja guiña al origen del contenido. |
 | 3 | **Capa de transformación** | Reescritura + **voz-marca** + **veredicto/pregunta** propio | Es lo no-negociable contra el flag "inauténtico" y rompe el techo del TTS puro. Barato y automatizable. |
 | 4 | **Fuente** | **Reddit EN ahora** (API gratis), fuentes hispanas después | No existe subreddit grande en español; el material viral nace en inglés. EN es estructurado y escalable. |
 | 5 | **Duración** | **45-60s por default** (hasta ~75s si la historia lo pide) | Espacio para el arco (setup→conflicto→giro→veredicto) manteniendo alta completación. |
@@ -151,9 +151,17 @@ soyelmalo:
   legal_note: "Reescritura original de historias de Reddit. Ver checklist anti-strike en la spec."
 ```
 
-**Color de marca** (logo/banner/sección del link hub): **carmesí** (#E23A4E aprox.) — distinto del
-teal (datos) / dorado (historia) / violeta (misterios). El *highlight* de subtítulos queda en amarillo
-(el que mejor rinde); el carmesí es la identidad visual de la marca, no del karaoke.
+**Color de marca** (logo/banner/sección del link hub): **naranja Reddit** (#FF4500) — guiña al origen
+del contenido y se distingue del teal (datos) / dorado (historia) / violeta (misterios). El *highlight*
+de subtítulos queda en amarillo (el que mejor rinde); el naranja es la identidad visual de la marca,
+no del karaoke.
+
+**Logo:** el **cronómetro de siempre** (familia "En 60 Segundos") pero con la **cara del marcianito de
+Reddit (Snoo)** en el centro, en lugar del "60"; anillo del cronómetro en naranja Reddit.
+⚠️ *Nota de marca:* Snoo es marca registrada de Reddit, Inc.; sus guías piden no alterarlo ni usarlo
+para implicar afiliación. Opción más segura (recomendada): un **marcianito original inspirado** en Snoo
+(cabeza redonda + antena, cara simple) que evoca el vibe sin copiar el trademark. Se decide al diseñar
+el logo (no está en la primera entrega).
 
 ---
 
