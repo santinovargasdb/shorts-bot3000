@@ -94,6 +94,7 @@ def build_ass(
     size = int(caption.get("font_size", 90))
     primary = caption.get("primary_color", "&H00FFFFFF")
     highlight = caption.get("highlight_color", "&H0000F0FF")
+    accent = caption.get("accent_color", highlight)   # color de título/pregunta (default = highlight)
     outline = caption.get("outline", 3)
     shadow = caption.get("shadow", 1)
     margin_v = caption.get("margin_v", 260)
@@ -120,8 +121,8 @@ ScaledBorderAndShadow: yes
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,{font},{size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},2,60,60,{margin_v},1
 Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,180,1
-Style: Titulo,{font},{title_size},{highlight},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,80,80,{title_margin},1
-Style: Pregunta,{font},{quest_size},{highlight},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{quest_margin},1
+Style: Titulo,{font},{title_size},{accent},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,80,80,{title_margin},1
+Style: Pregunta,{font},{quest_size},{accent},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{quest_margin},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
