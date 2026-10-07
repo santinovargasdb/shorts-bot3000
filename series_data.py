@@ -283,6 +283,75 @@ PARTS = {
             _f("Tu cuerpo brilla en la oscuridad, literalmente. Emitís una lucecita mil veces más débil de lo que el ojo humano puede llegar a ver.", "glowing light", "dark silhouette"),
         ],
     },
+    16: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("las zanahorias que eran moradas, los atardeceres azules de Marte, por qué los "
+                    "cocodrilos no sacan la lengua, el ser vivo más grande del mundo y las mariposas "
+                    "que saborean con las patas"),
+        "segments": [
+            _f("Las zanahorias eran moradas, no naranjas. Se volvieron naranjas hace unos cuatrocientos años, cuando agricultores holandeses las cultivaron de ese color en honor a su familia real.", "purple carrots", "carrots bunch"),
+            _T(),
+            _f("Marte tiene atardeceres azules. El polvo finísimo de su atmósfera filtra la luz al revés que acá: de día el cielo se ve rojizo y al atardecer se pone azul alrededor del Sol.", "mars sunset", "mars surface"),
+            _f("Los cocodrilos no pueden sacar la lengua. La tienen pegada al piso de la boca por una membrana, así que por más que quieran, no te la pueden mostrar.", "crocodile mouth", "crocodile"),
+            _f("El ser vivo más grande del mundo es un hongo. En un bosque de Oregón hay uno que se extiende bajo tierra por más de nueve kilómetros cuadrados y tiene miles de años.", "forest mushroom", "oregon forest"),
+            _f("Las mariposas saborean con las patas. Apenas se posan sobre una flor o una fruta, sus patas detectan si eso sirve para comer o para poner huevos.", "butterfly flower", "butterfly macro"),
+        ],
+    },
+    17: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("los tres mil millones de latidos de tu corazón, el ojo del avestruz más grande "
+                    "que su cerebro, el metal que se derrite en la mano, los miles de dientes del "
+                    "caracol y el día lunar que dura casi un mes"),
+        "segments": [
+            _f("Tu corazón va a latir unos tres mil millones de veces a lo largo de tu vida, sin parar jamás, ni siquiera cuando dormís. Es la máquina más confiable que existe.", "human heart anatomy", "heartbeat pulse"),
+            _T(),
+            _f("El avestruz tiene los ojos más grandes que su propio cerebro. Cada ojo es como una pelota de billar, más grande que la masa de sesos que le entra en la cabeza.", "ostrich eye", "ostrich head"),
+            _f("El metal galio se derrite en tu mano. Parece aluminio sólido, pero su punto de fusión es tan bajo que el calor de la palma alcanza para volverlo líquido.", "gallium metal", "liquid metal hand"),
+            _f("El caracol tiene miles de dientes. En vez de muelas usa una lengua cubierta de hasta veinte mil dientes diminutos para raspar la comida.", "snail close up", "snail macro"),
+            _f("Un día en la Luna dura casi un mes terrestre. El Sol tarda unos veintinueve días en salir y volver a salir, así que una sola tarde lunar dura más de una semana nuestra.", "moon surface", "full moon"),
+        ],
+    },
+    18: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("el mito de Napoleón bajo, los vikingos sin cascos con cuernos, a qué huele la "
+                    "Vía Láctea, el lago rosa de Australia y los perezosos que aguantan la respiración"),
+        "segments": [
+            _f("Napoleón no era bajo. Medía lo normal para su época, cerca de un metro setenta; la fama de enano fue propaganda de sus enemigos y un enredo con las medidas francesas.", "napoleon portrait", "napoleon painting"),
+            _T(),
+            _f("Los vikingos nunca usaron cascos con cuernos. Esa imagen la inventó una ópera alemana en el siglo diecinueve; en batalla, los cuernos solo habrían estorbado.", "viking helmet", "viking warrior"),
+            _f("La Vía Láctea huele a frambuesas y sabría a ron. En una nube de gas del centro de la galaxia detectaron el mismo compuesto químico que da ese olor y ese sabor.", "milky way galaxy", "raspberries"),
+            _f("Hay un lago de color rosa chicle en Australia. El lago Hillier mantiene ese tono intenso todo el año, por unas algas y bacterias especiales que viven en su agua salada.", "pink lake australia", "lake aerial"),
+            _f("Los perezosos aguantan la respiración más que los delfines. Bajan tanto su ritmo cardíaco que resisten hasta cuarenta minutos sin tomar aire.", "sloth tree", "sloth hanging"),
+        ],
+    },
+    19: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("la estrella que se tragaría varios planetas, el árbol más alto del mundo, el "
+                    "camarón más ruidoso que un disparo, las huellas eternas en la Luna y el arrecife "
+                    "que se ve desde el espacio"),
+        "segments": [
+            _f("Hay una estrella tan gigante que, si la pusieras en lugar del Sol, se tragaría a la Tierra, a Marte y hasta a Júpiter. Al lado, nuestro Sol sería apenas un puntito.", "giant star space", "red supergiant star"),
+            _T(),
+            _f("El árbol más alto del mundo mide como un edificio de treinta pisos. Es una secuoya de California llamada Hyperion, de más de ciento quince metros, y su ubicación exacta es secreta.", "giant sequoia", "redwood forest"),
+            _f("El animal más ruidoso del mar es un camarón. El camarón pistola cierra su pinza tan rápido que genera una burbuja que estalla con un sonido más fuerte que un disparo.", "pistol shrimp", "shrimp claw"),
+            _f("Las huellas de los astronautas en la Luna van a durar millones de años. Como no hay viento ni agua que las borren, siguen ahí intactas desde hace más de cincuenta años.", "astronaut footprint moon", "moon landing"),
+            _f("La Gran Barrera de Coral es la estructura viva más grande del planeta y se ve desde el espacio. La construyeron miles de millones de animalitos diminutos: los corales.", "great barrier reef", "coral reef aerial"),
+        ],
+    },
+    20: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("el agua que hierve y se congela a la vez, los millones de células que fabricás "
+                    "por segundo, el planeta de diamante, el hipo que duró 68 años y cuánta energía "
+                    "gasta tu cerebro"),
+        "segments": [
+            _f("El agua puede hervir y congelarse al mismo tiempo. En un punto exacto de presión y temperatura, llamado punto triple, es hielo, líquido y vapor a la vez.", "boiling water", "ice water"),
+            _T(),
+            _f("Tu cuerpo fabrica millones de células nuevas cada segundo. Mientras leés esto estás reemplazando pedacitos de vos mismo, todo el tiempo, sin notarlo.", "cells microscope", "cell division"),
+            _f("Hay un planeta que podría estar cubierto de diamante. Es tan rico en carbono y está bajo tanta presión que buena parte de su interior sería diamante puro.", "diamond planet space", "exoplanet"),
+            _f("El hipo más largo de la historia duró sesenta y ocho años. Un hombre en Estados Unidos empezó a hipar en mil novecientos veintidós y no paró hasta poco antes de morir.", "vintage man portrait", "hiccup illustration"),
+            _f("Tu cerebro gasta la quinta parte de toda tu energía, aunque pesa poco más de un kilo. Pensar, incluso sentado y quieto, consume muchísimo.", "human brain", "brain energy"),
+        ],
+    },
 }
 
 
