@@ -51,3 +51,10 @@ def test_rewrite_reintenta_si_largo():
     client = _FakeClient([json.dumps(largo), json.dumps(VALID)])
     out = rw.rewrite_story({"body": "x"}, client, "m", max_retries=2)
     assert 110 <= rw.word_count(out["guion"]) <= 160
+
+
+def test_rewrite_falla_si_no_converge():
+    largo = {**VALID, "guion": " ".join(["x"] * 400)}
+    client = _FakeClient([json.dumps(largo), json.dumps(largo), json.dumps(largo)])
+    with pytest.raises(ValueError):
+        rw.rewrite_story({"body": "x"}, client, "m", max_retries=2)

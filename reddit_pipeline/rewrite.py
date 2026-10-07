@@ -92,4 +92,8 @@ def rewrite_story(post: dict, client, model: str,
                f"el giro. Manten las demas claves igual. Devolve el MISMO objeto JSON completo:\n"
                f"{json.dumps(data, ensure_ascii=False)}")
         data = parse_rewrite(_chat(client, model, fix))
+    if not (min_words <= word_count(data["guion"]) <= max_words):
+        raise ValueError(
+            f"El guion no entro en {min_words}-{max_words} palabras tras {max_retries} "
+            f"reintentos ({word_count(data['guion'])} palabras).")
     return data
