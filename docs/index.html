@@ -1,30 +1,102 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="utf-8"><title>en60segundos-bot</title>
+<head>
+<meta charset="utf-8">
+<title>En 60 Segundos — en60segundos-bot</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>body{font-family:system-ui,sans-serif;max-width:720px;margin:3rem auto;padding:0 1rem;color:#222;line-height:1.6}
-h1{font-size:1.6rem}img{width:96px;border-radius:20px}.en{color:#555;border-left:3px solid #ddd;padding-left:1rem;margin-top:2rem}</style>
+<meta name="description" content="en60segundos-bot: herramienta privada que publica los videos originales de los canales educativos En 60 Segundos en las cuentas de su propio titular (YouTube, TikTok, Instagram).">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+  :root{--ink:#1c2430;--muted:#5a6675;--line:#e6e9ee;--accent:#0ea5a0;--bg:#f7f8fa}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);
+       background:var(--bg);line-height:1.65;margin:0}
+  .wrap{max-width:760px;margin:0 auto;padding:0 1.2rem 4rem}
+  header{text-align:center;padding:3rem 1.2rem 2.4rem}
+  header img{width:104px;height:104px;border-radius:24px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+  header h1{font-size:1.7rem;margin:1rem 0 .3rem}
+  header .tag{color:var(--muted);font-size:1.05rem;margin:0}
+  section{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.5rem;margin:1rem 0}
+  h2{font-size:1.15rem;margin:.1rem 0 .7rem}
+  p{margin:.5rem 0}
+  ul{margin:.5rem 0;padding-left:1.2rem}li{margin:.3rem 0}
+  .channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin-top:.8rem}
+  .ch{border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;background:var(--bg)}
+  .ch b{display:block;color:var(--accent)}
+  a{color:var(--accent)}
+  .foot{text-align:center;color:var(--muted);font-size:.92rem;margin-top:1.6rem;border-top:1px solid var(--line);padding-top:1.4rem}
+  .en{color:var(--muted);font-size:.95rem}
+</style>
 </head>
 <body>
-<img src="icon.png" alt="En 60 Segundos">
-<h1>en60segundos-bot</h1>
-<p><strong>en60segundos-bot</strong> es una herramienta privada de uso personal que publica los
-videos originales del canal educativo <em>"En 60 Segundos"</em> (datos curiosos y cultura
-general) en las cuentas de redes sociales de su propio titular: sus canales de YouTube, su cuenta de TikTok y su cuenta de Instagram.</p>
-<ul>
-  <li>Solo accede a las cuentas de su propietario, con autorización OAuth explícita.</li>
-  <li>Usa los Servicios de API de YouTube (YouTube API Services) únicamente para subir videos a los canales de YouTube del titular.</li>
-  <li>No presta servicios a terceros ni recopila datos de otros usuarios.</li>
-</ul>
-<p><a href="terms.html">Términos de Servicio</a> · <a href="privacy.html">Política de Privacidad</a></p>
+<div class="wrap">
+  <header>
+    <img src="icon.png" alt="Ícono de En 60 Segundos">
+    <h1>En 60 Segundos</h1>
+    <p class="tag">Datos, historia y misterios en un minuto · herramienta <strong>en60segundos-bot</strong></p>
+  </header>
 
-<div class="en">
-<p><strong>English:</strong> <em>en60segundos-bot</em> is a private, personal-use tool that publishes
-the original videos of the educational channel "En 60 Segundos" (fun facts / general culture)
-to the owner's own social media accounts: their YouTube channels, TikTok account and Instagram account. It uses YouTube API Services solely to upload videos to the owner's own YouTube channels. It only accesses the
-owner's account via explicit OAuth authorization, serves no third parties, and collects no data
-from other users.</p>
-<p><a href="terms.html">Terms of Service</a> · <a href="privacy.html">Privacy Policy</a></p>
+  <section>
+    <h2>Qué es</h2>
+    <p><strong>en60segundos-bot</strong> es una herramienta privada, de uso personal, que genera y
+    publica los videos cortos originales de la red de canales educativos <em>"En 60 Segundos"</em>
+    (curiosidades, historia y misterios) en las cuentas de redes sociales de su <strong>propio
+    titular</strong>: sus canales de YouTube, su cuenta de TikTok y sus cuentas de Instagram.</p>
+  </section>
+
+  <section>
+    <h2>Cómo funciona</h2>
+    <ul>
+      <li>El titular conecta <strong>sus propias cuentas</strong> mediante autorización OAuth explícita.</li>
+      <li>La herramienta arma cada video (voz, subtítulos, imágenes con licencia y música libre) y lo
+      sube de forma programada a las cuentas del titular.</li>
+      <li>En TikTok, los videos llegan a la bandeja del titular, que completa la publicación desde la app.</li>
+      <li>Los tokens de acceso se guardan <strong>localmente</strong> en el equipo del titular; no hay servidores de terceros.</li>
+      <li>No presta servicios a terceros ni accede a datos de otros usuarios.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Los canales</h2>
+    <div class="channels">
+      <div class="ch"><b>En 60 Segundos</b>Datos y curiosidades para parecer más inteligente.</div>
+      <div class="ch"><b>Historia en 60 Segundos</b>Historias reales que parecen inventadas.</div>
+      <div class="ch"><b>Misterios en 60 Segundos</b>Casos reales que nadie pudo explicar.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tus datos y tu privacidad</h2>
+    <p>La aplicación solo accede a las cuentas de su propietario, no usa cookies ni rastreadores, y no
+    recopila, vende ni comparte datos personales de terceros. El acceso puede revocarse en cualquier
+    momento desde la configuración de seguridad de cada plataforma.</p>
+    <p>Más detalle en la <a href="privacy.html">Política de Privacidad</a> y los
+    <a href="terms.html">Términos de Servicio</a>.</p>
+  </section>
+
+  <section>
+    <h2>Contacto</h2>
+    <p>Consultas: <a href="mailto:nofaceshortvids@gmail.com">nofaceshortvids@gmail.com</a></p>
+  </section>
+
+  <section>
+    <h2 class="en">English</h2>
+    <p class="en"><strong>en60segundos-bot</strong> is a private, personal-use tool that creates and
+    publishes the original short videos of the educational "En 60 Segundos" channels (fun facts,
+    history and mysteries) to the <strong>owner's own</strong> social accounts: their YouTube channels,
+    TikTok account and Instagram accounts. It connects only to the owner's own accounts via explicit
+    OAuth authorization, stores access tokens locally on the owner's computer, uses YouTube API
+    Services solely to upload videos to the owner's own channels, serves no third parties and collects
+    no data from other users. See the <a href="privacy.html">Privacy Policy</a> and
+    <a href="terms.html">Terms of Service</a>.</p>
+  </section>
+
+  <p class="foot">
+    <a href="terms.html">Términos de Servicio</a> ·
+    <a href="privacy.html">Política de Privacidad</a> ·
+    nofaceshortvids@gmail.com
+  </p>
 </div>
 </body>
 </html>
