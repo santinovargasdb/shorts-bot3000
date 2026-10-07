@@ -72,6 +72,11 @@ def cmd_dump(n: int, db_path=DB_PATH) -> None:
 
 
 def main(argv: list[str]) -> int:
+    # La consola de Windows (cp1252) crashea al imprimir emojis/acentos -> forzar UTF-8.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     cmd = argv[1] if len(argv) > 1 else "run"
     try:
         n = int(argv[2]) if len(argv) > 2 else 5
