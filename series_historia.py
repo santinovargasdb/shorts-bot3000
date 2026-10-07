@@ -222,6 +222,96 @@ HISTORIAS = {
                "centralia ghost town", "silent hill movie scene"),
         ],
     },
+    11: {
+        "pregunta": "¿Suerte o maldición?",
+        "titulo": "El hombre que sobrevivió a las dos bombas atómicas",
+        "resumen": ("Tsutomu Yamaguchi, el japonés que sobrevivió a Hiroshima y tres días "
+                    "después a Nagasaki, y vivió más de noventa años"),
+        "segments": [
+            _m("Sobrevivió a la bomba de Hiroshima. Tres días después estaba en Nagasaki para la segunda. Y vivió para contarlo más de sesenta años.",
+               "hiroshima bomb", "atomic bomb cloud"),
+            _m("Tsutomu Yamaguchi era ingeniero y estaba de viaje de trabajo en Hiroshima la mañana del seis de agosto de mil novecientos cuarenta y cinco, cuando cayó la primera bomba a pocos kilómetros de él.",
+               "hiroshima city 1945", "japanese engineer vintage"),
+            _m("Quedó quemado y con los tímpanos reventados, pero logró subir a un tren para volver a su ciudad natal a recuperarse. Su ciudad natal era Nagasaki.",
+               "japan train 1945", "bomb survivor bandage"),
+            _m("El nueve de agosto, mientras le contaba a su jefe lo que había visto, cayó la segunda bomba sobre Nagasaki. Volvió a sobrevivir, otra vez a pocos kilómetros del epicentro.",
+               "nagasaki bomb cloud", "office ruins japan"),
+            _m("Japón lo reconoció oficialmente como superviviente doble. Murió en dos mil diez, a los noventa y tres años. Vio dos infiernos y les ganó a los dos.",
+               "elderly japanese man", "peace memorial japan"),
+        ],
+    },
+    12: {
+        "pregunta": "¿Guerra o papelón?",
+        "titulo": "La guerra que un país le declaró a los pájaros y perdió",
+        "resumen": ("la Gran Guerra del Emú de mil novecientos treinta y dos, cuando el "
+                    "ejército de Australia salió a combatir emús con ametralladoras y perdió"),
+        "segments": [
+            _m("Un país le declaró la guerra a unos pájaros. Mandó soldados, ametralladoras y munición. Y perdió contra los pájaros.",
+               "emu bird", "australian outback"),
+            _m("Pasó en Australia, en mil novecientos treinta y dos. Miles de emús invadían los campos de trigo y los arruinaban, así que los granjeros desesperados pidieron ayuda al ejército.",
+               "wheat field australia", "emu flock"),
+            _m("El ejército envió soldados con ametralladoras. Pero los emús eran rapidísimos, se dispersaban en grupos chicos y esquivaban las balas corriendo en zigzag.",
+               "machine gun 1930s", "running emu"),
+            _m("Después de semanas, habían gastado miles de balas para matar apenas un puñado de emús. La prensa se burló sin piedad y el ejército terminó retirándose.",
+               "vintage newspaper headline", "australian soldiers 1930s"),
+            _m("Los emús ganaron la llamada Gran Guerra del Emú. Hasta hoy es el ejemplo favorito de cuando la naturaleza le gana al hombre.",
+               "emu close up", "australian bush"),
+        ],
+    },
+    13: {
+        "pregunta": "¿El mismo hombre o uno nuevo?",
+        "titulo": "El hombre que vivió con una barra de hierro en el cerebro",
+        "resumen": ("Phineas Gage, el obrero que en mil ochocientos cuarenta y ocho sobrevivió "
+                    "a una barra de hierro que le atravesó el cráneo y le cambió la personalidad"),
+        "segments": [
+            _m("Una explosión le disparó una barra de hierro que le entró por la mejilla y le salió por arriba de la cabeza. No solo sobrevivió: se levantó y habló.",
+               "iron rod", "railroad construction 1800s"),
+            _m("Phineas Gage era capataz de una obra de ferrocarril en mil ochocientos cuarenta y ocho. Una carga de dinamita estalló antes de tiempo y lanzó una barra de más de un metro a través de su cabeza.",
+               "dynamite explosion", "railroad workers vintage"),
+            _m("La barra le destruyó buena parte del lóbulo frontal. Increíblemente, siguió consciente y hablando mientras lo llevaban al médico sentado en una carreta.",
+               "skull xray", "vintage doctor examination"),
+            _m("Su cuerpo se recuperó, pero su personalidad cambió por completo: el hombre responsable y tranquilo se volvió impulsivo, grosero e irreconocible para sus amigos.",
+               "brain diagram", "personality change illustration"),
+            _m("Su caso fue clave para descubrir que el cerebro frontal controla la personalidad. Gage vivió doce años más y hoy es uno de los pacientes más famosos de la neurociencia.",
+               "neuroscience brain", "old medical museum"),
+        ],
+    },
+    14: {
+        "pregunta": "¿Mascota o camarada?",
+        "titulo": "El oso que fue soldado en la Segunda Guerra Mundial",
+        "resumen": ("Wojtek, el oso pardo que el ejército polaco adoptó en la Segunda Guerra, "
+                    "cargó municiones en Monte Cassino y tuvo rango militar"),
+        "segments": [
+            _m("Un oso cargó cajones de municiones en plena batalla, bajo fuego enemigo. No era una mascota cualquiera: tenía rango militar y hasta libreta de paga.",
+               "brown bear", "ww2 soldiers"),
+            _m("En mil novecientos cuarenta y dos, soldados polacos le compraron un osito huérfano a un chico en Irán. Lo criaron con leche condensada y lo llamaron Wojtek.",
+               "bear cub", "polish soldiers ww2"),
+            _m("Wojtek creció entre los soldados: tomaba cerveza, luchaba en broma y dormía en las carpas. Para poder embarcarlo rumbo a Italia, lo alistaron oficialmente como soldado del ejército polaco.",
+               "bear with soldiers", "military ship ww2"),
+            _m("En la batalla de Monte Cassino, en mil novecientos cuarenta y cuatro, Wojtek ayudó a cargar pesados proyectiles de artillería hasta los cañones y nunca dejó caer uno.",
+               "monte cassino battle", "artillery shells ww2"),
+            _m("Su unidad lo inmortalizó en su escudo: un oso cargando un proyectil. Terminada la guerra, Wojtek vivió en un zoológico de Escocia, donde los veteranos lo iban a visitar.",
+               "military emblem bear", "edinburgh zoo"),
+        ],
+    },
+    15: {
+        "pregunta": "¿Vos hubieras salido de la trinchera?",
+        "titulo": "La Navidad en que los enemigos dejaron de disparar",
+        "resumen": ("la Tregua de Navidad de mil novecientos catorce, cuando soldados enemigos "
+                    "de la Primera Guerra salieron de las trincheras a saludarse y jugar al fútbol"),
+        "segments": [
+            _m("Soldados de bandos enemigos salieron de las trincheras en plena guerra, se dieron la mano y jugaron al fútbol. Al día siguiente, volvieron a dispararse.",
+               "ww1 trenches", "soldiers christmas 1914"),
+            _m("Fue la Nochebuena de mil novecientos catorce, el primer invierno de la Primera Guerra Mundial. A lo largo del frente, en Bélgica y Francia, los disparos fueron parando solos.",
+               "ww1 western front", "snowy trench ww1"),
+            _m("Primero fueron villancicos cantados de una trinchera a la otra. Después, soldados alemanes y británicos se animaron a cruzar la tierra de nadie, desarmados.",
+               "ww1 soldiers singing", "no mans land ww1"),
+            _m("Intercambiaron cigarrillos, chocolate y fotos de sus familias. En varios tramos del frente improvisaron partidos de fútbol con lo que tenían a mano.",
+               "soldiers exchanging gifts", "vintage football match"),
+            _m("Los generales se horrorizaron y prohibieron que volviera a pasar. Pero por unas horas, en la peor guerra vista hasta entonces, el enemigo volvió a ser un ser humano.",
+               "ww1 officers", "christmas candle trench"),
+        ],
+    },
 }
 
 PARTS = HISTORIAS

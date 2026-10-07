@@ -312,6 +312,96 @@ MISTERIOS = {
                "lifeboat empty ocean", "pacific islands horizon"),
         ],
     },
+    11: {
+        "pregunta": "¿Quién vivía en el ático?",
+        "titulo": "Hinterkaifeck: los asesinatos que nadie resolvió",
+        "resumen": ("la masacre de la granja Hinterkaifeck en Baviera en mil novecientos veintidós, "
+                    "con huellas en la nieve que iban hacia la casa pero no volvían"),
+        "segments": [
+            _m("Toda una familia apareció asesinada en su granja. Lo más escalofriante: alguien había estado viviendo con ellos en la casa, sin que lo supieran, los días anteriores.",
+               "old bavarian farm", "snowy farmhouse night"),
+            _m("Pasó en la granja Hinterkaifeck, en Baviera, en mil novecientos veintidós. Días antes, el dueño contó que había visto huellas en la nieve que iban hacia la casa, pero ninguna que volviera.",
+               "footprints in snow", "german countryside 1920s"),
+            _m("También escuchó pasos en el ático y encontró un diario que no era de nadie de la casa. La criada anterior había renunciado diciendo que el lugar estaba embrujado.",
+               "wooden attic", "old german newspaper"),
+            _m("Una noche, los seis habitantes fueron asesinados a golpes con una herramienta de labranza. El asesino se quedó varios días en la granja: alimentó a los animales y comió en la cocina.",
+               "barn farm animals", "old farmhouse kitchen"),
+            _m("Los vecinos vieron humo en la chimenea después de las muertes. Casi cien años y más de cien sospechosos después, el caso sigue sin resolverse.",
+               "chimney smoke house", "cold case file"),
+        ],
+    },
+    12: {
+        "pregunta": "¿Experimento o encuentro?",
+        "titulo": "El caso de las máscaras de plomo",
+        "resumen": ("los dos técnicos brasileños hallados muertos en mil novecientos sesenta y seis "
+                    "en una colina de Niterói con máscaras de plomo y una nota críptica"),
+        "segments": [
+            _m("Encontraron a dos hombres muertos en lo alto de una colina, con máscaras de plomo tapándoles los ojos y una nota con instrucciones extrañas al lado.",
+               "brazil hill vegetation", "lead mask mystery"),
+            _m("Fue en Niterói, Brasil, en mil novecientos sesenta y seis. Los dos eran técnicos en electrónica y habían salido de su casa diciendo que iban a comprar materiales.",
+               "niteroi brazil hill", "vintage electronics technician"),
+            _m("La nota decía: a las cuatro y media estar en el lugar señalado; a las seis y media, tragar las cápsulas y esperar la señal con las máscaras puestas.",
+               "cryptic handwritten note", "pills capsules"),
+            _m("No había signos de violencia ni veneno detectable con las técnicas de la época. Las máscaras de plomo suelen usarse para protegerse de radiación o de una luz muy intensa.",
+               "vintage autopsy report", "lead radiation shield"),
+            _m("¿Qué señal esperaban? ¿Un experimento, un contacto, una secta? Nunca se supo. El caso de las máscaras de plomo sigue abierto.",
+               "mysterious light sky", "unsolved case brazil"),
+        ],
+    },
+    13: {
+        "pregunta": "¿Broma o algo más?",
+        "titulo": "El pirata de TV que nadie pudo identificar",
+        "resumen": ("el secuestro de la señal de televisión en Chicago en mil novecientos ochenta y siete "
+                    "por alguien con una máscara de Max Headroom, jamás identificado"),
+        "segments": [
+            _m("Alguien secuestró la señal de televisión de una ciudad entera. Durante poco más de un minuto apareció un personaje enmascarado, y hasta hoy nadie sabe quién fue.",
+               "old tv static", "retro television set"),
+            _m("Pasó en Chicago, una noche de noviembre de mil novecientos ochenta y siete. En plena transmisión, la imagen se cortó y apareció un hombre con una máscara de Max Headroom, un personaje de moda.",
+               "chicago skyline night", "glitch tv screen"),
+            _m("La señal pirata casi no tenía sonido claro: el hombre se reía, hacía gestos raros y decía frases sin sentido. Duró unos segundos y volvió la programación normal.",
+               "tv interference glitch", "80s broadcast studio"),
+            _m("Esa misma noche interrumpió otro canal, esta vez por más de un minuto, con una escena todavía más perturbadora. Hacer esto requería equipos caros y conocimiento técnico.",
+               "broadcast tower antenna", "tv transmitter equipment"),
+            _m("La justicia y la comisión de comunicaciones investigaron, pero nunca atraparon a nadie. Es uno de los poquísimos secuestros de señal de la historia que quedó sin resolver.",
+               "fcc investigation vintage", "unsolved tv mystery"),
+        ],
+    },
+    14: {
+        "pregunta": "¿Leyenda o realidad?",
+        "titulo": "El hombre del país que no existe",
+        "resumen": ("la historia, narrada como leyenda urbana, del viajero que llegó a Japón con "
+                    "pasaporte de un país llamado Taured, inexistente en todo mapa"),
+        "segments": [
+            _m("Un hombre llegó a un aeropuerto con el pasaporte de un país que no figura en ningún mapa. Y, según cuenta la historia, después desapareció de una habitación vigilada.",
+               "vintage airport customs", "mysterious passport"),
+            _m("La leyenda la ubica en un aeropuerto de Tokio. El hombre decía venir de Taured, un país que, aseguraba, existía desde hacía siglos en Europa. En el mapa, en ese lugar, estaba Andorra.",
+               "vintage tokyo airport", "europe world map"),
+            _m("Tenía documentos, dinero de varios países y sellos de viajes anteriores a Japón, todos aparentemente en regla. Insistía en que Taured era real y no entendía la confusión.",
+               "foreign currency bills", "passport stamps"),
+            _m("Lo alojaron en un cuarto de hotel bajo vigilancia mientras investigaban. A la mañana siguiente, el hombre y todos sus documentos habían desaparecido sin dejar rastro.",
+               "hotel room door", "empty hotel room"),
+            _m("Importante: no hay registros oficiales que lo confirmen y se considera una leyenda urbana que creció con los años. Pero sigue siendo uno de los relatos más inquietantes entre viajeros.",
+               "urban legend book", "empty airport night"),
+        ],
+    },
+    15: {
+        "pregunta": "¿Meteoro o misterio?",
+        "titulo": "La explosión que arrasó un bosque sin dejar cráter",
+        "resumen": ("el evento de Tunguska de mil novecientos ocho, una explosión descomunal sobre "
+                    "Siberia que derribó millones de árboles sin dejar cráter de impacto"),
+        "segments": [
+            _m("Algo estalló sobre Siberia con la fuerza de cientos de bombas atómicas y aplastó un bosque enorme. No quedó cráter ni rastro de qué fue.",
+               "flattened forest siberia", "explosion in sky"),
+            _m("Fue la mañana del treinta de junio de mil novecientos ocho, en una zona remota cerca del río Tunguska. La onda derribó unos ochenta millones de árboles en dos mil kilómetros cuadrados.",
+               "siberia taiga forest", "fallen trees aerial"),
+            _m("Hubo testigos a kilómetros que vieron una bola de fuego cruzar el cielo y sintieron un calor abrasador. La explosión quedó registrada en sismógrafos de todo el mundo.",
+               "fireball in sky", "seismograph recording"),
+            _m("Lo más raro: no había cráter de impacto. Por eso, durante décadas, se habló de todo, desde un cometa hasta teorías mucho más delirantes.",
+               "siberian landscape", "missing impact crater"),
+            _m("La explicación más aceptada hoy es un meteoro o cometa que estalló en el aire antes de tocar el suelo. Por eso aplastó el bosque sin dejar cráter.",
+               "meteor air burst", "comet in space"),
+        ],
+    },
 }
 
 PARTS = MISTERIOS

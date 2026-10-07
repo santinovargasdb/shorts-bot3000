@@ -1,8 +1,10 @@
 import series_misterios as sm
 
 
-def test_diez_misterios():
-    assert set(sm.MISTERIOS) == set(range(1, 11))
+def test_episodios_contiguos():
+    # Numeración contigua desde 1 (sin huecos) y al menos 10 episodios.
+    assert set(sm.MISTERIOS) == set(range(1, len(sm.MISTERIOS) + 1))
+    assert len(sm.MISTERIOS) >= 10
     assert sm.PARTS is sm.MISTERIOS
 
 

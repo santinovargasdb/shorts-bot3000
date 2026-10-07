@@ -79,7 +79,7 @@ def _f(text, *imgs):
 
 PARTS = {
     1: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("por qué el pulpo tiene sangre azul, por qué en Venus un día dura más que un "
                     "año, por qué la miel nunca caduca, por qué un rayo es más caliente que el Sol "
                     "y por qué Saturno flotaría en el agua"),
@@ -93,7 +93,7 @@ PARTS = {
         ],
     },
     2: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("cuántas estrellas hay en el universo, las huellas de los koalas, por qué la "
                     "Torre Eiffel crece en verano, las abejas que reconocen caras y por qué el "
                     "plátano es radiactivo"),
@@ -107,7 +107,7 @@ PARTS = {
         ],
     },
     3: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("los tardígrados que sobreviven en el espacio, Cleopatra más cerca de la Luna "
                     "que de las pirámides, por qué los flamencos son rosados, el planeta donde "
                     "llueve vidrio y cuánto ADN compartimos con un plátano"),
@@ -121,7 +121,7 @@ PARTS = {
         ],
     },
     4: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("los átomos de una cucharada de agua, los delfines que se ponen nombres, la "
                     "montaña más alta de verdad, las nutrias que duermen de la mano y cuál es el "
                     "planeta más caliente"),
@@ -135,7 +135,7 @@ PARTS = {
         ],
     },
     5: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("por qué el estómago no se digiere a sí mismo, los pulpos que saborean con los "
                     "brazos, el material más duro del cuerpo, las lunas de Saturno y los pingüinos "
                     "que regalan piedras"),
@@ -149,7 +149,7 @@ PARTS = {
         ],
     },
     6: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("cuántos rayos caen por día, las vacas que tienen mejores amigas, el peso del "
                     "Sol, los caracoles que duermen años y por qué hay más árboles que estrellas en "
                     "la galaxia"),
@@ -163,7 +163,7 @@ PARTS = {
         ],
     },
     7: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("el volcán gigante de Marte, por qué los elefantes no saltan, el billón de "
                     "olores que recordás, el mito de la Muralla China y cuánto dura un año en "
                     "Neptuno"),
@@ -177,7 +177,7 @@ PARTS = {
         ],
     },
     8: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("la medusa inmortal, el tamaño de Júpiter, por qué las jirafas casi no duermen, "
                     "el animal más letal del mundo y cuánta saliva generás en la vida"),
         "segments": [
@@ -190,7 +190,7 @@ PARTS = {
         ],
     },
     9: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("la Luna que se aleja, los gatos que duermen casi toda su vida, el Sahara que "
                     "fue verde, la lluvia de diamantes en los gigantes gaseosos y el corazón del "
                     "colibrí"),
@@ -204,7 +204,7 @@ PARTS = {
         ],
     },
     10: {
-        "pregunta": "¿Cuál no sabías?",
+        "pregunta": "¿Qué dato sabés vos?",
         "resumen": ("los dos billones de galaxias, lo poco que conocemos del océano, los koalas "
                     "dormilones, las alas de las abejas y lo lejos que está la estrella más cercana"),
         "segments": [
@@ -214,6 +214,73 @@ PARTS = {
             _f("Los koalas duermen hasta veintidós horas por día. Sus hojas de eucalipto son casi tóxicas y dan poquísima energía, así que dormir es su forma de sobrevivir.", "koala", "koala sleeping"),
             _f("Las abejas baten sus alas más de doscientas veces por segundo. Por eso zumban, y por eso pueden volar cargando néctar que pesa casi como ellas.", "bee", "bee flying"),
             _f("La luz del Sol tarda ocho minutos en llegar, pero la de la estrella más cercana tarda cuatro años. Si el Sol se apagara, lo sabríamos ocho minutos después.", "stars night sky", "sun space"),
+        ],
+    },
+    11: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("las combinaciones de un mazo de cartas, los tiburones más viejos que los "
+                    "árboles, por qué los caballos no pueden vomitar, el desierto más grande del "
+                    "mundo y el papel que llega a la Luna"),
+        "segments": [
+            _f("Si barajás bien un mazo de 52 cartas, es casi seguro que ese orden exacto nunca existió antes en toda la historia. Hay más combinaciones posibles que átomos en toda la Tierra.", "playing cards", "deck of cards"),
+            _T(),
+            _f("Los tiburones son más viejos que los árboles. Ya nadaban en los océanos más de cien millones de años antes de que creciera el primer árbol sobre la tierra.", "shark", "shark underwater"),
+            _f("Los caballos no pueden vomitar. Su sistema digestivo va en un solo sentido, así que un simple dolor de panza puede volverse mortal para ellos.", "horse", "horses field"),
+            _f("El desierto más grande del mundo es la Antártida. Un desierto se define por lo poco que llueve, no por el calor, y ahí casi nunca cae agua.", "antarctica", "ice landscape"),
+            _f("Si pudieras doblar una hoja de papel 42 veces, su grosor llegaría hasta la Luna. Cada doblez duplica el espesor y el número se dispara rapidísimo.", "folded paper", "moon"),
+        ],
+    },
+    12: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("las conexiones de tu cerebro, el peso de las nubes, los huesos del cuello de "
+                    "la jirafa, la fosa más profunda que el Everest y el ADN que llega a Plutón"),
+        "segments": [
+            _f("Tenés más conexiones en el cerebro que estrellas hay en la Vía Láctea. Son unos 86 mil millones de neuronas, cada una enganchada a miles de otras.", "brain", "neurons synapse"),
+            _T(),
+            _f("Una sola nube de tormenta puede pesar como cien elefantes. Flota igual porque está repartida en gotitas diminutas sobre un aire todavía más pesado.", "storm cloud", "clouds sky"),
+            _f("La jirafa tiene exactamente los mismos huesos en el cuello que vos: siete. Son mucho más grandes, pero la cantidad es idéntica a la de un humano.", "giraffe", "giraffe neck"),
+            _f("La fosa más profunda del océano es más honda que alto es el Everest. Si hundieras la montaña entera ahí adentro, todavía le quedarían dos kilómetros de agua encima.", "deep ocean", "mariana trench"),
+            _f("Todo el ADN de tu cuerpo, estirado en una línea, llegaría hasta Plutón y volvería varias veces. Está enrollado tan apretado que entra en células invisibles.", "dna helix", "pluto planet"),
+        ],
+    },
+    13: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("el día que duraba 18 horas, los gatos que no sienten lo dulce, el oro "
+                    "escondido en la Tierra, el corazón del camarón y el día de Mercurio"),
+        "segments": [
+            _f("Hace mil millones de años, un día en la Tierra duraba solo 18 horas. El planeta giraba más rápido y fue frenando de a poco por el tirón de la Luna.", "earth space", "planet earth"),
+            _T(),
+            _f("Los gatos no pueden sentir el sabor dulce. Les falta el gen para detectarlo, así que si les gusta un postre es por la grasa, no por el azúcar.", "cat", "kitten"),
+            _f("Hay tanto oro escondido en el interior de la Tierra que alcanzaría para cubrir todo el planeta con una capa de medio metro. El problema es que está a miles de kilómetros de profundidad.", "gold", "gold nugget"),
+            _f("El corazón del camarón está en su cabeza. Varios de sus órganos vitales viven ahí arriba, en una zona que mezcla la cabeza con el tórax.", "shrimp", "prawn"),
+            _f("En Mercurio, un día dura más que un año. Tarda 176 días terrestres en amanecer dos veces, pero solo 88 en dar la vuelta entera al Sol.", "mercury planet", "mercury surface"),
+        ],
+    },
+    14: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("la paradoja del cumpleaños, la nariz única de los perros, el cerebro que no "
+                    "siente dolor, el oxígeno que sale del mar y la caca cuadrada del wombat"),
+        "segments": [
+            _f("En un grupo de apenas 23 personas ya hay más del 50% de chance de que dos cumplan años el mismo día. Parece imposible, pero las combinaciones entre todos se disparan.", "birthday cake", "crowd people"),
+            _T(),
+            _f("La nariz de cada perro es única, como nuestras huellas digitales. En algunos lugares registran a los perros justamente por la huella de su nariz.", "dog nose", "dog face"),
+            _f("Tu cerebro no siente dolor. No tiene receptores para eso, por eso se puede operar a alguien despierto mientras le tocan el cerebro.", "brain scan", "brain model"),
+            _f("Más de la mitad del oxígeno que respirás no viene de los bosques, viene del mar. Lo producen algas microscópicas que flotan en el océano.", "ocean", "sea water"),
+            _f("El wombat hace caca con forma de cubo. Es el único animal que lo logra, y le sirve para marcar territorio sin que se le ruede cuesta abajo.", "wombat", "wombat animal"),
+        ],
+    },
+    15: {
+        "pregunta": "¿Qué dato sabés vos?",
+        "resumen": ("el Sol del tamaño de una pelota, el bosque que es un solo árbol, la cucharada "
+                    "de estrella de neutrones, el corazón de la ballena azul y por qué brillás en "
+                    "la oscuridad"),
+        "segments": [
+            _f("Si el Sol fuera una pelota de fútbol, la Tierra sería un grano de arena a 25 metros de distancia. El espacio está casi todo vacío.", "soccer ball", "solar system"),
+            _T(),
+            _f("Hay un bosque en Estados Unidos que en realidad es un solo árbol. Se llama Pando: miles de troncos salen de una misma raíz de más de 80 mil años.", "aspen forest", "forest trees"),
+            _f("Una sola cucharadita de estrella de neutrones pesaría más de mil millones de toneladas. La materia ahí está tan aplastada que nada en la Tierra se le acerca.", "neutron star", "star space"),
+            _f("El corazón de una ballena azul es tan grande como un auto chico. Late tan fuerte que se podría escuchar a varios kilómetros bajo el agua.", "blue whale", "whale ocean"),
+            _f("Tu cuerpo brilla en la oscuridad, literalmente. Emitís una lucecita mil veces más débil de lo que el ojo humano puede llegar a ver.", "glowing light", "dark silhouette"),
         ],
     },
 }
