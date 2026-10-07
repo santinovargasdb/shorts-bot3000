@@ -30,7 +30,7 @@
   body::after{content:"";position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.035;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-  .wrap{position:relative;z-index:1;max-width:452px;margin:0 auto;padding:54px 20px 60px}
+  .wrap{position:relative;z-index:1;max-width:452px;margin:0 auto;padding:54px 20px 96px}
 
   /* reveal al cargar */
   .reveal{opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
@@ -80,13 +80,22 @@
   .ic svg{width:23px;height:23px;display:block}
   .meta{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
   .meta b{font-weight:600;font-size:15.5px}
-  .meta em{font-family:var(--mono);font-style:normal;font-size:11.5px;color:var(--dim);
+  .meta em{font-family:var(--mono);font-style:normal;font-size:11.5px;color:var(--c);opacity:.92;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .go{font-family:var(--mono);color:var(--muted);font-size:16px;transition:transform .18s,color .18s}
   .lnk:hover .go{transform:translate(3px,-3px);color:var(--c)}
 
   footer{text-align:center;margin-top:40px}
   footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.14em}
+
+  .contact{position:fixed;right:16px;bottom:16px;z-index:5;display:inline-flex;align-items:center;gap:8px;
+    text-decoration:none;font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.03em;
+    color:var(--ink);background:var(--teal);border-radius:999px;padding:11px 15px;
+    box-shadow:0 8px 24px -8px rgba(45,212,191,.55),0 2px 10px rgba(0,0,0,.45)}
+  .contact svg{width:16px;height:16px}
+  .contact:hover,.contact:focus-visible{transform:translateY(-2px);
+    box-shadow:0 12px 30px -8px rgba(45,212,191,.75),0 2px 10px rgba(0,0,0,.45);outline:none}
+  .contact{transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .18s}
 
   @media (prefers-reduced-motion:reduce){
     .reveal{animation:none;opacity:1;transform:none}
@@ -169,6 +178,11 @@
 
   <footer class="reveal" style="--d:.4s"><p>UN VIDEO NUEVO · TODOS LOS DÍAS</p></footer>
 </main>
+
+<a class="contact" href="mailto:nofaceshortvids@gmail.com" aria-label="Contacto por email">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+  Contacto
+</a>
 
 <script>
 (function(){
