@@ -75,7 +75,7 @@ def test_do_tiktok_publica_directo_con_caption(tmp_path, monkeypatch):
     st, ctx, series = _setup_tt(tmp_path, monkeypatch, video)
     monkeypatch.setattr(daily_post, "TT_PRIVACY", "SELF_ONLY")
     monkeypatch.setattr(tt, "creator_info",
-                        lambda: {"privacy_level_options": ["PUBLIC_TO_EVERYONE", "SELF_ONLY"]})
+                        lambda token_file=None: {"privacy_level_options": ["PUBLIC_TO_EVERYONE", "SELF_ONLY"]})
     llamadas = {}
 
     def fake_publish(video_path, title, privacy_level, **kw):
@@ -84,9 +84,9 @@ def test_do_tiktok_publica_directo_con_caption(tmp_path, monkeypatch):
 
     monkeypatch.setattr(tt, "publish_direct", fake_publish)
     monkeypatch.setattr(tt, "upload_draft",
-                        lambda v: (_ for _ in ()).throw(AssertionError("no debería ir a borradores")))
+                        lambda v, token_file=None: (_ for _ in ()).throw(AssertionError("no debería ir a borradores")))
     monkeypatch.setattr(tt, "fetch_status",
-                        lambda pid: {"data": {"status": "PUBLISH_COMPLETE"}})
+                        lambda pid, token_file=None: {"data": {"status": "PUBLISH_COMPLETE"}})
 
     daily_post.do_tiktok(st, ctx, series)
 
@@ -104,10 +104,10 @@ def test_do_tiktok_fallback_a_borradores_si_privacidad_no_disponible(tmp_path, m
     st, ctx, series = _setup_tt(tmp_path, monkeypatch, video)
     monkeypatch.setattr(daily_post, "TT_PRIVACY", "PUBLIC_TO_EVERYONE")
     monkeypatch.setattr(tt, "creator_info",
-                        lambda: {"privacy_level_options": ["SELF_ONLY", "FOLLOWER_OF_CREATOR"]})
+                        lambda token_file=None: {"privacy_level_options": ["SELF_ONLY", "FOLLOWER_OF_CREATOR"]})
     monkeypatch.setattr(tt, "publish_direct",
                         lambda *a, **kw: (_ for _ in ()).throw(AssertionError("no debería publicar directo")))
-    monkeypatch.setattr(tt, "upload_draft", lambda v: "piddraft")
+    monkeypatch.setattr(tt, "upload_draft", lambda v, token_file=None: "piddraft")
 
     daily_post.do_tiktok(st, ctx, series)
 

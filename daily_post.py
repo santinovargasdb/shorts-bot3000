@@ -283,7 +283,7 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
                       f"si es de permisos, el token necesita instagram_business_manage_comments): {e}")
 
 
-def _tt_wait_status(ctx: dict, publish_id: str, timeout: int = 90) -> None:
+def _tt_wait_status(ctx: dict, publish_id: str, token_file=None, timeout: int = 90) -> None:
     """Poll corto del estado de la publicación, solo informativo: el contador
     ya avanzó con la subida OK (mismo criterio optimista que siempre)."""
     import time
@@ -292,7 +292,7 @@ def _tt_wait_status(ctx: dict, publish_id: str, timeout: int = 90) -> None:
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
-            status = fetch_status(publish_id).get("data", {}).get("status")
+            status = fetch_status(publish_id, token_file=token_file).get("data", {}).get("status")
         except Exception as e:
             _log(ctx, f"[TT] (status) No se pudo consultar: {e}")
             return
@@ -312,10 +312,11 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
     unaudited_client_can_only_post_to_private_accounts) o la privacidad pedida
     no está disponible, cae a borradores para no perder el día (el video llega
     al inbox y se completa desde la app en 2 toques). Cuando la app pase la
-    auditoría, el direct post se reactiva solo. Token global de secrets/ (solo
-    canales con 'tt')."""
+    auditoría, el direct post se reactiva solo. Usa el token del canal
+    (ctx['tt_token']) o el global de secrets/ si es None (faceless, legacy)."""
     from uploaders.tiktok_upload import TOKEN_FILE
-    if not TOKEN_FILE.exists():
+    tt_token = (ROOT / ctx["tt_token"]) if ctx.get("tt_token") else TOKEN_FILE
+    if not tt_token.exists():
         _log(ctx, "[TT] No configurado (sin token), lo salteo.")
         return
     part = st["tiktok"]["next_part"]
@@ -328,21 +329,21 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
     video = _ensure_video(part, ctx, series)
     try:
         from uploaders.tiktok_upload import creator_info, publish_direct, upload_draft
-        opciones = creator_info().get("privacy_level_options", [])
+        opciones = creator_info(token_file=tt_token).get("privacy_level_options", [])
         modo = "borrador"
         if TT_PRIVACY in opciones:
             try:
                 _log(ctx, f"[TT] Publicando parte {part} directo ({TT_PRIVACY})...")
                 publish_id = publish_direct(video, title=_tt_caption(video),
-                                            privacy_level=TT_PRIVACY)
+                                            privacy_level=TT_PRIVACY, token_file=tt_token)
                 modo = "directo"
             except Exception as e:
                 # App sin auditar no puede direct post a cuenta pública; cae a borradores.
                 _log(ctx, f"[TT] Direct post no disponible ({e}); subo a borradores.")
-                publish_id = upload_draft(video)
+                publish_id = upload_draft(video, token_file=tt_token)
         else:
             _log(ctx, f"[TT] ⚠️  La cuenta no permite {TT_PRIVACY} (opciones: {opciones}). Subo a borradores.")
-            publish_id = upload_draft(video)
+            publish_id = upload_draft(video, token_file=tt_token)
     except Exception as e:
         _log(ctx, f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
@@ -351,7 +352,7 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
                                    "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
     if modo == "directo":
         _log(ctx, f"[TT] ✅ Parte {part} publicada directo ({TT_PRIVACY}).")
-        _tt_wait_status(ctx, publish_id)
+        _tt_wait_status(ctx, publish_id, token_file=tt_token)
     else:
         _log(ctx, f"[TT] ✅ Parte {part} en borradores de TikTok (publicala desde la app).")
 

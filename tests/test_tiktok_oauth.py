@@ -69,3 +69,14 @@ def test_auth_url_sin_pkce_no_agrega_challenge(monkeypatch):
     q = parse_qs(urlparse(url).query)
     assert "code_challenge" not in q
     assert "code_challenge_method" not in q
+
+
+def test_get_token_usa_token_file_por_canal(tmp_path):
+    # Multi-canal: _get_token lee del token_file dado (no del global).
+    import json
+    import time
+    tf = tmp_path / "tiktok_token.json"
+    tf.write_text(json.dumps({"access_token": "TOK-historia",
+                              "obtained_at": int(time.time()), "expires_in": 86400}),
+                  encoding="utf-8")
+    assert tt._get_token(token_file=tf) == "TOK-historia"

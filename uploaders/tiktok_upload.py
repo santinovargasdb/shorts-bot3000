@@ -5,15 +5,17 @@ TikTok y el dueño de la cuenta completa la publicación en la app (2 toques).
 Cuando la app pase la auditoría se puede migrar a publicación directa.
 
 Comandos:
-  python -m uploaders.tiktok_upload auth            # OAuth con servidor localhost (prod)
-  python -m uploaders.tiktok_upload auth-manual     # imprime la URL (flujo viejo, copiar code)
-  python -m uploaders.tiktok_upload code <CODE>     # canjea el código por tokens
-  python -m uploaders.tiktok_upload upload <video>  # sube un mp4 a borradores
+  python -m uploaders.tiktok_upload auth [token.json]  # OAuth localhost (token.json opcional = por canal)
+  python -m uploaders.tiktok_upload auth-manual        # imprime la URL (flujo viejo, copiar code)
+  python -m uploaders.tiktok_upload code <CODE> [token.json]  # canjea el código por tokens
+  python -m uploaders.tiktok_upload upload <video>     # sube un mp4 a borradores
   python -m uploaders.tiktok_upload publish <video> [titulo]  # direct post PRIVADO (test)
-  python -m uploaders.tiktok_upload status <id>     # consulta estado de una subida
+  python -m uploaders.tiktok_upload status <id>        # consulta estado de una subida
 
 Credenciales en .env: TIKTOK_CLIENT_KEY, TIKTOK_CLIENT_SECRET, TIKTOK_REDIRECT_URI.
-Tokens en secrets/tiktok_token.json (access 24h, refresh ~1 año; se renueva solo).
+Token global en secrets/tiktok_token.json (faceless, legacy). Para multi-canal, cada
+canal usa su propio token (ver `token_file`): secrets/<canal>/tiktok_token.json.
+Access 24h, refresh ~1 año; se renueva solo.
 """
 from __future__ import annotations
 
@@ -106,10 +108,11 @@ def _parse_callback(path: str, expected_state: str) -> str:
     return code
 
 
-def auth_local() -> None:
-    """OAuth de la app de producción (Desktop): levanta un servidor local en
+def auth_local(token_file: Path | None = None) -> None:
+    """OAuth de la app (Desktop): levanta un servidor local en
     http://localhost:PUERTO/callback/, abre el navegador y canjea el code solo
-    — sin copiar códigos a mano (mismo esquema que el uploader de YouTube)."""
+    — sin copiar códigos a mano. `token_file` guarda el token del canal
+    (default: global secrets/tiktok_token.json)."""
     import socket
     import webbrowser
     from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -155,14 +158,17 @@ def auth_local() -> None:
         srv.server_close()
     if "error" in resultado:
         raise RuntimeError(resultado["error"])
-    exchange_code(resultado["code"], redirect_uri=redirect, code_verifier=verifier)
+    exchange_code(resultado["code"], redirect_uri=redirect, code_verifier=verifier,
+                  token_file=token_file)
 
 
 def exchange_code(code: str, redirect_uri: str | None = None,
-                  code_verifier: str | None = None) -> dict:
+                  code_verifier: str | None = None,
+                  token_file: Path | None = None) -> dict:
     """Canjea el código del callback por access_token + refresh_token.
 
-    `code_verifier` es obligatorio para la app Desktop (PKCE)."""
+    `code_verifier` es obligatorio para la app Desktop (PKCE). `token_file`
+    guarda el token del canal (default: global secrets/tiktok_token.json)."""
     payload = {
         "client_key": _env("TIKTOK_CLIENT_KEY"),
         "client_secret": _env("TIKTOK_CLIENT_SECRET"),
@@ -178,13 +184,14 @@ def exchange_code(code: str, redirect_uri: str | None = None,
     if "access_token" not in data:
         raise RuntimeError(f"TikTok no devolvió token: {data}")
     data["obtained_at"] = int(time.time())
-    TOKEN_FILE.parent.mkdir(exist_ok=True)
-    TOKEN_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    print(f"[OK] Token guardado. open_id={data.get('open_id', '?')} scope={data.get('scope')}")
+    tf = token_file or TOKEN_FILE
+    tf.parent.mkdir(parents=True, exist_ok=True)
+    tf.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    print(f"[OK] Token guardado en {tf}. open_id={data.get('open_id', '?')} scope={data.get('scope')}")
     return data
 
 
-def _refresh(tok: dict) -> dict:
+def _refresh(tok: dict, token_file: Path | None = None) -> dict:
     r = requests.post(TOKEN_URL, data={
         "client_key": _env("TIKTOK_CLIENT_KEY"),
         "client_secret": _env("TIKTOK_CLIENT_SECRET"),
@@ -195,27 +202,29 @@ def _refresh(tok: dict) -> dict:
     if "access_token" not in data:
         raise RuntimeError(f"No se pudo refrescar el token de TikTok: {data}")
     data["obtained_at"] = int(time.time())
-    TOKEN_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    (token_file or TOKEN_FILE).write_text(json.dumps(data, indent=2), encoding="utf-8")
     return data
 
 
-def _get_token() -> str:
-    """Access token vigente (refresca solo si venció)."""
-    if not TOKEN_FILE.exists():
-        raise RuntimeError("No hay token de TikTok. Corré: python -m uploaders.tiktok_upload auth")
-    tok = json.loads(TOKEN_FILE.read_text(encoding="utf-8"))
+def _get_token(token_file: Path | None = None) -> str:
+    """Access token vigente del canal (refresca solo si venció). `token_file`
+    None = token global (secrets/tiktok_token.json, legacy de faceless)."""
+    tf = token_file or TOKEN_FILE
+    if not tf.exists():
+        raise RuntimeError(f"No hay token de TikTok en {tf}. Corré: python -m uploaders.tiktok_upload auth")
+    tok = json.loads(tf.read_text(encoding="utf-8"))
     age = time.time() - tok.get("obtained_at", 0)
     if age > tok.get("expires_in", 86400) - 600:   # 10 min de margen
-        tok = _refresh(tok)
+        tok = _refresh(tok, token_file=tf)
     return tok["access_token"]
 
 
 # ---------------------------------------------------------------- Subida
-def upload_draft(video_path: Path | str) -> str:
+def upload_draft(video_path: Path | str, token_file: Path | None = None) -> str:
     """Sube el mp4 a los borradores (inbox) de TikTok. Devuelve el publish_id."""
     video_path = Path(video_path)
     size = video_path.stat().st_size
-    token = _get_token()
+    token = _get_token(token_file)
 
     # 1) Iniciar la subida (archivo < 64MB => un solo chunk)
     init = requests.post(INBOX_INIT_URL, headers={
@@ -246,11 +255,11 @@ def upload_draft(video_path: Path | str) -> str:
     return publish_id
 
 
-def creator_info() -> dict:
+def creator_info(token_file: Path | None = None) -> dict:
     """Consulta creator_info (obligatorio antes de un direct post): nickname,
     opciones de privacidad disponibles y toggles de interacción."""
     r = requests.post(CREATOR_INFO_URL, headers={
-        "Authorization": f"Bearer {_get_token()}",
+        "Authorization": f"Bearer {_get_token(token_file)}",
         "Content-Type": "application/json; charset=UTF-8",
     }, timeout=60)
     data = r.json()
@@ -261,12 +270,12 @@ def creator_info() -> dict:
 
 def publish_direct(video_path: Path | str, title: str, privacy_level: str,
                    disable_comment: bool = False, disable_duet: bool = False,
-                   disable_stitch: bool = False) -> str:
+                   disable_stitch: bool = False, token_file: Path | None = None) -> str:
     """Publica el mp4 DIRECTO en TikTok (requiere scope video.publish y app
     auditada; con app sin auditar el post queda privado). Devuelve publish_id."""
     video_path = Path(video_path)
     size = video_path.stat().st_size
-    token = _get_token()
+    token = _get_token(token_file)
 
     init = requests.post(DIRECT_INIT_URL, headers={
         "Authorization": f"Bearer {token}",
@@ -304,8 +313,8 @@ def publish_direct(video_path: Path | str, title: str, privacy_level: str,
     return publish_id
 
 
-def fetch_status(publish_id: str) -> dict:
-    token = _get_token()
+def fetch_status(publish_id: str, token_file: Path | None = None) -> dict:
+    token = _get_token(token_file)
     r = requests.post(STATUS_URL, headers={
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json; charset=UTF-8",
@@ -319,7 +328,9 @@ if __name__ == "__main__":
         raise SystemExit(1)
     cmd = sys.argv[1]
     if cmd == "auth":
-        auth_local()
+        # Token por canal opcional: python -m ... auth secrets/historia/tiktok_token.json
+        _tf = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+        auth_local(token_file=_tf)
     elif cmd == "auth-manual":
         _ver = _pkce_verifier()
         PKCE_FILE.parent.mkdir(exist_ok=True)
@@ -328,7 +339,8 @@ if __name__ == "__main__":
         print(auth_url(code_challenge=_pkce_challenge(_ver)))
     elif cmd == "code":
         _ver = PKCE_FILE.read_text(encoding="utf-8").strip() if PKCE_FILE.exists() else None
-        exchange_code(sys.argv[2], code_verifier=_ver)
+        _tf = Path(sys.argv[3]) if len(sys.argv) > 3 else None
+        exchange_code(sys.argv[2], code_verifier=_ver, token_file=_tf)
         if PKCE_FILE.exists():
             PKCE_FILE.unlink()
     elif cmd == "upload":

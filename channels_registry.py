@@ -16,6 +16,7 @@ CHANNELS = {
         "music": "music/lofi",          # carpeta de nicho (lo-fi/chill); rota por episodio
         "yt_token": None,     # None = secrets/token.json (legacy, no tocar)
         "ig_creds": None,     # None = IG_USER_ID/IG_ACCESS_TOKEN del .env (legacy)
+        "tt_token": None,     # None = secrets/tiktok_token.json (global, legacy)
         "platforms": ("yt", "ig", "tt"),
         "first_comment": "Tirá un dato que sepas vos que nadie conozca 👇",
         "sfx_style": "datos",       # whoosh entre datos + pop en el swap de imagen
@@ -27,7 +28,8 @@ CHANNELS = {
         "music": "music/cinematic",     # carpeta de nicho (cinematic); rota por episodio
         "yt_token": "secrets/historia/token.json",
         "ig_creds": "secrets/historia/instagram.json",
-        "platforms": ("yt", "ig"),   # TikTok: falta cuenta propia + tt_token por canal
+        "tt_token": "secrets/historia/tiktok_token.json",
+        "platforms": ("yt", "ig", "tt"),   # tt se activa cuando exista el token (OAuth del canal)
         "first_comment": "¿Vos qué hubieras hecho en su lugar? 👇",
         "sfx_style": "historia",     # boom en el giro del relato
     },
@@ -38,7 +40,8 @@ CHANNELS = {
         "music": "music/dark_ambient",  # carpeta de nicho (dark ambient); rota por episodio
         "yt_token": "secrets/misterios/token.json",
         "ig_creds": "secrets/misterios/instagram.json",
-        "platforms": ("yt", "ig"),
+        "tt_token": "secrets/misterios/tiktok_token.json",
+        "platforms": ("yt", "ig", "tt"),   # tt se activa cuando exista el token (OAuth del canal)
         "first_comment": "Dejá tu teoría abajo 👇 ¿qué creés que pasó de verdad?",
         "sfx_style": "misterios",    # riser hacia el remate + corte de música
     },

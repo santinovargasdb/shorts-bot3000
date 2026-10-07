@@ -10,9 +10,10 @@ def test_canales_registrados():
 def test_contexto_historia():
     ctx = reg.get_channel("historia")
     assert ctx["display"] == "Historia en 60 Segundos"
-    assert ctx["platforms"] == ("yt", "ig")
+    assert ctx["platforms"] == ("yt", "ig", "tt")
     assert ctx["yt_token"] == "secrets/historia/token.json"
     assert ctx["ig_creds"] == "secrets/historia/instagram.json"
+    assert ctx["tt_token"] == "secrets/historia/tiktok_token.json"
     assert ctx["music"] == "music/cinematic"
 
 
@@ -21,15 +22,17 @@ def test_contexto_faceless_legacy():
     assert ctx["yt_token"] is None      # usa secrets/token.json (legacy)
     assert ctx["ig_creds"] is None      # usa .env (legacy)
     assert ctx["platforms"] == ("yt", "ig", "tt")
+    assert ctx["tt_token"] is None      # usa el token global secrets/tiktok_token.json
     assert ctx["music"] == "music/lofi"
 
 
 def test_contexto_misterios():
     ctx = reg.get_channel("misterios")
     assert ctx["display"] == "Misterios en 60 Segundos"
-    assert ctx["platforms"] == ("yt", "ig")
+    assert ctx["platforms"] == ("yt", "ig", "tt")
     assert ctx["yt_token"] == "secrets/misterios/token.json"
     assert ctx["ig_creds"] == "secrets/misterios/instagram.json"
+    assert ctx["tt_token"] == "secrets/misterios/tiktok_token.json"
     assert ctx["music"] == "music/dark_ambient"
 
 
