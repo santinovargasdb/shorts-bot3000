@@ -12,3 +12,7 @@ requests>=2.31                   # Instagram Graph API
 
 # Nota: yt-dlp y ffmpeg se usan como binarios del sistema (ya instalados),
 # no como paquetes de Python.
+
+# Pipeline de Reddit ("¿Soy el Malo?")
+praw>=8.0               # Reddit API (tier gratis, OAuth)
+openai>=1.0             # SDK compatible-OpenAI (Groq/Ollama/OpenRouter via base_url)

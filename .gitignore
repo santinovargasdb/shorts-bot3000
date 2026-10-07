@@ -34,3 +34,6 @@ Thumbs.db
 demo_log.txt
 rec_ffmpeg.log
 .playwright-mcp/
+
+# Base de estado del pipeline de Reddit (se regenera)
+reddit_pipeline/stories.sqlite
