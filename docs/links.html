@@ -6,83 +6,217 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Datos, historia y misterios en 60 segundos. Seguinos en YouTube, TikTok e Instagram.">
 <link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0d0f13;--surface:#171a21;--line:#262b34;--txt:#e8ecf2;--muted:#98a1ae;
-    --teal:#2dd4bf;--gold:#e3b341;--violet:#a855f7;
-    --yt:#ff4b4b;--tt:#2fe3dd;--ig:#e1467c;
+    --ink:#07080b; --ink2:#0c0e13;
+    --txt:#eef1f6; --muted:#949cab; --dim:#5e6675;
+    --teal:#2dd4bf; --gold:#e9b84c; --violet:#a874ff;
+    --yt:#ff3b3b; --tt:#27e5db; --ig:#e85a9b;
+    --line:rgba(255,255,255,.08);
+    --sans:"Bricolage Grotesque",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"Space Mono",ui-monospace,"Cascadia Code",Menlo,monospace;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:radial-gradient(120% 90% at 50% 0%,#15181f 0%,var(--bg) 60%);
-       color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-       min-height:100vh;line-height:1.5}
-  .wrap{max-width:460px;margin:0 auto;padding:34px 18px 48px}
-  header{text-align:center;margin-bottom:26px}
-  .logo{width:78px;height:78px;margin:0 auto 14px;display:block}
-  h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
-  header p{color:var(--muted);font-size:14px;margin-top:4px}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--ink);color:var(--txt);font-family:var(--sans);line-height:1.5;
+       overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;
-        padding:16px 16px 12px;margin-bottom:16px;position:relative;overflow:hidden}
-  .card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--c)}
-  .card.datos{--c:var(--teal)} .card.historia{--c:var(--gold)} .card.misterios{--c:var(--violet)}
-  .chead{display:flex;align-items:baseline;gap:8px;margin:0 0 12px 4px}
-  .chead b{font-size:17px;font-weight:700;color:var(--c)}
-  .chead span{font-size:12px;color:var(--muted)}
+  /* fondo animado */
+  #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  /* grano sutil */
+  body::after{content:"";position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-  a.btn{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--txt);
-        background:#0f1217;border:1px solid var(--line);border-radius:11px;
-        padding:12px 14px;margin-bottom:8px;font-size:15px;font-weight:600;
-        transition:transform .12s ease,border-color .12s ease,background .12s ease}
-  a.btn:last-child{margin-bottom:4px}
-  a.btn:hover,a.btn:focus-visible{transform:translateY(-2px);border-color:var(--pc);
-        background:#141820;outline:none}
-  .dot{width:10px;height:10px;border-radius:3px;background:var(--pc);flex:0 0 auto}
-  .btn .pl{flex:1}
-  .btn .ar{color:var(--muted);font-size:17px}
-  .yt{--pc:var(--yt)} .tt{--pc:var(--tt)} .ig{--pc:var(--ig)}
+  .wrap{position:relative;z-index:1;max-width:452px;margin:0 auto;padding:54px 20px 60px}
 
-  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
-  @media(prefers-reduced-motion:reduce){a.btn{transition:none}}
+  /* reveal al cargar */
+  .reveal{opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* hero */
+  .hero{text-align:center;margin-bottom:46px}
+  .watch{width:92px;height:92px;margin:0 auto 20px;display:block;filter:drop-shadow(0 6px 22px rgba(0,0,0,.5))}
+  .watch .hand{transform-origin:50px 56px;animation:tick 60s steps(60,end) infinite}
+  @keyframes tick{to{transform:rotate(360deg)}}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.42em;text-transform:uppercase;
+           color:var(--teal);margin-bottom:12px;padding-left:.42em}
+  h1{font-size:clamp(34px,10vw,46px);font-weight:800;letter-spacing:-.03em;line-height:.98}
+  .hero .sub{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:14px}
+
+  /* zonas */
+  .zone{position:relative;padding:30px 0;isolation:isolate}
+  .zone .glow{position:absolute;z-index:-1;width:150%;height:130%;top:-15%;border-radius:50%;
+    filter:blur(70px);opacity:.5;pointer-events:none}
+  .zone.datos .glow{left:-40%;background:radial-gradient(circle,var(--teal),transparent 60%)}
+  .zone.historia .glow{right:-40%;background:radial-gradient(circle,var(--gold),transparent 60%)}
+  .zone.misterios .glow{left:-35%;background:radial-gradient(circle,var(--violet),transparent 60%)}
+  .zone.datos{--c:var(--teal)} .zone.historia{--c:var(--gold)} .zone.misterios{--c:var(--violet)}
+
+  .zlabel{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+          color:var(--c);display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .zlabel::before{content:"";width:22px;height:2px;background:var(--c);border-radius:2px}
+  h2{font-size:25px;font-weight:700;letter-spacing:-.02em}
+  .ztag{color:var(--muted);font-size:13.5px;margin:3px 0 18px}
+
+  /* links */
+  .lnk{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--txt);
+    position:relative;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+    border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin-bottom:11px;
+    transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s,box-shadow .18s,background .18s;
+    overflow:hidden}
+  .lnk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);
+    transform:scaleY(0);transform-origin:center;transition:transform .2s ease}
+  .lnk:hover,.lnk:focus-visible{transform:translateY(-3px);
+    border-color:var(--c);border-color:color-mix(in srgb,var(--c) 55%,transparent);
+    background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.02));
+    box-shadow:0 12px 32px -14px rgba(0,0,0,.7);box-shadow:0 10px 30px -12px color-mix(in srgb,var(--c) 50%,transparent);outline:none}
+  .lnk:hover::before,.lnk:focus-visible::before{transform:scaleY(1)}
+  .ic{flex:0 0 auto;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+    background:#11141b;background:color-mix(in srgb,var(--pc) 16%,#0c0e13);
+    border:1px solid rgba(255,255,255,.12);border:1px solid color-mix(in srgb,var(--pc) 28%,transparent)}
+  .ic svg{width:23px;height:23px;display:block}
+  .meta{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .meta b{font-weight:600;font-size:15.5px}
+  .meta em{font-family:var(--mono);font-style:normal;font-size:11.5px;color:var(--dim);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .go{font-family:var(--mono);color:var(--muted);font-size:16px;transition:transform .18s,color .18s}
+  .lnk:hover .go{transform:translate(3px,-3px);color:var(--c)}
+
+  footer{text-align:center;margin-top:40px}
+  footer p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.14em}
+
+  @media (prefers-reduced-motion:reduce){
+    .reveal{animation:none;opacity:1;transform:none}
+    .watch .hand{animation:none}
+    html{scroll-behavior:auto}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <svg class="logo" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <rect x="42" y="4" width="16" height="12" rx="3" fill="#cfd6df"/>
-      <rect x="16" y="18" width="12" height="9" rx="3" transform="rotate(-38 22 22)" fill="#cfd6df"/>
-      <rect x="72" y="18" width="12" height="9" rx="3" transform="rotate(38 78 22)" fill="#cfd6df"/>
-      <circle cx="50" cy="58" r="36" fill="#0d0f13" stroke="#cfd6df" stroke-width="7"/>
-      <text x="50" y="58" fill="#cfd6df" font-family="Arial Black,Arial" font-weight="900"
-            font-size="34" text-anchor="middle" dominant-baseline="central">60</text>
+<canvas id="bg"></canvas>
+<main class="wrap">
+
+  <header class="hero reveal">
+    <svg class="watch" viewBox="0 0 100 112" fill="none" aria-hidden="true">
+      <rect x="42" y="2" width="16" height="13" rx="3.5" fill="#e4e9f0"/>
+      <rect x="15" y="17" width="12" height="9" rx="3" transform="rotate(-40 21 21)" fill="#e4e9f0"/>
+      <rect x="73" y="17" width="12" height="9" rx="3" transform="rotate(40 79 21)" fill="#e4e9f0"/>
+      <circle cx="50" cy="56" r="40" fill="#0b0d12" stroke="#e4e9f0" stroke-width="6"/>
+      <g stroke="#3a4150" stroke-width="2.4" stroke-linecap="round">
+        <line x1="50" y1="21" x2="50" y2="27"/><line x1="50" y1="85" x2="50" y2="91"/>
+        <line x1="15" y1="56" x2="21" y2="56"/><line x1="79" y1="56" x2="85" y2="56"/>
+      </g>
+      <text x="50" y="56" fill="#e4e9f0" font-family="Bricolage Grotesque,Arial" font-weight="800"
+            font-size="30" text-anchor="middle" dominant-baseline="central">60</text>
+      <line class="hand" x1="50" y1="56" x2="50" y2="26" stroke="#2dd4bf" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="50" cy="56" r="3.4" fill="#2dd4bf"/>
     </svg>
+    <p class="eyebrow">Link in bio</p>
     <h1>En 60 Segundos</h1>
-    <p>Datos, historia y misterios en un minuto ⏱️</p>
+    <p class="sub">Datos, historia y misterios — en un minuto.</p>
   </header>
 
-  <div class="card datos">
-    <div class="chead"><b>🧠 En 60 Segundos</b><span>datos y curiosidades</span></div>
-    <a class="btn yt" href="https://www.youtube.com/@En60Segundos.47"><span class="dot"></span><span class="pl">YouTube</span><span class="ar">→</span></a>
-    <a class="btn tt" href="https://www.tiktok.com/@en60segundos0"><span class="dot"></span><span class="pl">TikTok</span><span class="ar">→</span></a>
-    <a class="btn ig" href="https://www.instagram.com/en60segundos.47"><span class="dot"></span><span class="pl">Instagram</span><span class="ar">→</span></a>
-  </div>
+  <section class="zone datos reveal" style="--d:.12s">
+    <div class="glow"></div>
+    <p class="zlabel">01 · Datos</p>
+    <h2>En 60 Segundos</h2>
+    <p class="ztag">Curiosidades para parecer más inteligente.</p>
+    <a class="lnk" style="--pc:var(--yt)" href="https://www.youtube.com/@En60Segundos.47">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#ff3b3b" d="M23 7.6a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.5A3 3 0 0 0 1 7.6 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.4a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.5 12 31 31 0 0 0 23 7.6z"/><path fill="#0c0e13" d="M9.8 15.3V8.7l5.7 3.3z"/></svg></span>
+      <span class="meta"><b>YouTube</b><em>@En60Segundos.47</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--tt)" href="https://www.tiktok.com/@en60segundos0">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#27e5db" d="M16.3 3c.3 2.2 1.5 3.8 3.7 4.1v3c-1.4 0-2.7-.4-3.7-1.1v5.8c0 3.4-2.7 6.1-6 6.1s-6-2.7-6-6.1 2.7-6 6-6c.3 0 .6 0 .9.1v3.1c-.3-.1-.6-.1-.9-.1-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9V3h2.2z"/></svg></span>
+      <span class="meta"><b>TikTok</b><em>@en60segundos0</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--ig)" href="https://www.instagram.com/en60segundos.47">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#e85a9b" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#e85a9b" stroke="none"/></svg></span>
+      <span class="meta"><b>Instagram</b><em>@en60segundos.47</em></span><span class="go">↗</span></a>
+  </section>
 
-  <div class="card historia">
-    <div class="chead"><b>🏛️ Historia en 60 Segundos</b><span>historias reales</span></div>
-    <a class="btn yt" href="https://www.youtube.com/@Historia.En60Segundos"><span class="dot"></span><span class="pl">YouTube</span><span class="ar">→</span></a>
-    <a class="btn tt" href="https://www.tiktok.com/@historiaen60s1"><span class="dot"></span><span class="pl">TikTok</span><span class="ar">→</span></a>
-    <a class="btn ig" href="https://www.instagram.com/historia.en60seg"><span class="dot"></span><span class="pl">Instagram</span><span class="ar">→</span></a>
-  </div>
+  <section class="zone historia reveal" style="--d:.22s">
+    <div class="glow"></div>
+    <p class="zlabel">02 · Historia</p>
+    <h2>Historia en 60 Segundos</h2>
+    <p class="ztag">Historias reales que no vas a creer.</p>
+    <a class="lnk" style="--pc:var(--yt)" href="https://www.youtube.com/@Historia.En60Segundos">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#ff3b3b" d="M23 7.6a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.5A3 3 0 0 0 1 7.6 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.4a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.5 12 31 31 0 0 0 23 7.6z"/><path fill="#0c0e13" d="M9.8 15.3V8.7l5.7 3.3z"/></svg></span>
+      <span class="meta"><b>YouTube</b><em>@Historia.En60Segundos</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--tt)" href="https://www.tiktok.com/@historiaen60s1">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#27e5db" d="M16.3 3c.3 2.2 1.5 3.8 3.7 4.1v3c-1.4 0-2.7-.4-3.7-1.1v5.8c0 3.4-2.7 6.1-6 6.1s-6-2.7-6-6.1 2.7-6 6-6c.3 0 .6 0 .9.1v3.1c-.3-.1-.6-.1-.9-.1-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9V3h2.2z"/></svg></span>
+      <span class="meta"><b>TikTok</b><em>@historiaen60s1</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--ig)" href="https://www.instagram.com/historia.en60seg">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#e85a9b" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#e85a9b" stroke="none"/></svg></span>
+      <span class="meta"><b>Instagram</b><em>@historia.en60seg</em></span><span class="go">↗</span></a>
+  </section>
 
-  <div class="card misterios">
-    <div class="chead"><b>🔍 Misterios en 60 Segundos</b><span>casos sin resolver</span></div>
-    <a class="btn yt" href="https://www.youtube.com/@misterioen60.s"><span class="dot"></span><span class="pl">YouTube</span><span class="ar">→</span></a>
-    <a class="btn tt" href="https://www.tiktok.com/@misteriosen60s2"><span class="dot"></span><span class="pl">TikTok</span><span class="ar">→</span></a>
-    <a class="btn ig" href="https://www.instagram.com/misterios.en60segundos"><span class="dot"></span><span class="pl">Instagram</span><span class="ar">→</span></a>
-  </div>
+  <section class="zone misterios reveal" style="--d:.32s">
+    <div class="glow"></div>
+    <p class="zlabel">03 · Misterios</p>
+    <h2>Misterios en 60 Segundos</h2>
+    <p class="ztag">Casos reales que nadie pudo explicar.</p>
+    <a class="lnk" style="--pc:var(--yt)" href="https://www.youtube.com/@misterioen60.s">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#ff3b3b" d="M23 7.6a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.5A3 3 0 0 0 1 7.6 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.4a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.5 12 31 31 0 0 0 23 7.6z"/><path fill="#0c0e13" d="M9.8 15.3V8.7l5.7 3.3z"/></svg></span>
+      <span class="meta"><b>YouTube</b><em>@misterioen60.s</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--tt)" href="https://www.tiktok.com/@misteriosen60s2">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#27e5db" d="M16.3 3c.3 2.2 1.5 3.8 3.7 4.1v3c-1.4 0-2.7-.4-3.7-1.1v5.8c0 3.4-2.7 6.1-6 6.1s-6-2.7-6-6.1 2.7-6 6-6c.3 0 .6 0 .9.1v3.1c-.3-.1-.6-.1-.9-.1-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9V3h2.2z"/></svg></span>
+      <span class="meta"><b>TikTok</b><em>@misteriosen60s2</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--ig)" href="https://www.instagram.com/misterios.en60segundos">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#e85a9b" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#e85a9b" stroke="none"/></svg></span>
+      <span class="meta"><b>Instagram</b><em>@misterios.en60segundos</em></span><span class="go">↗</span></a>
+  </section>
 
-  <footer>Un video nuevo todos los días · En 60 Segundos</footer>
-</div>
+  <footer class="reveal" style="--d:.4s"><p>UN VIDEO NUEVO · TODOS LOS DÍAS</p></footer>
+</main>
+
+<script>
+(function(){
+  var c=document.getElementById('bg'),x=c.getContext('2d');
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var W,H,DPR,clocks;
+  function size(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=c.clientWidth;H=c.clientHeight;
+    c.width=W*DPR;c.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0);
+  }
+  function rnd(a,b){return a+Math.random()*(b-a)}
+  function make(){
+    var n=Math.max(10,Math.min(26,Math.round(W*H/42000)));
+    clocks=[];
+    for(var i=0;i<n;i++){
+      clocks.push({x:rnd(0,W),y:rnd(0,H),r:rnd(9,21),
+        vy:rnd(.12,.42),rot:rnd(0,Math.PI*2),vr:rnd(-.004,.004),
+        sw:rnd(.4,1),ph:rnd(0,Math.PI*2),a:rnd(.04,.13)});
+    }
+  }
+  function clock(o){
+    x.save();x.translate(o.x,o.y);x.rotate(o.rot);x.globalAlpha=o.a;
+    x.strokeStyle='#d6def0';x.fillStyle='#d6def0';
+    var r=o.r;
+    x.fillRect(-r*0.17,-r*1.44,r*0.34,r*0.3);           // corona
+    x.lineWidth=Math.max(1,r*0.12);
+    x.beginPath();x.arc(0,0,r,0,Math.PI*2);x.stroke();  // caja
+    x.lineWidth=Math.max(1,r*0.1);
+    x.beginPath();x.moveTo(0,0);x.lineTo(0,-r*0.62);x.stroke();   // aguja larga
+    x.beginPath();x.moveTo(0,0);x.lineTo(r*0.42,r*0.16);x.stroke(); // aguja corta
+    x.restore();
+  }
+  function frame(){
+    x.clearRect(0,0,W,H);
+    for(var i=0;i<clocks.length;i++){
+      var o=clocks[i];
+      o.y+=o.vy;o.rot+=o.vr;o.x+=Math.sin((o.y*0.012)+o.ph)*o.sw*0.25;
+      if(o.y-o.r*1.6>H){o.y=-o.r*1.6;o.x=rnd(0,W)}
+      clock(o);
+    }
+    requestAnimationFrame(frame);
+  }
+  function init(){size();make();for(var i=0;i<clocks.length;i++)clock(clocks[i]);}
+  window.addEventListener('resize',function(){size();make();});
+  init();
+  if(!reduce) requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
