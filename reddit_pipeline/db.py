@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS stories (
     status          TEXT NOT NULL DEFAULT 'sourced',
     viral_score     REAL,
     guion           TEXT,
-    narrador_genero TEXT,
+    narrador_genero TEXT CHECK(narrador_genero IN ('M','F')),
     titulo_es       TEXT,
     veredicto       TEXT,
     cierre          TEXT

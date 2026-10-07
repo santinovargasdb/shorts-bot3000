@@ -1,3 +1,5 @@
+import sqlite3
+import pytest
 import reddit_pipeline.db as db
 
 SAMPLE = {
@@ -35,3 +37,19 @@ def test_save_rewrite(tmp_path):
     assert r["narrador_genero"] == "F"
     assert r["titulo_es"] == "Mi ex"
     assert r["guion"] == "un guion"
+    assert r["status"] == "rewritten"
+
+
+def test_save_rewrite_rechaza_genero_invalido(tmp_path):
+    conn = db.connect(tmp_path / "s.sqlite")
+    db.insert_story(conn, SAMPLE)
+    with pytest.raises(sqlite3.IntegrityError):
+        db.save_rewrite(conn, "abc1", {"guion": "g", "narrador_genero": "X",
+                                       "titulo": "t", "veredicto": "v", "cierre": "c"})
+
+
+def test_set_status(tmp_path):
+    conn = db.connect(tmp_path / "s.sqlite")
+    db.insert_story(conn, SAMPLE)
+    db.set_status(conn, "abc1", "produced")
+    assert [s["id"] for s in db.get_by_status(conn, "produced")] == ["abc1"]
