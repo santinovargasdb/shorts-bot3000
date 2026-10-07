@@ -61,6 +61,8 @@ def generate(
     hashtags: list[str] | None = None,
     sfx_style: str = "datos",
     question: str | None = None,
+    voice: str | None = None,
+    rate: str | None = None,
     verbose: bool = True,
 ) -> Path:
     """segments: lista ordenada de
@@ -73,8 +75,8 @@ def generate(
        question: pregunta binaria del remate, fija en pantalla los últimos segundos."""
     channel = cfg.load_channel(channel_name)
     w, h = int(channel["target_width"]), int(channel["target_height"])
-    voice = channel.get("tts_voice", "es-MX-DaliaNeural")
-    rate = channel.get("tts_rate", "+8%")
+    voice = voice or channel.get("tts_voice", "es-MX-DaliaNeural")
+    rate = rate or channel.get("tts_rate", "+8%")
 
     slug = _slug(title_meta or segments[0]["text"])
     out_dir = OUTPUT_DIR / channel_name

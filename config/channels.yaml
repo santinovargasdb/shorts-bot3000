@@ -93,3 +93,19 @@ misterios:
   caption:
     highlight_color: "&H000000FF"  # ROJO (BGR de ASS): refuerza el tono del canal (fórmula §6)
   legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."
+
+# -------------------------------------------------------------------------
+# CANAL — ¿Soy el Malo? (historias de Reddit; voz por género del narrador)
+# -------------------------------------------------------------------------
+soyelmalo:
+  display_name: "¿Soy el Malo?"
+  whisper_model: "small"
+  crop_mode: "crop"                 # gameplay vertical a pantalla completa
+  clips_per_source: 1
+  hook_text: ""
+  tts_voice: "es-MX-DaliaNeural"    # default; el render lo pisa por historia (Jorge/Dalia)
+  tts_rate: "+15%"                   # drama un toque más ágil
+  short_max_seconds: 75              # permite hasta ~75s
+  caption:
+    highlight_color: "&H0000F0FF"   # amarillo (el highlight que mejor rinde)
+  legal_note: "Reescritura original de historias de Reddit. Ver docs/superpowers/specs/."
