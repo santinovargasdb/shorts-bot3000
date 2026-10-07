@@ -96,6 +96,11 @@
   .contact:hover,.contact:focus-visible{transform:translateY(-2px);
     box-shadow:0 12px 30px -8px rgba(45,212,191,.75),0 2px 10px rgba(0,0,0,.45);outline:none}
   .contact{transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .18s}
+  .toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(10px);z-index:6;
+    font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--ink);background:var(--teal);
+    padding:9px 15px;border-radius:999px;box-shadow:0 10px 26px -8px rgba(0,0,0,.6);
+    opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   @media (prefers-reduced-motion:reduce){
     .reveal{animation:none;opacity:1;transform:none}
@@ -179,10 +184,11 @@
   <footer class="reveal" style="--d:.4s"><p>UN VIDEO NUEVO · TODOS LOS DÍAS</p></footer>
 </main>
 
-<a class="contact" href="mailto:nofaceshortvids@gmail.com" aria-label="Contacto por email">
+<a class="contact" href="mailto:nofaceshortvids@gmail.com" aria-label="Copiar email de contacto">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
   Contacto
 </a>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -230,6 +236,23 @@
   window.addEventListener('resize',function(){size();make();});
   init();
   if(!reduce) requestAnimationFrame(frame);
+})();
+</script>
+<script>
+(function(){
+  var btn=document.querySelector('.contact'),toast=document.getElementById('toast');
+  var email='nofaceshortvids@gmail.com',t;
+  function show(){
+    toast.textContent='✓ '+email+' copiado';
+    toast.classList.add('show');clearTimeout(t);
+    t=setTimeout(function(){toast.classList.remove('show');},2400);
+  }
+  btn.addEventListener('click',function(e){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      e.preventDefault();
+      navigator.clipboard.writeText(email).then(show).catch(function(){location.href='mailto:'+email;});
+    }
+  });
 })();
 </script>
 </body>
