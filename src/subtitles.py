@@ -103,7 +103,7 @@ def build_ass(
     # El título ya no tiene ventana propia: convive con el dato 1 (fórmula §2),
     # en la banda libre entre la tarjeta de imagen (termina y≈830) y el karaoke.
     title_size = int(size * 0.58)
-    title_margin = int(target_height * 0.44)
+    title_margin = int(target_height * caption.get("title_frac", 0.44))
     quest_size = int(size * 0.62)  # pregunta del remate (abajo del karaoke, zona segura)
     # La pregunta vive entre el karaoke (termina ~y=1220 con margin_v 700) y el
     # borde de la UI de Shorts/TikTok (y≈1440): top-anchored en y=1250.
