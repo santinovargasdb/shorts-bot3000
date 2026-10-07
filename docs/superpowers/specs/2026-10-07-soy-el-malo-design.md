@@ -26,7 +26,7 @@ sponsors / producto propio / embudo (ver §9).
 | 1 | **Ángulo/lane** | Drama de **relaciones + venganza** (infidelidad, familia/suegras, karma), ancla "¿soy el malo?" | Máxima resonancia hispana + payoff satisfactorio; menos saturado que AITA puro; motor de comentarios. |
 | 2 | **Marca** | **Sub-marca "¿Soy el Malo?"** (acento **naranja Reddit**; logo = cronómetro con la cara del marcianito de Reddit/Snoo) | Identidad propia para el drama sin diluir la marca informativa; reusa sistema de diseño + link hub; el naranja guiña al origen del contenido. |
 | 3 | **Capa de transformación** | Reescritura + **voz-marca** + **veredicto/pregunta** propio | Es lo no-negociable contra el flag "inauténtico" y rompe el techo del TTS puro. Barato y automatizable. |
-| 4 | **Fuente** | **Reddit EN ahora** (API gratis), fuentes hispanas después | No existe subreddit grande en español; el material viral nace en inglés. EN es estructurado y escalable. |
+| 4 | **Fuente** | **Reddit EN** vía **Arctic Shift** (archivo gratis, sin login/app/captcha/API key); PRAW quedó bloqueado (no se pudo crear la app de Reddit) → **pivot 2026-10-07**. Hispanas después | No existe subreddit grande en español; el material viral nace en inglés. Arctic Shift evita la creación de app de Reddit; se apunta a una ventana vieja (~16 meses) para score asentado. |
 | 5 | **Duración** | **45-60s por default** (hasta ~75s si la historia lo pide) | Espacio para el arco (setup→conflicto→giro→veredicto) manteniendo alta completación. |
 | 6 | **Voz** | **es-MX según género del narrador**: Jorge (M) / Dalia (F) | Autenticidad (la voz coincide con quien cuenta) + variación entre videos + voces que ya gustan. |
 

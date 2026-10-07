@@ -7,13 +7,15 @@ DB_PATH = ROOT / "reddit_pipeline" / "stories.sqlite"
 
 # Lane relaciones + venganza (spec §6)
 SUBREDDITS = [
-    "survivinginfidelity",
-    "relationship_advice",
-    "AmItheAsshole",
+    # Venganza / karma / compliance (mejor yield vía archivo: poco "removed")
     "pettyrevenge",
     "ProRevenge",
     "MaliciousCompliance",
     "EntitledParents",
+    # Confesional / relaciones (TrueOffMyChest borra menos que AITA/relationship_advice)
+    "TrueOffMyChest",
+    "relationship_advice",
+    "AmItheAsshole",
 ]
 
 # Umbrales duros del viral_score (spec §4.2)

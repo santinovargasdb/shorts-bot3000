@@ -11,17 +11,16 @@ from __future__ import annotations
 
 import sys
 
-from . import db, source, scoring, rewrite
+from . import db, arctic, scoring, rewrite
 from .constants import DB_PATH, SUBREDDITS
 
 
 def cmd_source(db_path=DB_PATH) -> None:
     conn = db.connect(db_path)
     try:
-        reddit = source.build_reddit()
-        posts = source.fetch_posts(reddit, SUBREDDITS)
+        posts = arctic.fetch_posts_arctic(SUBREDDITS)
         nuevos = sum(db.insert_story(conn, p) for p in posts)
-        print(f"[source] {len(posts)} traidos, {nuevos} nuevos (dedup).")
+        print(f"[source] {len(posts)} traidos de Arctic Shift, {nuevos} nuevos (dedup).")
     finally:
         conn.close()
 
