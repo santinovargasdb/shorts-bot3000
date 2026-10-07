@@ -307,10 +307,13 @@ def _tt_wait_status(ctx: dict, publish_id: str, timeout: int = 90) -> None:
 
 
 def do_tiktok(st: dict, ctx: dict, series) -> None:
-    """Publica la próxima parte DIRECTO en TikTok con el caption embebido
-    (app ya auditada). Si la privacidad pedida no está disponible (ej. cuenta
-    en privado) cae a borradores para no perder el día. Token global de
-    secrets/ (solo canales con 'tt')."""
+    """Publica la próxima parte en TikTok. Intenta direct post con el caption
+    embebido; si falla (app SIN auditar no puede direct post a cuenta pública:
+    unaudited_client_can_only_post_to_private_accounts) o la privacidad pedida
+    no está disponible, cae a borradores para no perder el día (el video llega
+    al inbox y se completa desde la app en 2 toques). Cuando la app pase la
+    auditoría, el direct post se reactiva solo. Token global de secrets/ (solo
+    canales con 'tt')."""
     from uploaders.tiktok_upload import TOKEN_FILE
     if not TOKEN_FILE.exists():
         _log(ctx, "[TT] No configurado (sin token), lo salteo.")
@@ -326,15 +329,20 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
     try:
         from uploaders.tiktok_upload import creator_info, publish_direct, upload_draft
         opciones = creator_info().get("privacy_level_options", [])
+        modo = "borrador"
         if TT_PRIVACY in opciones:
-            _log(ctx, f"[TT] Publicando parte {part} directo ({TT_PRIVACY})...")
-            publish_id = publish_direct(video, title=_tt_caption(video),
-                                        privacy_level=TT_PRIVACY)
-            modo = "directo"
+            try:
+                _log(ctx, f"[TT] Publicando parte {part} directo ({TT_PRIVACY})...")
+                publish_id = publish_direct(video, title=_tt_caption(video),
+                                            privacy_level=TT_PRIVACY)
+                modo = "directo"
+            except Exception as e:
+                # App sin auditar no puede direct post a cuenta pública; cae a borradores.
+                _log(ctx, f"[TT] Direct post no disponible ({e}); subo a borradores.")
+                publish_id = upload_draft(video)
         else:
             _log(ctx, f"[TT] ⚠️  La cuenta no permite {TT_PRIVACY} (opciones: {opciones}). Subo a borradores.")
             publish_id = upload_draft(video)
-            modo = "borrador"
     except Exception as e:
         _log(ctx, f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
