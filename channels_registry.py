@@ -17,7 +17,7 @@ CHANNELS = {
         "yt_token": None,     # None = secrets/token.json (legacy, no tocar)
         "ig_creds": None,     # None = IG_USER_ID/IG_ACCESS_TOKEN del .env (legacy)
         "platforms": ("yt", "ig", "tt"),
-        "first_comment": "¿Cuál de estos datos no conocías? 👇",
+        "first_comment": "Tirá un dato que sepas vos que nadie conozca 👇",
         "sfx_style": "datos",       # whoosh entre datos + pop en el swap de imagen
     },
     "historia": {
@@ -28,7 +28,7 @@ CHANNELS = {
         "yt_token": "secrets/historia/token.json",
         "ig_creds": "secrets/historia/instagram.json",
         "platforms": ("yt", "ig"),   # TikTok: falta cuenta propia + tt_token por canal
-        "first_comment": "¿Ya conocías esta historia? 👇",
+        "first_comment": "¿Vos qué hubieras hecho en su lugar? 👇",
         "sfx_style": "historia",     # boom en el giro del relato
     },
     "misterios": {
@@ -39,7 +39,7 @@ CHANNELS = {
         "yt_token": "secrets/misterios/token.json",
         "ig_creds": "secrets/misterios/instagram.json",
         "platforms": ("yt", "ig"),
-        "first_comment": "¿Vos qué creés que pasó de verdad? 👇",
+        "first_comment": "Dejá tu teoría abajo 👇 ¿qué creés que pasó de verdad?",
         "sfx_style": "misterios",    # riser hacia el remate + corte de música
     },
 }
