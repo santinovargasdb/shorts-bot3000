@@ -21,6 +21,7 @@ def cmd_source(db_path=DB_PATH) -> None:
     posts = source.fetch_posts(reddit, SUBREDDITS)
     nuevos = sum(db.insert_story(conn, p) for p in posts)
     print(f"[source] {len(posts)} traidos, {nuevos} nuevos (dedup).")
+    conn.close()
 
 
 def cmd_filter(db_path=DB_PATH) -> None:
@@ -32,6 +33,7 @@ def cmd_filter(db_path=DB_PATH) -> None:
         db.save_viral_score(conn, p["id"], s, "filtered" if s > 0 else "rejected")
         ok += s > 0
     print(f"[filter] {len(pend)} evaluados, {ok} pasaron.")
+    conn.close()
 
 
 def cmd_rewrite(n: int, db_path=DB_PATH) -> None:
@@ -47,6 +49,7 @@ def cmd_rewrite(n: int, db_path=DB_PATH) -> None:
         except Exception as e:
             print(f"  [skip] {p['id']}: {e}")
     print(f"[rewrite] {hechos} reescritas.")
+    conn.close()
 
 
 def cmd_dump(n: int, db_path=DB_PATH) -> None:
@@ -58,6 +61,7 @@ def cmd_dump(n: int, db_path=DB_PATH) -> None:
         print("-" * 60)
         print(p["guion"])
         print(f"\n[veredicto] {p['veredicto']}\n[cierre] {p['cierre']}")
+    conn.close()
 
 
 def main(argv: list[str]) -> int:
