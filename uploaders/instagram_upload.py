@@ -37,6 +37,7 @@ def publish_reel(
     access_token: str | None = None,
     poll_seconds: int = 6,
     max_wait: int = 300,
+    error_tolerance: int = 3,
 ) -> str:
     """Publica un Reel desde una URL pública. Devuelve el ID del media."""
     ig_user_id = ig_user_id or _env("IG_USER_ID")
@@ -57,8 +58,12 @@ def publish_reel(
     container_id = r.json()["id"]
     print(f"  Contenedor creado: {container_id}")
 
-    # 2) Esperar a que Instagram procese el video
+    # 2) Esperar a que Instagram procese el video. Meta a veces reporta un ERROR
+    #    transitorio durante el procesamiento y luego el contenedor llega a
+    #    FINISHED, así que se tolera un ERROR aislado: solo falla si persiste
+    #    `error_tolerance` sondeos seguidos.
     waited = 0
+    err_streak = 0
     while waited < max_wait:
         s = requests.get(
             f"{GRAPH}/{container_id}",
@@ -70,8 +75,13 @@ def publish_reel(
         if status == "FINISHED":
             break
         if status == "ERROR":
-            raise RuntimeError(f"Instagram falló al procesar: {s.json()}")
-        print(f"  Procesando... ({status})")
+            err_streak += 1
+            if err_streak >= error_tolerance:
+                raise RuntimeError(f"Instagram falló al procesar: {s.json()}")
+            print(f"  Status ERROR transitorio ({err_streak}/{error_tolerance}), sigo esperando...")
+        else:
+            err_streak = 0
+            print(f"  Procesando... ({status})")
         time.sleep(poll_seconds)
         waited += poll_seconds
     else:
