@@ -14,6 +14,32 @@
   misterios, 30 guiones sin "Seguime" + 11 aperturas in medias res. Verificado con
   3 videos reales (faceless pt.9, misterios ep.4, historia ep.4).
 
+## 🔴 Canal 4 «¿Soy el Malo?» (historias de Reddit) — estado
+- **Plan 1 — pipeline de guiones** ✅ (`reddit_pipeline/`): sourcing por Arctic Shift
+  (sin cuenta de Reddit) + filtro `viral_score` + reescritura con LLM. Groq key en `.env`
+  (`openai/gpt-oss-120b`), **validada y viva**. En la DB: 5 guiones reescritos (seq 1-5),
+  105 filtered esperando. CLI: `python -m reddit_pipeline run 5` / `dump 5`.
+- **Plan 2 — render** ✅: `render_reddit.py` + perfil `soyelmalo` en `config/channels.yaml`.
+  3 videos de prueba aprobados en `output/soyelmalo/`.
+- **Plan 3 — automatización** ✅ (2026-10-08): `soyelmalo` integrado a `daily_post.py`
+  vía un adaptador `series_reddit.py` que imita la interfaz `series` pero leyendo las
+  historias reescritas de `stories.sqlite`, numeradas por un `seq` estable (columna nueva
+  en `reddit_pipeline/db.py`, migrada). Voz por historia (Jorge/Dalia según el narrador)
+  con un cambio retrocompatible de 1 línea en `_ensure_video`. Entrada en
+  `channels_registry.py` + `run_daily_soyelmalo.bat`. Verificado end-to-end: render de la
+  parte 4 por el camino de producción se ve idéntico al formato aprobado (título naranja
+  arriba, karaoke amarillo, pregunta abajo). Corre con guards: sin tokens, saltea las 3
+  plataformas con gracia. 101 tests verdes.
+- **Pendiente para salir en vivo:**
+  - [ ] **Crear las cuentas** YT/IG/TikTok de «¿Soy el Malo?» + OAuth (como historia/misterios).
+    Secretos esperados: `secrets/soyelmalo/{token.json,instagram.json,tiktok_token.json}`.
+  - [ ] Registrar la schtask de `run_daily_soyelmalo.bat` (horario escalonado, p.ej. 14:30/21:30)
+    recién cuando existan los tokens (con los cmdlets `New-ScheduledTaskAction`/`Set-ScheduledTask`,
+    no `schtasks /tr`, por el bug de comillas del espacio en "yt short").
+  - [ ] **Rotar la Groq key** (se pegó en un chat anterior) — seguridad; sigue funcionando.
+  - [ ] Engordar el backlog: reescribir más de las 105 filtered (`python -m reddit_pipeline rewrite N`).
+  - [ ] Sección en el link hub + branding visual final (avatar/banner ya hechos en Descargas).
+
 ## 🔜 Pendiente corto plazo
 - [ ] **Tanda 3 de la fórmula (manual)**: (1) ~~gameplay propio~~ (el usuario no va a
   grabar) y ~~cuentas a Creador~~ (ya eran Creador de origen — el item solo aplicaba

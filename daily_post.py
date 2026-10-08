@@ -100,6 +100,11 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
                  hashtags=series.KEYWORDS,
                  sfx_style=ctx.get("sfx_style", "datos"),
                  question=series.PARTS[part].get("pregunta"),
+                 # Voz/sfx opcionales por parte (canal de Reddit: Jorge/Dalia según
+                 # el narrador). Las series estáticas no los declaran -> None/whoosh,
+                 # es decir, el comportamiento de siempre (cae al tts_voice del yaml).
+                 voice=series.PARTS[part].get("voice"),
+                 sfx=series.PARTS[part].get("sfx", "sfx/whoosh.wav"),
                  verbose=False)
     return video
 

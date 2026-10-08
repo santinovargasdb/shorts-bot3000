@@ -45,6 +45,18 @@ CHANNELS = {
         "first_comment": "Dejá tu teoría abajo 👇 ¿qué creés que pasó de verdad?",
         "sfx_style": "misterios",    # riser hacia el remate + corte de música
     },
+    "soyelmalo": {
+        "display": "¿Soy el Malo?",
+        "series": "series_reddit",       # adaptador DINÁMICO: lee reddit_pipeline/stories.sqlite
+        "engine_channel": "soyelmalo",
+        "music": "music/lofi",           # igual que los 3 videos de prueba aprobados
+        "yt_token": "secrets/soyelmalo/token.json",
+        "ig_creds": "secrets/soyelmalo/instagram.json",
+        "tt_token": "secrets/soyelmalo/tiktok_token.json",
+        "platforms": ("yt", "ig", "tt"),   # se activan cuando existan los tokens (OAuth del canal)
+        "first_comment": "¿Vos qué hubieras hecho? 👇",
+        "sfx_style": "datos",        # pop en el cambio de palabra (igual que render_reddit)
+    },
 }
 
 

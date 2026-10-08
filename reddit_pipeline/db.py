@@ -21,9 +21,25 @@ CREATE TABLE IF NOT EXISTS stories (
     narrador_genero TEXT CHECK(narrador_genero IN ('M','F')),
     titulo_es       TEXT,
     veredicto       TEXT,
-    cierre          TEXT
+    cierre          TEXT,
+    seq             INTEGER
 );
 """
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Migración idempotente: agrega la columna `seq` si falta (DBs viejas) y
+    backfillea un seq a las historias ya reescritas, por viral_score desc."""
+    cols = [c[1] for c in conn.execute("PRAGMA table_info(stories)").fetchall()]
+    if "seq" in cols:
+        return
+    conn.execute("ALTER TABLE stories ADD COLUMN seq INTEGER")
+    pend = conn.execute(
+        "SELECT id FROM stories WHERE status = 'rewritten' AND seq IS NULL "
+        "ORDER BY viral_score DESC, id ASC").fetchall()
+    for i, row in enumerate(pend, 1):
+        conn.execute("UPDATE stories SET seq = ? WHERE id = ?", (i, row["id"]))
+    conn.commit()
 
 
 def connect(db_path: Path | str) -> sqlite3.Connection:
@@ -31,6 +47,7 @@ def connect(db_path: Path | str) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute(SCHEMA)
     conn.commit()
+    _migrate(conn)
     return conn
 
 
@@ -74,10 +91,22 @@ def save_viral_score(conn: sqlite3.Connection, post_id: str,
 
 
 def save_rewrite(conn: sqlite3.Connection, post_id: str, rw: dict) -> None:
+    """Guarda la reescritura y, si la historia aún no tenía, le asigna un `seq`
+    monotónico (= siguiente MAX(seq)+1). Ese seq es el 'número de parte' estable
+    que consume daily_post; no cambia aunque después se reescriban más historias."""
     conn.execute(
         "UPDATE stories SET guion = :guion, narrador_genero = :narrador_genero, "
         "titulo_es = :titulo, veredicto = :veredicto, cierre = :cierre, "
-        "status = 'rewritten' WHERE id = :id",
+        "status = 'rewritten', "
+        "seq = COALESCE(seq, (SELECT COALESCE(MAX(seq), 0) FROM stories) + 1) "
+        "WHERE id = :id",
         {**rw, "id": post_id},
     )
     conn.commit()
+
+
+def rewritten_by_seq(conn: sqlite3.Connection) -> list[dict]:
+    """Historias con seq asignado (= ya reescritas), ordenadas por seq asc.
+    Es el backlog que recorre el canal de Reddit, parte 1, 2, 3..."""
+    cur = conn.execute("SELECT * FROM stories WHERE seq IS NOT NULL ORDER BY seq ASC")
+    return [dict(row) for row in cur.fetchall()]
