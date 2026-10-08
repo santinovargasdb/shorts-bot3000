@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>En 60 Segundos — todos nuestros canales</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Datos, historia y misterios en 60 segundos. Seguinos en YouTube, TikTok e Instagram.">
+<meta name="description" content="Datos, historia, misterios y drama de Reddit en 60 segundos. Seguinos en YouTube, TikTok e Instagram.">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
   :root{
     --ink:#07080b; --ink2:#0c0e13;
     --txt:#eef1f6; --muted:#949cab; --dim:#5e6675;
-    --teal:#2dd4bf; --gold:#e9b84c; --violet:#a874ff;
+    --teal:#2dd4bf; --gold:#e9b84c; --violet:#a874ff; --orange:#ff4500;
     --yt:#ff3b3b; --tt:#27e5db; --ig:#e85a9b;
     --line:rgba(255,255,255,.08);
     --sans:"Bricolage Grotesque",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -53,7 +53,9 @@
   .zone.datos .glow{left:-40%;background:radial-gradient(circle,var(--teal),transparent 60%)}
   .zone.historia .glow{right:-40%;background:radial-gradient(circle,var(--gold),transparent 60%)}
   .zone.misterios .glow{left:-35%;background:radial-gradient(circle,var(--violet),transparent 60%)}
+  .zone.soyelmalo .glow{right:-38%;background:radial-gradient(circle,var(--orange),transparent 60%)}
   .zone.datos{--c:var(--teal)} .zone.historia{--c:var(--gold)} .zone.misterios{--c:var(--violet)}
+  .zone.soyelmalo{--c:var(--orange)}
 
   .zlabel{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
           color:var(--c);display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -125,7 +127,7 @@
     </svg>
     <p class="eyebrow">Link in bio</p>
     <h1>En 60 Segundos</h1>
-    <p class="sub">Datos, historia y misterios — en un minuto.</p>
+    <p class="sub">Datos, historia, misterios y Reddit — en un minuto.</p>
   </header>
 
   <section class="zone datos reveal" style="--d:.12s">
@@ -176,7 +178,23 @@
       <span class="meta"><b>Instagram</b><em>@misterios.en60segundos</em></span><span class="go">↗</span></a>
   </section>
 
-  <footer class="reveal" style="--d:.4s"><p>UN VIDEO NUEVO · TODOS LOS DÍAS</p></footer>
+  <section class="zone soyelmalo reveal" style="--d:.42s">
+    <div class="glow"></div>
+    <p class="zlabel">04 · Reddit</p>
+    <h2>¿Soy el Malo?</h2>
+    <p class="ztag">Historias reales de Reddit. ¿Vos qué hubieras hecho?</p>
+    <a class="lnk" style="--pc:var(--yt)" href="https://www.youtube.com/@Soyelmalo.47">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#ff3b3b" d="M23 7.6a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.5A3 3 0 0 0 1 7.6 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.4a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.5 12 31 31 0 0 0 23 7.6z"/><path fill="#0c0e13" d="M9.8 15.3V8.7l5.7 3.3z"/></svg></span>
+      <span class="meta"><b>YouTube</b><em>@Soyelmalo.47</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--tt)" href="https://www.tiktok.com/@soyelmalo.47">
+      <span class="ic"><svg viewBox="0 0 24 24"><path fill="#27e5db" d="M16.3 3c.3 2.2 1.5 3.8 3.7 4.1v3c-1.4 0-2.7-.4-3.7-1.1v5.8c0 3.4-2.7 6.1-6 6.1s-6-2.7-6-6.1 2.7-6 6-6c.3 0 .6 0 .9.1v3.1c-.3-.1-.6-.1-.9-.1-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9V3h2.2z"/></svg></span>
+      <span class="meta"><b>TikTok</b><em>@soyelmalo.47</em></span><span class="go">↗</span></a>
+    <a class="lnk" style="--pc:var(--ig)" href="https://www.instagram.com/soyelmalo.47">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#e85a9b" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#e85a9b" stroke="none"/></svg></span>
+      <span class="meta"><b>Instagram</b><em>@soyelmalo.47</em></span><span class="go">↗</span></a>
+  </section>
+
+  <footer class="reveal" style="--d:.5s"><p>UN VIDEO NUEVO · TODOS LOS DÍAS</p></footer>
 </main>
 
 <a class="contact" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=nofaceshortvids@gmail.com&amp;su=Contacto%20En%2060%20Segundos" target="_blank" rel="noopener" aria-label="Escribinos un email">
