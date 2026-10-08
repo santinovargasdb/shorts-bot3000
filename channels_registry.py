@@ -53,7 +53,9 @@ CHANNELS = {
         "yt_token": "secrets/soyelmalo/token.json",
         "ig_creds": "secrets/soyelmalo/instagram.json",
         "tt_token": "secrets/soyelmalo/tiktok_token.json",
-        "platforms": ("yt", "ig", "tt"),   # se activan cuando existan los tokens (OAuth del canal)
+        # YT en pausa por cuota (3 canales x2/día ya usan ~9.600/10.000). Agregar "yt"
+        # cuando se apruebe el aumento de cuota. IG/TT no esperan a YT si no está acá.
+        "platforms": ("ig", "tt"),
         "first_comment": "¿Vos qué hubieras hecho? 👇",
         "sfx_style": "datos",        # pop en el cambio de palabra (igual que render_reddit)
     },

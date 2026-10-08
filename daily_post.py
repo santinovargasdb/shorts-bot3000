@@ -255,7 +255,7 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
     _refresh_ig_token(st, ctx)
     creds = _ig_creds(ctx)   # releer por si el refresh cambió el token
     part = st["instagram"]["next_part"]
-    if part >= st["youtube"]["next_part"]:
+    if "yt" in ctx.get("platforms", ()) and part >= st["youtube"]["next_part"]:
         _log(ctx, f"[IG] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
         return
     if part not in series.PARTS:
@@ -325,7 +325,7 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
         _log(ctx, "[TT] No configurado (sin token), lo salteo.")
         return
     part = st["tiktok"]["next_part"]
-    if part >= st["youtube"]["next_part"]:
+    if "yt" in ctx.get("platforms", ()) and part >= st["youtube"]["next_part"]:
         _log(ctx, f"[TT] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
         return
     if part not in series.PARTS:
