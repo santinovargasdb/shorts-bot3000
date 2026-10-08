@@ -37,3 +37,6 @@ rec_ffmpeg.log
 
 # Base de estado del pipeline de Reddit (se regenera)
 reddit_pipeline/stories.sqlite
+
+# Snoo de Reddit (marca registrada): fuente local del branding, no se sube
+branding/snoo_source.png
