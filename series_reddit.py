@@ -80,10 +80,13 @@ def background_for(part: int) -> str:
 
 
 def descripcion(parte: int, resumen: str) -> str:
+    """Descripción para YouTube + fuente del caption de IG (de acá _ig_caption saca
+    el gancho = 1ª línea, y los hashtags = línea con '#'). Por eso la 1ª línea es el
+    `resumen` (específico por historia), NO un texto genérico ni el guion entero."""
     return (
-        "🔥 Historias reales de Reddit, contadas en un minuto. ¿Soy el malo?\n\n"
-        f"📌 {resumen}\n\n"
-        "💬 Dejá tu veredicto en los comentarios y seguime para una historia nueva cada día.\n\n"
-        "Reescritura original de una historia de Reddit (nombres cambiados).\n\n"
-        "#shorts #reddit #historias #drama #storytime #soyelmalo"
+        f"{resumen}\n\n"
+        "Historia real de Reddit, reescrita y narrada. ¿Soy el malo? "
+        "Dejá tu veredicto en los comentarios 👇\n\n"
+        "#shorts #reddit #historias #drama #storytime #soyelmalo "
+        "#historiasdereddit #relatos #reddithistorias #viral"
     )
