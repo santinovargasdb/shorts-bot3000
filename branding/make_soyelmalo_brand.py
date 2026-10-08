@@ -76,6 +76,25 @@ def extract_snoo() -> Image.Image:
 SNOO = extract_snoo()
 
 
+def _centroid_ratio(img: Image.Image) -> tuple[float, float]:
+    """Centro de masa del alpha (0..1 en cada eje). La cabeza+orejas pesan mucho
+    más que la antena fina, así que centrar por acá deja la CABEZA en el medio
+    (lo que el ojo lee como 'centrado'), no la caja que estira la antena."""
+    a = img.split()[3]
+    w, h = a.size
+    data = a.load()
+    sx = sy = sw = 0.0
+    for y in range(h):
+        for x in range(w):
+            v = data[x, y]
+            if v:
+                sx += x * v; sy += y * v; sw += v
+    return sx / sw / w, sy / sw / h
+
+
+CXR, CYR = _centroid_ratio(SNOO)
+
+
 def fit_snoo(target_h: int) -> Image.Image:
     scale = target_h / SNOO.height
     return SNOO.resize((max(1, int(SNOO.width * scale)), target_h), Image.LANCZOS)
@@ -115,11 +134,12 @@ def icon_image(size, r):
     cx, cy = S // 2, int(S * 0.54)
     R = r * 2
     ri = draw_face(d, cx, cy, R)
-    # Snoo dentro de la cara: alto ~1.5*ri para que entre con ears+antena.
-    snoo = fit_snoo(int(ri * 1.52))
-    # centrado horizontal; un toque abajo para dejar aire a la antena arriba.
-    px = cx - snoo.width // 2
-    py = cy + int(ri * 0.16) - snoo.height // 2
+    # Snoo dentro de la cara: alto ~1.46*ri (deja aire a los lados y abajo).
+    snoo = fit_snoo(int(ri * 1.46))
+    # centrado por CENTROIDE: el centro de masa del Snoo cae en el centro de la
+    # cara -> la cabeza queda centrada (la antena se reparte sola).
+    px = int(cx - snoo.width * CXR)
+    py = int(cy - snoo.height * CYR)
     img.alpha_composite(snoo, (px, py))
     return img.resize((size, size), Image.LANCZOS)
 
