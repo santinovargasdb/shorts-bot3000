@@ -23,7 +23,7 @@ REGLAS del "guion" ({min}-{max} palabras, ~90-120s a 150 wpm — CONTÁ las pala
 6. Español natural y hablado, como contándole un bombazo a un amigo. Cambiá los nombres propios por nombres neutros. Quitá usernames y datos identificables.
 
 "narrador_genero": "M" si quien narra en primera persona es hombre, "F" si es mujer.
-"titulo": un CLIFFHANGER que teasea y CORTA justo antes del desenlace, para que tengan que ver el video. Terminá en suspenso (ej: "...pero lo que hizo después me dejó sin palabras" / "...y cuando abrí la puerta, entendí todo"). NUNCA reveles el final en el título. VARIÁ la forma del cliffhanger entre historias; NO uses siempre la misma frase (evitá repetir "me dejó sin palabras").
+"titulo": un CLIFFHANGER que teasea y CORTA justo antes del desenlace, para que tengan que ver el video. NUNCA reveles el final. PROHIBIDO el cliché "me dejó sin palabras / helada / en shock / sin aliento" y cualquier variante de "me dejó": es un cliché quemado, NO lo uses. VARIÁ el estilo entre historias usando recursos distintos, por ejemplo: una pregunta ("...¿y sabés qué hizo mi suegra?"), una revelación parcial ("...hasta que vi el último mensaje"), una amenaza ("...y juró que me arrepentiría"), un número/tiempo ("...3 días después todo se derrumbó"), o un giro inesperado ("...pero el abogado resultó ser mi hermano"). El corte debe generar intriga, nunca resolver.
 "veredicto": 1 línea con tu opinión/encuadre (la capa de comentario original).
 "cierre": una pregunta a comentarios; por default "¿Vos qué hubieras hecho? 👇".
 
