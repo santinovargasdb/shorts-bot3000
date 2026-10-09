@@ -5,11 +5,11 @@ import series_reddit as sr
 
 ROWS = [
     {"seq": 1, "titulo_es": "Mi ex tóxica", "guion": "guion uno",
-     "veredicto": "se pasó mal", "cierre": "¿Vos qué harías? 👇",
-     "narrador_genero": "M", "subreddit": "pettyrevenge", "score": 5000},
+     "veredicto": "se pasó mal", "cierre": "¿Vos qué harías? 👇", "narrador_genero": "M",
+     "subreddit": "pettyrevenge", "score": 5000, "num_comments": 320},
     {"seq": 2, "titulo_es": "La suegra", "guion": "guion dos",
-     "veredicto": "insólito", "cierre": "¿Soy el malo? 👇",
-     "narrador_genero": "F", "subreddit": "EntitledParents", "score": 3000},
+     "veredicto": "insólito", "cierre": "¿Soy el malo? 👇", "narrador_genero": "F",
+     "subreddit": "EntitledParents", "score": 3000, "num_comments": 210},
 ]
 
 
@@ -17,11 +17,20 @@ def test_build_parts_estructura():
     parts = sr.build_parts(ROWS)
     assert set(parts) == {1, 2}
     p = parts[1]
-    assert p["segments"][0] == {"kind": "title", "text": "Mi ex tóxica"}
-    assert p["segments"][1]["kind"] == "fact"
-    assert "guion uno" in p["segments"][1]["text"]
-    assert "se pasó mal" in p["segments"][1]["text"]   # el veredicto también se narra
-    assert p["segments"][1]["imgs"] == []
+    # Sin segmento de título (el gancho es la tarjeta de Reddit): solo la narración.
+    assert len(p["segments"]) == 1
+    assert p["segments"][0]["kind"] == "fact"
+    assert "guion uno" in p["segments"][0]["text"]
+    assert "se pasó mal" in p["segments"][0]["text"]   # el veredicto también se narra
+    assert p["segments"][0]["imgs"] == []
+
+
+def test_build_parts_datos_de_card():
+    p = sr.build_parts(ROWS)[1]
+    assert p["subreddit"] == "pettyrevenge"
+    assert p["upvotes"] == 5000
+    assert p["comments"] == 320
+    assert p["username"].startswith("u/")
 
 
 def test_build_parts_voz_por_genero():

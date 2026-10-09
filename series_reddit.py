@@ -16,6 +16,7 @@ from series_data import BACKGROUNDS
 
 import reddit_pipeline.db as _db
 from reddit_pipeline.constants import DB_PATH
+from reddit_pipeline.env import ROOT
 
 # Voz es-MX según el género de quien narra (spec §2, §6).
 VOZ = {"M": "es-MX-JorgeNeural", "F": "es-MX-DaliaNeural"}
@@ -37,18 +38,25 @@ def build_parts(rows: list[dict]) -> dict[int, dict]:
     editorial propia, hablada); la pregunta (cierre) va fija en pantalla al final."""
     parts: dict[int, dict] = {}
     for r in rows:
+        seq = int(r["seq"])
         titulo = _clean(r["titulo_es"])
         narracion = _clean(f"{r['guion']}  {r['veredicto']}".strip())
-        parts[int(r["seq"])] = {
+        parts[seq] = {
             "titulo": titulo,
+            # Sin tarjeta de título naranja: el gancho visual es la TARJETA DE POST
+            # de Reddit (overlay en la apertura, ver intro_card_for). Solo narración.
             "segments": [
-                {"kind": "title", "text": titulo},          # tarjeta del post
-                {"kind": "fact", "text": narracion, "imgs": []},  # narración (sin imágenes)
+                {"kind": "fact", "text": narracion, "imgs": []},
             ],
             "resumen": _clean(r["veredicto"]) or titulo,
             "pregunta": _clean(r["cierre"]),
             "voice": VOZ.get(r["narrador_genero"], VOZ["F"]),
             "sfx": "sfx/pop.wav",
+            # datos para la tarjeta de post de Reddit (apertura)
+            "subreddit": r["subreddit"],
+            "upvotes": r["score"],
+            "comments": r["num_comments"],
+            "username": f"u/throwaway_{seq * 1373 % 9000 + 1000}",
         }
     return parts
 
@@ -69,8 +77,22 @@ PARTS: dict[int, dict] = _load()
 
 
 def title_for(part: int) -> str:
-    """El cliffhanger de la historia (título de YT/IG/TikTok y tarjeta en pantalla)."""
+    """El cliffhanger de la historia (título de YT/IG/TikTok)."""
     return PARTS[part]["titulo"]
+
+
+def intro_card_for(part: int):
+    """Renderiza (y cachea) la tarjeta de post de Reddit de la historia, para el
+    overlay de apertura del video. Devuelve la ruta del PNG (o None si falta la parte)."""
+    import reddit_card
+    p = PARTS.get(part)
+    if not p:
+        return None
+    cards = ROOT / "output" / "soyelmalo" / ".cards"
+    cards.mkdir(parents=True, exist_ok=True)
+    return reddit_card.render_card(
+        cards / f"seq{part}.png", subreddit=p["subreddit"], title=p["titulo"],
+        upvotes=p["upvotes"], comments=p["comments"], username=p["username"])
 
 
 def background_for(part: int) -> str:

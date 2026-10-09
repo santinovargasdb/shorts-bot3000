@@ -105,6 +105,9 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
                  # es decir, el comportamiento de siempre (cae al tts_voice del yaml).
                  voice=series.PARTS[part].get("voice"),
                  sfx=series.PARTS[part].get("sfx", "sfx/whoosh.wav"),
+                 # Tarjeta de post de Reddit en la apertura (solo canales que la proveen).
+                 intro_card=(series.intro_card_for(part)
+                             if hasattr(series, "intro_card_for") else None),
                  verbose=False)
     return video
 

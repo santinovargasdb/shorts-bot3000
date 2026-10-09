@@ -63,6 +63,8 @@ def generate(
     question: str | None = None,
     voice: str | None = None,
     rate: str | None = None,
+    intro_card: str | Path | None = None,
+    intro_card_seconds: float = 4.0,
     verbose: bool = True,
 ) -> Path:
     """segments: lista ordenada de
@@ -209,9 +211,19 @@ def generate(
             dip = (max(0.0, ultimo - 0.45), max(0.0, ultimo - 0.05))
         elif sfx_style == "historia" and len(segs) > 1:
             extras.setdefault(sfx_dir / "boom.wav", []).append((ultimo, 0.35))
+    # Sonido viral al aparecer la tarjeta de Reddit (swoosh en t=0).
+    if intro_card:
+        extras.setdefault(sfx_dir / "whoosh.wav", []).append((0.0, 0.3))
     extras = {p: hits for p, hits in extras.items() if p.exists()}
     for p in extras:
         cmd += ["-i", str(p.resolve())]
+    # Tarjeta de post de Reddit: input de video extra (último) para el overlay de apertura.
+    card_i = None
+    if intro_card:
+        card_i = pop_i + len(extras) + 1
+        cmd += ["-loop", "1", "-framerate", "30",
+                "-t", f"{min(intro_card_seconds + 0.5, duration):.3f}",
+                "-i", str(Path(intro_card).resolve())]
 
     # Video: fondo + overlays con animación corta de entrada/salida (deslizar+fundir)
     AD, OFF = 0.18, 70   # duración de la animación (s) y desplazamiento (px)
@@ -240,6 +252,13 @@ def generate(
             f"enable='between(t,{s:.3f},{e:.3f})'[o{k}]")
         prev = f"o{k}"
     vparts.append(f"[{prev}]subtitles={ass.name}[v]")
+    vlabel = "v"
+    # Overlay de la tarjeta de Reddit en la apertura: arriba, se desvanece al final.
+    if intro_card and card_i is not None:
+        st = max(0.1, intro_card_seconds - 0.5)
+        vparts.append(f"[{card_i}:v]format=yuva420p,fade=t=out:st={st:.2f}:d=0.5:alpha=1[rc]")
+        vparts.append(f"[v][rc]overlay=x=(W-w)/2:y=160:enable='lte(t,{intro_card_seconds:.2f})'[vo]")
+        vlabel = "vo"
 
     # Audio: voz + música baja + whoosh en las transiciones + SFX del estilo.
     # En 'datos' el whoosh marca solo el cambio de dato (la 2ª imagen lleva pop).
@@ -279,7 +298,7 @@ def generate(
 
     filter_complex = ";".join(vparts + aparts)
     out_name = f"{slug}.mp4"
-    cmd += ["-filter_complex", filter_complex, "-map", "[v]", "-map", "[a]",
+    cmd += ["-filter_complex", filter_complex, "-map", f"[{vlabel}]", "-map", "[a]",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "160k", "-r", "30", "-t", f"{duration:.3f}",
             "-movflags", "+faststart", out_name]
