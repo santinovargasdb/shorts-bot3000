@@ -1,7 +1,8 @@
 """Selección de historias: viral_score + filtro (spec §4.2)."""
 from __future__ import annotations
 
-from .constants import MIN_SCORE, MIN_RATIO, MIN_WORDS, MAX_WORDS, HOOK_KEYWORDS
+from .constants import (MIN_SCORE, MIN_RATIO, MIN_WORDS, MAX_WORDS,
+                        HOOK_KEYWORDS, HOOK_BONUS, FAMILY_KEYWORDS, FAMILY_BONUS)
 
 
 def word_count(text: str) -> int:
@@ -19,9 +20,11 @@ def viral_score(post: dict) -> float:
         return 0.0
     num_comments = post.get("num_comments", 0) or 0
     title = (post.get("title", "") or "").lower()
+    family = any(k in title for k in FAMILY_KEYWORDS)
     hook = any(k in title for k in HOOK_KEYWORDS)
+    mult = FAMILY_BONUS if family else (HOOK_BONUS if hook else 1.0)
     engagement = 1 + num_comments / max(score, 1)
-    return score * ratio * engagement * (1.3 if hook else 1.0)
+    return score * ratio * engagement * mult
 
 
 def passes(post: dict) -> bool:

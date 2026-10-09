@@ -36,3 +36,10 @@ def test_bonus_por_keyword_de_familia():
     sin = sc.viral_score(_post(title="una historia cualquiera"))
     con = sc.viral_score(_post(title="my husband wants a divorce"))
     assert con > sin > 0
+
+
+def test_familia_pesa_mas_que_gancho_generico():
+    fam = sc.viral_score(_post(title="my husband wants a divorce"))
+    hook = sc.viral_score(_post(title="AITA for this"))
+    base = sc.viral_score(_post(title="una historia cualquiera"))
+    assert fam > hook > base
