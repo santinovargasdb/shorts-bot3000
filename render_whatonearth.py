@@ -22,9 +22,12 @@ def _run(cmd, cwd):
 
 
 def _dur(p):
-    return float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                                 "-of", "default=nw=1:nk=1", str(p)],
-                                capture_output=True, text=True).stdout.strip())
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                        "-of", "default=nw=1:nk=1", str(p)], capture_output=True, text=True)
+    out = r.stdout.strip()
+    if r.returncode != 0 or not out:
+        raise RuntimeError(f"ffprobe no pudo leer duración de {p}: {r.stderr.strip()[:200]}")
+    return float(out)
 
 
 def name_card(name: str, out_path) -> None:

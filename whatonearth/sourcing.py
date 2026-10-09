@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -115,10 +116,13 @@ def search_wikimedia(query: str) -> list:
         lic = meta.get("LicenseShortName", {}).get("value", "")
         if not info.get("url") or info.get("height", 0) < 1080 or not lic:
             continue
+        _artist = meta.get("Artist", {}).get("value", "")
+        _artist = re.sub(r"<[^>]+>", "", _artist)
+        _artist = re.sub(r"\s+", " ", _artist).strip()[:80]
         out.append({"url": info["url"], "height": info.get("height", 0),
                     "width": info.get("width", 0), "duration": 10,  # la API de Commons no expone duration; placeholder (rank solo lo usa como gate 3-40s)
                     "tags": p.get("title", "").replace("File:", "").replace("_", " ") + " " + query,
-                    "downloads": 0, "author": meta.get("Artist", {}).get("value", "")[:80],
+                    "downloads": 0, "author": _artist,
                     "source_url": info.get("descriptionurl", ""), "source": "wikimedia",
                     "license": lic})
     return out

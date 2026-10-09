@@ -1,6 +1,7 @@
 """Arma un video completo y lo deja en el backlog: temas -> clips legales -> render."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from whatonearth import db, sourcing, topics
@@ -63,7 +64,12 @@ def build_video(n: int = N_ITEMS, out_dir=OUT_DIR, conn=None) -> int | None:
     render_whatonearth.render(items, video_path, work)
     meta_items = [{"name": it["name"], "source": it.get("source"), "author": it.get("author"),
                    "license": it.get("license"), "source_url": it.get("source_url")} for it in items]
-    real_seq = db.add_video(own, title=make_title(items), description=make_description(meta_items),
+    title = make_title(items)
+    description = make_description(meta_items)
+    video_path.with_suffix(".json").write_text(
+        json.dumps({"title": title, "description": description}, ensure_ascii=False),
+        encoding="utf-8")
+    real_seq = db.add_video(own, title=title, description=description,
                             video_path=str(video_path), items=meta_items)
     print(f"[whatonearth] video seq {real_seq} -> {video_path}")
     return real_seq

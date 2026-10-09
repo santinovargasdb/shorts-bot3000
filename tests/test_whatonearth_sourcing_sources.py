@@ -69,3 +69,26 @@ def test_wikimedia_sin_licencia_se_saltea(monkeypatch):
     monkeypatch.setattr(sourcing.requests, "get", lambda *a, **k: _R())
     cands = sourcing.search_wikimedia("pangolin")
     assert cands == []
+
+
+def test_wikimedia_author_sin_html(monkeypatch):
+    payload = {"query": {"pages": {"1": {
+        "title": "File:Pangolin_html.webm",
+        "imageinfo": [{"url": "http://commons/pangolin_html.webm", "width": 1920,
+                       "height": 1080, "extmetadata": {
+                           "Artist": {"value": '<a href="http://x">María López</a>'},
+                           "LicenseShortName": {"value": "CC BY-SA 4.0"}},
+                       "descriptionurl": "http://commons/page_html"}],
+    }}}}
+
+    class _R:
+        status_code = 200
+        def json(self):
+            return payload
+
+    monkeypatch.setattr(sourcing.requests, "get", lambda *a, **k: _R())
+    cands = sourcing.search_wikimedia("pangolin")
+    assert cands, "debe devolver un candidato"
+    author = cands[0]["author"]
+    assert "<" not in author and ">" not in author, f"autor contiene HTML: {author!r}"
+    assert "María López" in author, f"autor no contiene el nombre: {author!r}"
