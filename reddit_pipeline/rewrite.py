@@ -19,11 +19,11 @@ REGLAS del "guion" ({min}-{max} palabras, ~90-120s a 150 wpm — CONTÁ las pala
 2. SETUP: presentá a quien narra y al villano (pareja, suegra, familiar), la relación y lo que está en juego. Dale varias frases para que el espectador entienda por qué duele y SE INDIGNE. No lo apures.
 3. ESCALADA: mostrá cómo el conflicto empeora, paso a paso. Subí la tensión. Este es el cuerpo del video.
 4. GIRO: el momento en que se da vuelta la situación (la víctima reacciona, se descubre la verdad, llega el karma).
-5. PAYOFF: el desenlace, con peso y AL FINAL. Que se sienta satisfactorio; no lo cortes de golpe.
+5. PAYOFF: el desenlace, con peso y AL FINAL. Que se sienta satisfactorio; no lo cortes de golpe. El GUION SIEMPRE resuelve y entrega el desenlace completo; NUNCA lo cortes ni dejes la historia a medias (el suspenso va SOLO en el "titulo").
 6. Español natural y hablado, como contándole un bombazo a un amigo. Cambiá los nombres propios por nombres neutros. Quitá usernames y datos identificables.
 
 "narrador_genero": "M" si quien narra en primera persona es hombre, "F" si es mujer.
-"titulo": un CLIFFHANGER que teasea y CORTA justo antes del desenlace, para que tengan que ver el video. Terminá en suspenso (ej: "...pero lo que hizo después me dejó sin palabras" / "...y cuando abrí la puerta, entendí todo"). NUNCA reveles el final en el título.
+"titulo": un CLIFFHANGER que teasea y CORTA justo antes del desenlace, para que tengan que ver el video. Terminá en suspenso (ej: "...pero lo que hizo después me dejó sin palabras" / "...y cuando abrí la puerta, entendí todo"). NUNCA reveles el final en el título. VARIÁ la forma del cliffhanger entre historias; NO uses siempre la misma frase (evitá repetir "me dejó sin palabras").
 "veredicto": 1 línea con tu opinión/encuadre (la capa de comentario original).
 "cierre": una pregunta a comentarios; por default "¿Vos qué hubieras hecho? 👇".
 
