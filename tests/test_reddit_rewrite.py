@@ -2,7 +2,7 @@ import json
 import pytest
 import reddit_pipeline.rewrite as rw
 
-VALID = {"guion": " ".join(["palabra"] * 120), "narrador_genero": "M",
+VALID = {"guion": " ".join(["palabra"] * 250), "narrador_genero": "M",
          "titulo": "Mi ex", "veredicto": "se pasó", "cierre": "¿vos qué harías?"}
 
 
@@ -43,14 +43,14 @@ def test_parse_genero_invalido():
 def test_rewrite_ok_sin_retry():
     client = _FakeClient([json.dumps(VALID)])
     out = rw.rewrite_story({"body": "x"}, client, "m")
-    assert rw.word_count(out["guion"]) == 120
+    assert rw.word_count(out["guion"]) == 250
 
 
 def test_rewrite_reintenta_si_largo():
-    largo = {**VALID, "guion": " ".join(["x"] * 400)}
+    largo = {**VALID, "guion": " ".join(["x"] * 500)}
     client = _FakeClient([json.dumps(largo), json.dumps(VALID)])
     out = rw.rewrite_story({"body": "x"}, client, "m", max_retries=2)
-    assert 110 <= rw.word_count(out["guion"]) <= 160
+    assert 210 <= rw.word_count(out["guion"]) <= 320
 
 
 def test_rewrite_falla_si_no_converge():

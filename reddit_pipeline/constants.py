@@ -23,8 +23,16 @@ MIN_SCORE = 300
 MIN_RATIO = 0.90
 MIN_WORDS = 150
 MAX_WORDS = 1500
-HOOK_KEYWORDS = ["aita", "am i", "update", "tifu", "revenge", "cheat", "affair", "ex "]
 
-# Largo del guion reescrito (≈45-60s a ~150 wpm) (spec §2, §7)
-GUION_MIN_WORDS = 110
-GUION_MAX_WORDS = 160
+# Gancho: keywords que suben el viral_score. Fuerte en pareja/familia/suegra (spec v2 §3.4)
+HOOK_KEYWORDS = [
+    "aita", "am i", "update", "tifu", "revenge",
+    "cheat", "cheated", "affair", "ex ", "ex-",
+    "husband", "wife", "boyfriend", "girlfriend", "fiance",
+    "mother-in-law", "in-law", "mil ", "sister", "mom",
+    "divorce", "wedding", "family",
+]
+
+# Largo del guion reescrito (≈90-120s a ~150 wpm; el drama respira) (spec v2 §3.1)
+GUION_MIN_WORDS = 210
+GUION_MAX_WORDS = 320

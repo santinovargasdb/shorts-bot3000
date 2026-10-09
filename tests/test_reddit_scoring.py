@@ -30,3 +30,9 @@ def test_bonus_por_keyword_de_gancho():
     sin = sc.viral_score(_post(title="una historia cualquiera"))
     con = sc.viral_score(_post(title="AITA por esto"))
     assert con > sin > 0
+
+
+def test_bonus_por_keyword_de_familia():
+    sin = sc.viral_score(_post(title="una historia cualquiera"))
+    con = sc.viral_score(_post(title="my husband cheated with my sister"))
+    assert con > sin > 0
