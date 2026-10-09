@@ -12,7 +12,8 @@ from whatonearth import tts
 
 VOICE_Q = "en_us_006"   # pregunta (Serious male)
 VOICE_A = "en_us_001"   # respuesta (Jessie)
-_FONT = "C:/Windows/Fonts/seguisb.ttf"
+SPEED = 1.3             # acelera las voces (TikTok TTS viene lento)
+_FONT = "C:/Windows/Fonts/ariblk.ttf"   # Arial Black (bold, para el cartel)
 
 
 def _run(cmd, cwd):
@@ -31,15 +32,23 @@ def _dur(p):
 
 
 def name_card(name: str, out_path) -> None:
-    pad_x, h = 56, 150
-    f = ImageFont.truetype(_FONT, 80)
-    tw = ImageDraw.Draw(Image.new("RGBA", (10, 10))).textlength(name, font=f)
-    W = int(tw + pad_x * 2)
-    img = Image.new("RGBA", (W, h), (0, 0, 0, 0))
+    """Cartel limpio estilo TikTok/CapCut: negrita blanca MAYÚSCULA con contorno
+    negro grueso + sombra suave. Sin píldora."""
+    name = name.upper()
+    stroke = 12
+    f = ImageFont.truetype(_FONT, 92)
+    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+    bbox = probe.textbbox((0, 0), name, font=f, stroke_width=stroke)
+    pad = 24
+    W = (bbox[2] - bbox[0]) + pad * 2
+    H = (bbox[3] - bbox[1]) + pad * 2
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    d.rounded_rectangle([0, 0, W - 1, h - 1], radius=36, fill=(255, 255, 255, 240))
-    d.rounded_rectangle([0, 0, W - 1, h - 1], radius=36, outline=(255, 196, 0, 255), width=6)
-    d.text((W / 2, h / 2), name, font=f, fill=(20, 20, 24, 255), anchor="mm")
+    cx, cy = W / 2, H / 2
+    d.text((cx + 4, cy + 6), name, font=f, anchor="mm",
+           fill=(0, 0, 0, 110), stroke_width=stroke, stroke_fill=(0, 0, 0, 110))  # sombra
+    d.text((cx, cy), name, font=f, anchor="mm",
+           fill=(255, 255, 255, 255), stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
     img.save(out_path)
 
 
@@ -47,11 +56,15 @@ def render(items: list, out_path, workdir) -> Path:
     work = Path(workdir)
     work.mkdir(parents=True, exist_ok=True)
     _run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono",
-          "-t", "0.3", "-q:a", "9", "sil.mp3"], work)
+          "-t", "0.15", "-q:a", "9", "sil.mp3"], work)
     segs = []
     for i, it in enumerate(items):
-        tts.synth(it["question_en"], VOICE_Q, work / f"q{i}.mp3")
-        tts.synth(it["answer_en"], VOICE_A, work / f"a{i}.mp3")
+        # TTS crudo y luego acelerado (atempo); todo lo de abajo usa los acelerados.
+        tts.synth(it["question_en"], VOICE_Q, work / f"q{i}_raw.mp3")
+        tts.synth(it["answer_en"], VOICE_A, work / f"a{i}_raw.mp3")
+        for raw, fin in ((f"q{i}_raw.mp3", f"q{i}.mp3"), (f"a{i}_raw.mp3", f"a{i}.mp3")):
+            _run(["ffmpeg", "-y", "-i", raw, "-filter:a", f"atempo={SPEED}",
+                  "-c:a", "libmp3lame", "-q:a", "4", fin], work)
         (work / f"al{i}.txt").write_text(
             f"file 'q{i}.mp3'\nfile 'sil.mp3'\nfile 'a{i}.mp3'\n", encoding="utf-8")
         _run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", f"al{i}.txt",

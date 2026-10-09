@@ -26,7 +26,7 @@ def test_collect_items_repone_caidos():
 
     items = build.collect_items(
         2, "work",
-        _gen=lambda n, exclude: next(temas),
+        _gen=lambda n, cat, exclude: next(temas),
         _find=lambda q, wd: found.get(q))
     assert [it["name"] for it in items] == ["A", "C"]
 
@@ -35,7 +35,19 @@ def test_collect_items_corta_tras_tope():
     # nunca hay clips -> no cuelga, devuelve menos de n
     items = build.collect_items(
         3, "work",
-        _gen=lambda n, exclude: [{"name": "Z", "category": "x", "query": "z",
-                                  "question_en": "q", "answer_en": "a"}],
+        _gen=lambda n, cat, exclude: [{"name": "Z", "category": "x", "query": "z",
+                                       "question_en": "q", "answer_en": "a"}],
         _find=lambda q, wd: None, max_rounds=3)
     assert items == []
+
+
+def test_collect_items_lugares_sin_articulo():
+    # category=place: el answer se fuerza a "This is <nombre>." (sin artículo)
+    tema = [{"name": "Lake Natron", "category": "place", "query": "lake natron",
+             "question_en": "Where is this?", "answer_en": "This is a Lake Natron."}]
+    items = build.collect_items(
+        1, "work", "place",
+        _gen=lambda n, cat, exclude: tema,
+        _find=lambda q, wd: {"local_path": "x.mp4", "source": "pixabay",
+                             "author": "", "license": "", "source_url": ""})
+    assert items[0]["answer_en"] == "This is Lake Natron."

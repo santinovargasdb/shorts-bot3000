@@ -14,11 +14,11 @@ def test_build_video_escribe_sidecar(tmp_path, monkeypatch):
              "question_en": "And this?", "answer_en": "This is a capybara.",
              "source": "pixabay", "author": "", "license": "Pixabay", "source_url": "",
              "clip_path": "d.mp4"}]
-    monkeypatch.setattr(build, "collect_items", lambda n, work, **k: fake[:n])
+    monkeypatch.setattr(build, "collect_items", lambda n, work, category="object", **k: fake[:n])
     monkeypatch.setattr(build.render_whatonearth, "render",
                         lambda items, out, work: Path(out).write_bytes(b"MP4") or Path(out))
     conn = db.connect(":memory:"); db.init(conn)
-    seq = build.build_video(n=2, out_dir=tmp_path, conn=conn)
+    seq = build.build_video(n=2, out_dir=tmp_path, conn=conn, category="object")
     assert seq == 1
     sidecar = tmp_path / "woe_0001.json"
     assert sidecar.exists()

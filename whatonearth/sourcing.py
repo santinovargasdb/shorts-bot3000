@@ -21,19 +21,38 @@ def _terms(query: str) -> set:
     return {t for t in query.lower().replace("-", " ").split() if len(t) > 2}
 
 
+_AI_MARKERS = ("ai generated", "ai-generated", "aigenerated", "artificial intelligence")
+
+
+def _is_ai(tags) -> bool:
+    """True si el clip está etiquetado como generado por IA (inaceptable: el canal
+    muestra cosas REALES). Pixabay los marca con 'ai generated'."""
+    t = str(tags).lower()
+    if any(m in t for m in _AI_MARKERS):
+        return True
+    toks = set(t.replace(",", " ").split())
+    return "ai" in toks and "generated" in toks
+
+
 def rank(cands: list, query: str):
-    """Mejor candidato relevante (tag match>0) y HD (>=1080), o None."""
+    """Mejor candidato HD (>=1080), NO-IA y RELEVANTE, o None.
+    Relevancia fuerte: exige min(2, nº de términos) palabras del query en los tags,
+    para que 'pink lake' no matchee un oso-en-un-lago por la sola palabra 'lake'."""
     terms = _terms(query)
+    need = min(2, len(terms)) if terms else 1
+
+    def tags_of(c):
+        return set(str(c.get("tags", "")).lower().replace(",", " ").split())
 
     def score(c):
-        tags = set(str(c.get("tags", "")).lower().replace(",", " ").split())
-        tag_hit = len(terms & tags)
+        tag_hit = len(terms & tags_of(c))
         dur_ok = 1 if 3 <= c.get("duration", 0) <= 40 else 0
         return (tag_hit, dur_ok, c.get("height", 0), c.get("downloads", 0))
 
     viables = [c for c in cands
-               if c.get("height", 0) >= 1080 and (_terms(query) & set(
-                   str(c.get("tags", "")).lower().replace(",", " ").split()))]
+               if c.get("height", 0) >= 1080
+               and not _is_ai(c.get("tags", ""))
+               and len(terms & tags_of(c)) >= need]
     if not viables:
         return None
     return max(viables, key=score)

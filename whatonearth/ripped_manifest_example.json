@@ -1,0 +1,9 @@
+{
+  "category": "animal",
+  "_comment": "category: place | animal | object. Por ítem: name (lo que se nombra), clip (ruta al archivo RELATIVA a este manifest), credit (autor/fuente del clip para el caption). Opcionales: question / answer para override del texto. Los clips los conseguís/elegís vos; esto solo ensambla.",
+  "items": [
+    {"name": "Pink fairy armadillo", "clip": "clips/armadillo.mp4", "credit": "@creator1 (https://www.tiktok.com/...)", "answer": "This is a pink fairy armadillo."},
+    {"name": "Dumbo octopus", "clip": "clips/dumbo.mp4", "credit": "@creator2 (https://www.youtube.com/...)", "answer": "This is a dumbo octopus."},
+    {"name": "Saola", "clip": "clips/saola.mp4", "credit": "@creator3 (https://...)", "answer": "This is a saola."}
+  ]
+}

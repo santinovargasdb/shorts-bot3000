@@ -41,3 +41,17 @@ def test_find_clip_sin_resultados(monkeypatch, tmp_path):
     monkeypatch.setattr(sourcing, "search_pexels", lambda q: [])
     monkeypatch.setattr(sourcing, "search_wikimedia", lambda q: [])
     assert sourcing.find_clip("durian", tmp_path) is None
+
+
+def test_rank_excluye_ia():
+    # un clip relevante+HD pero etiquetado IA se descarta; gana el real
+    cands = [
+        _cand(2160, "axolotl, ai generated, salamander"),
+        _cand(1080, "axolotl, wildlife, animal", 10),
+    ]
+    best = sourcing.rank(cands, "axolotl")
+    assert best is not None and best["height"] == 1080
+
+
+def test_rank_solo_ia_devuelve_none():
+    assert sourcing.rank([_cand(2160, "pangolin, ai generated")], "pangolin") is None
