@@ -84,7 +84,7 @@ def search_pexels(query: str) -> list:
     for v in data.get("videos", []):
         files = [f for f in v.get("video_files", []) if f.get("link")]
         pick = next((f for f in sorted(files, key=lambda f: f.get("height", 0))
-                     if f.get("height", 0) >= 1080), None)
+                     if f.get("height", 0) >= 1080), None)  # elige el stream más chico >=1080 (eficiencia de banda; 1080 alcanza para 1080w)
         if not pick:
             continue
         out.append({"url": pick["link"], "height": pick.get("height", 0),
@@ -111,16 +111,16 @@ def search_wikimedia(query: str) -> list:
     out = []
     for p in pages.values():
         info = (p.get("imageinfo") or [{}])[0]
-        if not info.get("url") or info.get("height", 0) < 1080:
-            continue
         meta = info.get("extmetadata", {})
         lic = meta.get("LicenseShortName", {}).get("value", "")
+        if not info.get("url") or info.get("height", 0) < 1080 or not lic:
+            continue
         out.append({"url": info["url"], "height": info.get("height", 0),
-                    "width": info.get("width", 0), "duration": 10,
+                    "width": info.get("width", 0), "duration": 10,  # la API de Commons no expone duration; placeholder (rank solo lo usa como gate 3-40s)
                     "tags": p.get("title", "").replace("File:", "").replace("_", " ") + " " + query,
                     "downloads": 0, "author": meta.get("Artist", {}).get("value", "")[:80],
                     "source_url": info.get("descriptionurl", ""), "source": "wikimedia",
-                    "license": lic or "CC"})
+                    "license": lic})
     return out
 
 
