@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 
-from reddit_pipeline.rewrite import build_client
+from reddit_pipeline.rewrite import build_client, model_name
 
 _REQUIRED = ("name", "category", "query", "question_en", "answer_en")
 
@@ -43,7 +42,7 @@ def parse_topics(raw: str) -> list:
 
 def generate_topics(n: int, exclude=frozenset()) -> list:
     client = build_client()
-    model = os.environ.get("LLM_MODEL", "openai/gpt-oss-120b")
+    model = model_name()
     prompt = PROMPT.format(n=n * 2, exclude=", ".join(sorted(exclude)) or "none")
     resp = client.chat.completions.create(
         model=model, messages=[{"role": "user", "content": prompt}], temperature=0.9)
