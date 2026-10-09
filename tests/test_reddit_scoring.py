@@ -43,3 +43,9 @@ def test_familia_pesa_mas_que_gancho_generico():
     hook = sc.viral_score(_post(title="AITA for this"))
     base = sc.viral_score(_post(title="una historia cualquiera"))
     assert fam > hook > base
+
+
+def test_familia_rankea_primero_aunque_tenga_menos_upvotes():
+    fam = sc.viral_score(_post(title="my husband cheated", score=3000))
+    revenge_viral = sc.viral_score(_post(title="just a petty revenge story", score=50000))
+    assert fam > revenge_viral   # familia primero aunque tenga MENOS upvotes

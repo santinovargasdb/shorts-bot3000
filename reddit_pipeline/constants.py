@@ -35,7 +35,7 @@ FAMILY_KEYWORDS = [
     "fiance", "fiancé", "mother-in-law", "in-law", "mil ", "sister", "mom",
     "divorce", "wedding", "marriage", "ex ", "ex-", "family",
 ]
-FAMILY_BONUS = 2.5
+FAMILY_FIRST_BOOST = 10_000_000   # floor aditivo: las de familia rankean SIEMPRE primero (no excluye revenge)
 
 # Largo del guion reescrito (≈90-120s a ~150 wpm; el drama respira) (spec v2 §3.1)
 GUION_MIN_WORDS = 210

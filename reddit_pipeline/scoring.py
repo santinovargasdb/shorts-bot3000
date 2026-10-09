@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .constants import (MIN_SCORE, MIN_RATIO, MIN_WORDS, MAX_WORDS,
-                        HOOK_KEYWORDS, HOOK_BONUS, FAMILY_KEYWORDS, FAMILY_BONUS)
+                        HOOK_KEYWORDS, HOOK_BONUS, FAMILY_KEYWORDS, FAMILY_FIRST_BOOST)
 
 
 def word_count(text: str) -> int:
@@ -22,9 +22,9 @@ def viral_score(post: dict) -> float:
     title = (post.get("title", "") or "").lower()
     family = any(k in title for k in FAMILY_KEYWORDS)
     hook = any(k in title for k in HOOK_KEYWORDS)
-    mult = FAMILY_BONUS if family else (HOOK_BONUS if hook else 1.0)
     engagement = 1 + num_comments / max(score, 1)
-    return score * ratio * engagement * mult
+    base = score * ratio * engagement * (HOOK_BONUS if hook else 1.0)
+    return base + (FAMILY_FIRST_BOOST if family else 0.0)
 
 
 def passes(post: dict) -> bool:
