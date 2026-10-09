@@ -69,8 +69,8 @@ PARTS: dict[int, dict] = _load()
 
 
 def title_for(part: int) -> str:
-    """Título propio por historia (mejor búsqueda que 'pt. N')."""
-    return f"{PARTS[part]['titulo']} | ¿Soy el Malo?"
+    """El cliffhanger de la historia (título de YT/IG/TikTok y tarjeta en pantalla)."""
+    return PARTS[part]["titulo"]
 
 
 def background_for(part: int) -> str:

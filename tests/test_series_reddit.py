@@ -53,6 +53,7 @@ def test_descripcion_incluye_resumen_y_hashtags():
     assert "#" in d
 
 
-def test_title_for_usa_el_titulo_de_parts(monkeypatch):
+def test_title_for_es_el_cliffhanger_sin_sufijo(monkeypatch):
     monkeypatch.setattr(sr, "PARTS", sr.build_parts(ROWS))
-    assert "Mi ex tóxica" in sr.title_for(1)
+    assert sr.title_for(1) == "Mi ex tóxica"          # el titulo tal cual
+    assert "¿Soy el Malo?" not in sr.title_for(1)      # sin sufijo de marca
