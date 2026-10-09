@@ -9,6 +9,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+import requests
+
 from reddit_pipeline.env import load_env
 
 _UA = {"User-Agent": "Mozilla/5.0 (whatonearth bot)"}
@@ -64,12 +66,62 @@ def search_pixabay(query: str) -> list:
     return out
 
 
-def search_pexels(query: str) -> list:   # implementado en Task 5
-    return []
+def search_pexels(query: str) -> list:
+    load_env()
+    key = os.environ.get("PEXELS_API_KEY")
+    if not key:
+        return []
+    try:
+        r = requests.get("https://api.pexels.com/videos/search",
+                         headers={"Authorization": key},
+                         params={"query": query, "per_page": 30, "size": "medium"}, timeout=30)
+        if r.status_code != 200:
+            return []
+        data = r.json()
+    except Exception:
+        return []
+    out = []
+    for v in data.get("videos", []):
+        files = [f for f in v.get("video_files", []) if f.get("link")]
+        pick = next((f for f in sorted(files, key=lambda f: f.get("height", 0))
+                     if f.get("height", 0) >= 1080), None)
+        if not pick:
+            continue
+        out.append({"url": pick["link"], "height": pick.get("height", 0),
+                    "width": pick.get("width", 0), "duration": v.get("duration", 0),
+                    "tags": " ".join(v.get("tags", [])) or query,
+                    "downloads": 0, "author": v.get("user", {}).get("name", ""),
+                    "source_url": v.get("url", ""), "source": "pexels",
+                    "license": "Pexels License"})
+    return out
 
 
-def search_wikimedia(query: str) -> list:   # implementado en Task 5
-    return []
+def search_wikimedia(query: str) -> list:
+    try:
+        r = requests.get("https://commons.wikimedia.org/w/api.php", headers=_UA, params={
+            "action": "query", "format": "json", "generator": "search",
+            "gsrsearch": f"filetype:video {query}", "gsrlimit": 20, "gsrnamespace": 6,
+            "prop": "imageinfo", "iiprop": "url|size|extmetadata",
+        }, timeout=30)
+        if r.status_code != 200:
+            return []
+        pages = r.json().get("query", {}).get("pages", {})
+    except Exception:
+        return []
+    out = []
+    for p in pages.values():
+        info = (p.get("imageinfo") or [{}])[0]
+        if not info.get("url") or info.get("height", 0) < 1080:
+            continue
+        meta = info.get("extmetadata", {})
+        lic = meta.get("LicenseShortName", {}).get("value", "")
+        out.append({"url": info["url"], "height": info.get("height", 0),
+                    "width": info.get("width", 0), "duration": 10,
+                    "tags": p.get("title", "").replace("File:", "").replace("_", " ") + " " + query,
+                    "downloads": 0, "author": meta.get("Artist", {}).get("value", "")[:80],
+                    "source_url": info.get("descriptionurl", ""), "source": "wikimedia",
+                    "license": lic or "CC"})
+    return out
 
 
 def _download(url: str, out: Path) -> None:
