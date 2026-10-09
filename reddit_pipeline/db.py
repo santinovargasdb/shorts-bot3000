@@ -105,6 +105,18 @@ def save_rewrite(conn: sqlite3.Connection, post_id: str, rw: dict) -> None:
     conn.commit()
 
 
+def revert_to_filtered(conn: sqlite3.Connection, min_seq: int) -> int:
+    """Devuelve las historias con seq >= min_seq al pool 'filtered' (limpia la
+    reescritura y el seq; conserva viral_score). Las de seq < min_seq (ya posteadas)
+    no se tocan. Útil para refrescar el backlog con un formato nuevo. Devuelve cuántas."""
+    cur = conn.execute(
+        "UPDATE stories SET status='filtered', guion=NULL, narrador_genero=NULL, "
+        "titulo_es=NULL, veredicto=NULL, cierre=NULL, seq=NULL "
+        "WHERE seq IS NOT NULL AND seq >= ?", (min_seq,))
+    conn.commit()
+    return cur.rowcount
+
+
 def rewritten_by_seq(conn: sqlite3.Connection) -> list[dict]:
     """Historias con seq asignado (= ya reescritas), ordenadas por seq asc.
     Es el backlog que recorre el canal de Reddit, parte 1, 2, 3..."""

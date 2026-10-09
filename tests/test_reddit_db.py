@@ -108,3 +108,17 @@ def test_migracion_agrega_seq_y_backfill(tmp_path):
     assert "seq" in cols
     seqs = {r["id"]: r["seq"] for r in db.rewritten_by_seq(conn)}
     assert seqs == {"high": 1, "low": 2}         # el de mayor viral_score primero
+
+
+def test_revert_to_filtered_conserva_las_posteadas(tmp_path):
+    conn = db.connect(tmp_path / "s.sqlite")
+    for pid in ("a", "b", "c"):
+        db.insert_story(conn, {**SAMPLE, "id": pid})
+    for pid in ("a", "b", "c"):                 # seq 1, 2, 3
+        db.save_rewrite(conn, pid, _rw(titulo=pid))
+    n = db.revert_to_filtered(conn, min_seq=2)   # conserva seq 1 (a), revierte b, c
+    assert n == 2
+    seqs = {r["id"]: r["seq"] for r in db.rewritten_by_seq(conn)}
+    assert seqs == {"a": 1}                       # solo queda la seq 1
+    filtradas = {s["id"] for s in db.get_by_status(conn, "filtered")}
+    assert filtradas == {"b", "c"}
