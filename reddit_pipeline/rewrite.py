@@ -7,20 +7,24 @@ import os
 from .env import load_env
 from .constants import GUION_MIN_WORDS, GUION_MAX_WORDS
 
-PROMPT = """Sos guionista de shorts narrados en ESPAÑOL NEUTRO LATINO.
+PROMPT = """Sos guionista de shorts narrados de DRAMA REAL de Reddit, en ESPAÑOL NEUTRO LATINO.
 Te paso una historia de Reddit en inglés. Devolvé SOLO un objeto JSON con estas claves exactas:
 "guion", "narrador_genero", "titulo", "veredicto", "cierre".
 
-REGLAS del "guion":
-1. Largo {min}-{max} palabras (aprox 45-60s a 150 wpm). Conta las palabras.
-2. ABRI IN MEDIA RES: primera frase = el momento de maxima tension. Nada de "Hola"/"esta historia trata de".
-3. REESCRIBI con tus palabras, NO traduzcas literal. Cambia los nombres propios por nombres neutros.
-   Quita usernames y datos identificables.
-4. Condensa: solo setup minimo -> conflicto -> giro -> remate. Corta relleno y digresiones.
-5. Espanol natural y hablado (como contas una anecdota a un amigo), frases cortas.
+Objetivo: que el espectador se ENGANCHE con el conflicto y llegue hasta el final.
+Priorizá el drama de PAREJA / FAMILIA / SUEGRA (traición, infidelidad, familia tóxica) si la historia lo permite.
+
+REGLAS del "guion" ({min}-{max} palabras, ~90-120s a 150 wpm — CONTÁ las palabras):
+1. GANCHO (bucle abierto): la 1ª frase planta la injusticia o el momento más fuerte, pero SIN revelar cómo termina. Que dé ganas de saber qué pasó. Nada de "Hola" ni "esta historia trata de".
+2. SETUP: presentá a quien narra y al villano (pareja, suegra, familiar), la relación y lo que está en juego. Dale varias frases para que el espectador entienda por qué duele y SE INDIGNE. No lo apures.
+3. ESCALADA: mostrá cómo el conflicto empeora, paso a paso. Subí la tensión. Este es el cuerpo del video.
+4. GIRO: el momento en que se da vuelta la situación (la víctima reacciona, se descubre la verdad, llega el karma).
+5. PAYOFF: el desenlace, con peso y AL FINAL. Que se sienta satisfactorio; no lo cortes de golpe.
+6. Español natural y hablado, como contándole un bombazo a un amigo. Cambiá los nombres propios por nombres neutros. Quitá usernames y datos identificables.
+
 "narrador_genero": "M" si quien narra en primera persona es hombre, "F" si es mujer.
-"titulo": gancho corto para la tarjeta en pantalla y el caption.
-"veredicto": 1 linea con tu opinion/encuadre (la capa de comentario original).
+"titulo": un CLIFFHANGER que teasea y CORTA justo antes del desenlace, para que tengan que ver el video. Terminá en suspenso (ej: "...pero lo que hizo después me dejó sin palabras" / "...y cuando abrí la puerta, entendí todo"). NUNCA reveles el final en el título.
+"veredicto": 1 línea con tu opinión/encuadre (la capa de comentario original).
 "cierre": una pregunta a comentarios; por default "¿Vos qué hubieras hecho? 👇".
 
 HISTORIA:
