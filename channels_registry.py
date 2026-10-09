@@ -59,6 +59,18 @@ CHANNELS = {
         "first_comment": "¿Vos qué hubieras hecho? 👇",
         "sfx_style": "datos",        # pop en el cambio de palabra (igual que render_reddit)
     },
+    "whatonearth": {
+        "display": "What On Earth Is This",
+        "series": "series_whatonearth",   # adaptador: lee whatonearth/videos.sqlite (pre-render)
+        "engine_channel": "whatonearth",
+        "music": "music/lofi",            # no se usa (video pre-renderizado), requerido por el ctx
+        "yt_token": "secrets/whatonearth/token.json",
+        "ig_creds": "secrets/whatonearth/instagram.json",
+        "tt_token": "secrets/whatonearth/tiktok_token.json",
+        "platforms": ("ig", "tt"),        # YT se suma luego (2º proyecto Cloud)
+        "first_comment": "Could you name them all? \U0001F440 Drop your score below!",
+        "sfx_style": "datos",
+    },
 }
 
 
