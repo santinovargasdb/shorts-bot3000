@@ -64,7 +64,7 @@ def generate(
     voice: str | None = None,
     rate: str | None = None,
     intro_card: str | Path | None = None,
-    intro_card_seconds: float = 4.0,
+    intro_card_seconds: float = 3.0,   # estándar del nicho: el card se muestra 2-3s
     verbose: bool = True,
 ) -> Path:
     """segments: lista ordenada de
