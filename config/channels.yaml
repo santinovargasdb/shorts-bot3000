@@ -104,8 +104,8 @@ soyelmalo:
   clips_per_source: 1
   hook_text: ""
   tts_voice: "es-MX-DaliaNeural"    # default; el render lo pisa por historia (Jorge/Dalia)
-  tts_rate: "+15%"                   # drama un toque más ágil
-  short_max_seconds: 75              # permite hasta ~75s
+  tts_rate: "+8%"                    # más pausado, con peso dramático (antes +15%)
+  short_max_seconds: 130             # permite ~90-120s (antes 75)
   caption:
     highlight_color: "&H0000F0FF"   # amarillo: highlight del karaoke (el que mejor rinde)
     accent_color: "&H000045FF"      # naranja Reddit: título + pregunta (distinto del karaoke)
