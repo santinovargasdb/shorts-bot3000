@@ -80,6 +80,10 @@ def _save_state(state: dict, channel: str) -> None:
 
 def _ensure_video(part: int, ctx: dict, series) -> Path:
     """Devuelve el mp4 de la parte, generándolo si no existe."""
+    # Canales con video PRE-RENDERIZADO (ej. whatonearth) exponen video_path_for:
+    # daily_post postea ese mp4 tal cual, sin pasar por curiosidades.generate.
+    if hasattr(series, "video_path_for"):
+        return Path(series.video_path_for(part))
     from src.curiosidades import generate
     from src.faceless import _slug
 
