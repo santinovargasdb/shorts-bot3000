@@ -262,9 +262,8 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
     _refresh_ig_token(st, ctx)
     creds = _ig_creds(ctx)   # releer por si el refresh cambió el token
     part = st["instagram"]["next_part"]
-    if "yt" in ctx.get("platforms", ()) and part >= st["youtube"]["next_part"]:
-        _log(ctx, f"[IG] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
-        return
+    # IG postea INDEPENDIENTE de YouTube: un fallo/traba de YT (ej. token vencido)
+    # no debe frenar Instagram. Cada plataforma avanza su propio contador.
     if part not in series.PARTS:
         _log(ctx, f"[IG] No hay parte {part} en el backlog. Agregá más partes.")
         return
@@ -332,9 +331,7 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
         _log(ctx, "[TT] No configurado (sin token), lo salteo.")
         return
     part = st["tiktok"]["next_part"]
-    if "yt" in ctx.get("platforms", ()) and part >= st["youtube"]["next_part"]:
-        _log(ctx, f"[TT] pt.{part} espera a que YouTube publique primero (sincronización). Salteo.")
-        return
+    # TikTok postea INDEPENDIENTE de YouTube (igual que IG): un fallo de YT no lo frena.
     if part not in series.PARTS:
         _log(ctx, f"[TT] No hay parte {part} en el backlog. Agregá más partes.")
         return

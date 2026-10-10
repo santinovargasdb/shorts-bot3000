@@ -1,7 +1,6 @@
-"""La sincronización 'IG/TikTok esperan a YouTube' debe aplicar SOLO si el canal
-tiene YouTube activo (yt en platforms). Un canal sin YT (ej. soyelmalo mientras la
-cuota de YT no alcanza) debe postear a IG/TikTok sin esperar un YT que nunca avanza.
-Los canales con yt NO cambian de comportamiento."""
+"""IG y TikTok postean INDEPENDIENTE de YouTube (desacoplado 2026-10-10): un fallo
+o traba de YT (ej. token OAuth vencido) NO debe frenar IG ni TikTok. Cada plataforma
+avanza su propio contador, haya o no YouTube en el canal."""
 import json
 import types
 
@@ -44,11 +43,12 @@ def test_ig_sin_yt_no_espera(tmp_path, monkeypatch):
     assert st["instagram"]["next_part"] == 2
 
 
-def test_ig_con_yt_sigue_esperando(tmp_path, monkeypatch):
+def test_ig_con_yt_tambien_postea_independiente(tmp_path, monkeypatch):
+    # Con YT en el canal, IG YA NO espera: postea igual aunque YT esté trabado.
     st, ctx, series, rec = _setup_ig(tmp_path, monkeypatch, ("yt", "ig", "tt"))
     daily_post.do_instagram(st, ctx, series)
-    assert rec.get("id") is None                 # NO posteó: espera a YT (1 >= 1)
-    assert st["instagram"]["next_part"] == 1
+    assert rec.get("id") == "m1"                 # posteó pese a youtube.next_part == 1
+    assert st["instagram"]["next_part"] == 2
 
 
 # ───────────────────────── TikTok ─────────────────────────
@@ -77,8 +77,9 @@ def test_tt_sin_yt_no_espera(tmp_path, monkeypatch):
     assert st["tiktok"]["next_part"] == 2
 
 
-def test_tt_con_yt_sigue_esperando(tmp_path, monkeypatch):
+def test_tt_con_yt_tambien_postea_independiente(tmp_path, monkeypatch):
+    # Con YT en el canal, TikTok YA NO espera: sube igual aunque YT esté trabado.
     st, ctx, series, rec = _setup_tt(tmp_path, monkeypatch, ("yt", "ig", "tt"))
     daily_post.do_tiktok(st, ctx, series)
-    assert rec.get("id") is None                 # NO subió: espera a YT
-    assert st["tiktok"]["next_part"] == 1
+    assert rec.get("id") is not None             # subió pese a YT trabado
+    assert st["tiktok"]["next_part"] == 2
