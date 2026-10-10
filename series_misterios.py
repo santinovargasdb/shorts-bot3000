@@ -402,6 +402,236 @@ MISTERIOS = {
                "meteor air burst", "comet in space"),
         ],
     },
+    16: {
+        "pregunta": "¿Criatura gigante o hielo?",
+        "titulo": "El Bloop: el sonido del océano que nadie podía explicar",
+        "resumen": ("el sonido submarino ultra potente captado en mil novecientos noventa y siete, "
+                    "tan fuerte que se registró a miles de kilómetros de distancia"),
+        "segments": [
+            _m("Unos micrófonos en el fondo del mar captaron un sonido tan potente que se escuchó "
+               "a más de cinco mil kilómetros de distancia. No se parecía a nada conocido.",
+               "deep ocean underwater", "sound wave spectrogram"),
+            _m("Fue en mil novecientos noventa y siete. La agencia oceánica de Estados Unidos lo registró "
+               "en el Pacífico Sur, con una red de micrófonos que en su origen servía para espiar submarinos.",
+               "hydrophone ocean", "pacific ocean map"),
+            _m("El sonido, apodado 'the Bloop', subía rápido de frecuencia y duraba poco más de un minuto. "
+               "Su perfil se parecía al de un ser vivo, pero ningún animal conocido podía ser tan ruidoso.",
+               "whale underwater", "ocean sound monitoring"),
+            _m("Durante años se especuló con criaturas marinas gigantes todavía sin descubrir, "
+               "y la idea encendió la imaginación de medio mundo.",
+               "giant sea creature art", "deep sea mystery"),
+            _m("En dos mil doce la misma agencia dio la respuesta: era el crujido de enormes icebergs "
+               "al fracturarse cerca de la Antártida. El misterio tenía una explicación helada.",
+               "antarctica icebergs", "ice crack glacier"),
+        ],
+    },
+    17: {
+        "pregunta": "¿Vecino, familiar o desconocido?",
+        "titulo": "Las cartas de Circleville: el acosador anónimo de todo un pueblo",
+        "resumen": ("la ola de cartas anónimas que aterrorizó al pueblo de Circleville, Ohio, "
+                    "desde mil novecientos setenta y seis, revelando secretos que nadie debería saber"),
+        "segments": [
+            _m("Los vecinos de un pueblo empezaron a recibir cartas anónimas que conocían sus secretos "
+               "más íntimos. Quien las escribía parecía vigilar cada movimiento.",
+               "old mailbox rural", "anonymous letter handwriting"),
+            _m("Empezó en mil novecientos setenta y seis en Circleville, Ohio. Las cartas, en mayúsculas, "
+               "acusaban, amenazaban y revelaban secretos de familias enteras.",
+               "ohio small town", "vintage typewriter letter"),
+            _m("Un hombre que intentó descubrir al autor apareció muerto en un supuesto accidente de auto. "
+               "Las cartas siguieron llegando, ahora burlándose de la investigación.",
+               "country road accident", "police investigation 1970s"),
+            _m("Años después condenaron a un familiar por colocar una trampa, pero él seguía recibiendo "
+               "cartas estando preso, lo que complicaba toda la teoría.",
+               "prison cell", "mystery letters pile"),
+            _m("Las cartas pararon de golpe en los años noventa. Nunca hubo certeza total de quién estaba "
+               "detrás de todo. El caso todavía genera debate.",
+               "empty mailbox", "cold case file"),
+        ],
+    },
+    18: {
+        "pregunta": "¿Mensaje real o burla?",
+        "titulo": "Los códigos del Zodiac: medio siglo para descifrar uno",
+        "resumen": ("los mensajes cifrados que el asesino del Zodiac mandó a la prensa en los años sesenta, "
+                    "uno de ellos sin descifrar hasta dos mil veinte"),
+        "segments": [
+            _m("Un asesino le mandó a los diarios mensajes escritos en código y prometió que revelaban "
+               "su identidad. Uno de esos códigos tardó cincuenta y un años en descifrarse.",
+               "newspaper 1960s crime", "cipher code symbols"),
+            _m("Fue en California, a fines de los años sesenta. El llamado asesino del Zodiac enviaba cartas "
+               "con símbolos a los periódicos y exigía que las publicaran.",
+               "san francisco bay 1969", "coded letter symbols"),
+            _m("El primer código lo resolvió una pareja de maestros en pocos días: no daba ningún nombre, "
+               "solo un texto perturbador sobre matar por placer.",
+               "cryptography puzzle", "handwritten cipher"),
+            _m("Un segundo mensaje, de trescientos cuarenta símbolos, resistió a los mejores criptógrafos "
+               "y hasta al FBI durante décadas.",
+               "fbi investigation", "complex cipher grid"),
+            _m("En dos mil veinte un equipo de aficionados lo descifró con software: tampoco tenía su nombre. "
+               "La identidad del Zodiac sigue siendo un misterio.",
+               "computer code breaking", "unsolved case file"),
+        ],
+    },
+    19: {
+        "pregunta": "¿Fenómeno físico o percepción?",
+        "titulo": "El zumbido de Taos: el sonido que solo algunos escuchan",
+        "resumen": ("el misterioso zumbido grave reportado en la ciudad de Taos, Nuevo México, "
+                    "desde los años noventa, audible solo para una parte de la población"),
+        "segments": [
+            _m("Una parte de los habitantes de una ciudad escucha un zumbido grave y constante que los "
+               "desespera. El resto no oye absolutamente nada.",
+               "quiet town desert", "sound waves low frequency"),
+            _m("El caso más famoso es el de Taos, en Nuevo México, en los años noventa. Alrededor del dos "
+               "por ciento de la gente decía oír un zumbido parecido al de un motor lejano.",
+               "taos new mexico", "person covering ears"),
+            _m("Los que lo oían no podían dormir ni concentrarse. Un estudio con equipos sensibles no logró "
+               "captar ningún sonido que explicara lo que describían.",
+               "scientific sound equipment", "sleepless night bedroom"),
+            _m("Se propuso de todo: desde fenómenos industriales y ondas de radio hasta una sensibilidad "
+               "auditiva especial de ciertas personas.",
+               "industrial equipment", "radio tower signal"),
+            _m("El fenómeno se repite en otras ciudades del mundo, como Bristol. Todavía no hay una "
+               "explicación aceptada por todos. El zumbido sigue ahí, para quienes lo oyen.",
+               "city skyline night", "mystery sound concept"),
+        ],
+    },
+    20: {
+        "pregunta": "¿Tesoro real o estafa?",
+        "titulo": "Los códigos Beale: el tesoro enterrado que nadie encontró",
+        "resumen": ("los tres mensajes cifrados del siglo diecinueve que supuestamente indican dónde está "
+                    "escondido un tesoro millonario en Virginia"),
+        "segments": [
+            _m("Tres mensajes en código prometen el lugar exacto de un tesoro enterrado que hoy valdría "
+               "decenas de millones. Solo uno de los tres se pudo leer.",
+               "treasure chest gold", "old cipher document"),
+            _m("La historia arranca en Virginia, a principios del siglo diecinueve. Un hombre llamado "
+               "Thomas Beale habría dejado los códigos antes de desaparecer para siempre.",
+               "virginia countryside 1820s", "buried treasure map"),
+            _m("El segundo código se descifró usando la Declaración de Independencia como clave: "
+               "describe oro, plata y joyas enterrados en la zona.",
+               "declaration of independence", "gold silver coins"),
+            _m("Pero los otros dos, que darían la ubicación exacta y los nombres de los dueños, "
+               "resisten hasta hoy pese a más de cien años de intentos.",
+               "cryptography numbers", "men digging field"),
+            _m("Muchos creen que todo fue una estafa inventada para vender un folleto. Otros siguen cavando. "
+               "El tesoro, si existe, jamás apareció.",
+               "metal detector field", "treasure hunt mystery"),
+        ],
+    },
+    21: {
+        "pregunta": "¿Escritura, oración o falsificación?",
+        "titulo": "El disco de Festos: el código que lleva un siglo sin leerse",
+        "resumen": ("el disco de arcilla de más de tres mil años hallado en Creta, cubierto de símbolos "
+                    "impresos que nadie logró descifrar"),
+        "segments": [
+            _m("Un disco de arcilla está cubierto de símbolos que nadie pudo leer en más de un siglo. "
+               "Y hay un detalle que lo vuelve único en todo el mundo antiguo.",
+               "ancient clay disc", "mysterious symbols artifact"),
+            _m("Lo encontraron en mil novecientos ocho en un palacio de la isla de Creta. Tiene unos "
+               "doscientos cuarenta y un símbolos dispuestos en espiral por las dos caras.",
+               "crete greece ruins", "archaeology excavation"),
+            _m("Lo asombroso: los símbolos no están tallados a mano, sino impresos con sellos, "
+               "como una imprenta miles de años antes de que se inventara.",
+               "ancient stamp seal", "spiral inscription clay"),
+            _m("Se propuso que es una oración, un poema, un calendario o hasta un juego. Pero al ser un "
+               "texto tan corto y único, no hay con qué compararlo.",
+               "ancient greek writing", "museum artifact display"),
+            _m("Algunos expertos incluso dudan de que sea auténtico. Más de un siglo después, "
+               "el disco de Festos sigue guardando su secreto.",
+               "heraklion museum", "undeciphered script"),
+        ],
+    },
+    22: {
+        "pregunta": "¿Desorientación o algo más?",
+        "titulo": "El piloto que desapareció describiendo algo en el cielo",
+        "resumen": ("la desaparición del joven piloto australiano Frederick Valentich en mil novecientos "
+                    "setenta y ocho mientras reportaba por radio un objeto extraño"),
+        "segments": [
+            _m("Un piloto joven desapareció con su avión mientras le describía por radio a la torre "
+               "algo que, decía, volaba justo encima de él.",
+               "small plane cockpit", "night sky clouds"),
+            _m("Fue en octubre de mil novecientos setenta y ocho, sobre el estrecho de Bass, en Australia. "
+               "Frederick Valentich, de veinte años, hacía un vuelo de rutina.",
+               "bass strait australia", "aviation control tower"),
+            _m("En la grabación dice que un objeto con luces lo sobrevuela y se mueve a gran velocidad. "
+               "Después describe que el motor empieza a fallar.",
+               "aircraft instruments panel", "strange lights sky"),
+            _m("Sus últimas palabras fueron confusas, seguidas de un ruido metálico de diecisiete segundos. "
+               "Después, silencio. Ni el avión ni el cuerpo aparecieron.",
+               "radio transmission waves", "search plane ocean"),
+            _m("Las explicaciones van desde una desorientación que lo hizo volar invertido y ver el reflejo "
+               "de sus propias luces, hasta hipótesis mucho más extrañas. Nunca se confirmó nada.",
+               "ocean search rescue", "unsolved aviation mystery"),
+        ],
+    },
+    23: {
+        "pregunta": "¿Leyenda medieval o hecho real?",
+        "titulo": "Los niños verdes que aparecieron en un pueblo medieval",
+        "resumen": ("la historia, narrada desde el siglo doce como crónica y leyenda, de dos niños de piel "
+                    "verde que aparecieron en el pueblo inglés de Woolpit"),
+        "segments": [
+            _m("Dos niños de piel completamente verde aparecieron en un pueblo, hablando un idioma que nadie "
+               "entendía y negándose a comer cualquier cosa que no fueran habas.",
+               "medieval english village", "green glowing figures"),
+            _m("La historia se cuenta desde el siglo doce en Woolpit, Inglaterra. Según las crónicas de la "
+               "época, los aldeanos encontraron a los chicos cerca de unos pozos.",
+               "medieval manuscript", "english countryside field"),
+            _m("Con el tiempo la piel verde se fue aclarando y aprendieron a comer otros alimentos. "
+               "El varón murió, pero la niña sobrevivió y aprendió el idioma.",
+               "medieval children illustration", "old village well"),
+            _m("Ella contó que venían de una tierra sin sol, un lugar en penumbra del que se habían perdido. "
+               "Nada de eso pudo comprobarse jamás.",
+               "dark underground cave", "medieval storytelling"),
+            _m("Hoy se debate si fue una leyenda, una metáfora o niños reales con una enfermedad que les daba "
+               "ese color por mala alimentación. La historia sobrevivió ochocientos años.",
+               "medieval legend book", "foggy mysterious land"),
+        ],
+    },
+    24: {
+        "pregunta": "¿Olfato, instinto o algo inexplicable?",
+        "titulo": "El puente del que los perros saltan al vacío",
+        "resumen": ("el puente de Overtoun, en Escocia, del que decenas de perros saltaron al vacío "
+                    "a lo largo de las décadas, muchos en el mismo punto exacto"),
+        "segments": [
+            _m("Decenas de perros saltaron al vacío desde un mismo puente de piedra a lo largo de los años, "
+               "casi siempre desde el punto exacto. Algunos que sobrevivieron, volvieron a intentarlo.",
+               "old stone bridge scotland", "dog on bridge"),
+            _m("Es el puente de Overtoun, en Escocia. Los saltos, desde unos quince metros de altura, "
+               "se reportan desde hace décadas, sobre todo en días despejados.",
+               "scotland countryside bridge", "misty scottish hills"),
+            _m("Los dueños contaban que sus perros, de golpe, salían disparados y saltaban sin dudar, "
+               "como atraídos por algo que ellos no podían percibir.",
+               "dog running fast", "bridge stone parapet"),
+            _m("Un investigador propuso una explicación: el fuerte olor de los visones que anidan bajo "
+               "el puente dispararía el instinto de caza de los perros, que no ven el vacío tras el muro.",
+               "mink animal grass", "bridge wall view"),
+            _m("La teoría del olor es la más aceptada, pero no explica todos los casos ni por qué pasa "
+               "justo ahí. El puente mantiene su fama siniestra.",
+               "scottish bridge fog", "mystery location"),
+        ],
+    },
+    25: {
+        "pregunta": "¿Faro, meteoro o encuentro?",
+        "titulo": "Rendlesham: el caso ovni mejor documentado de Europa",
+        "resumen": ("los extraños hechos de diciembre de mil novecientos ochenta en un bosque de Inglaterra, "
+                    "cerca de dos bases militares, reportados por los propios soldados"),
+        "segments": [
+            _m("Soldados de una base militar entraron a un bosque persiguiendo unas luces extrañas "
+               "y volvieron con un relato que todavía se discute cuarenta años después.",
+               "dark forest night", "strange lights trees"),
+            _m("Fue en diciembre de mil novecientos ochenta, en el bosque de Rendlesham, Inglaterra, "
+               "al lado de dos bases usadas por la fuerza aérea de Estados Unidos.",
+               "military base night", "english forest winter"),
+            _m("Los militares describieron un objeto con luces que se movía entre los árboles. Un oficial "
+               "dijo haber tocado una superficie con símbolos y lo dejó todo en un informe oficial.",
+               "military officer flashlight", "official report document"),
+            _m("Al día siguiente encontraron marcas en el suelo y, según sus mediciones, "
+               "una radiación algo elevada en la zona.",
+               "ground marks forest", "radiation detector"),
+            _m("Los escépticos lo atribuyen al haz de un faro cercano y a la caída de un meteoro esa misma "
+               "noche. Para otros, sigue siendo el mejor caso ovni documentado de Europa.",
+               "lighthouse beam night", "ufo mystery forest"),
+        ],
+    },
 }
 
 PARTS = MISTERIOS
