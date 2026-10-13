@@ -220,37 +220,63 @@ def _get_token(token_file: Path | None = None) -> str:
 
 
 # ---------------------------------------------------------------- Subida
+_CHUNK_MAX = 64 * 1024 * 1024       # TikTok: un chunk NO puede superar 64 MB
+_CHUNK_TARGET = 20 * 1024 * 1024    # chunk objetivo cuando hay que trocear (>64 MB)
+
+
+def _chunk_plan(size: int) -> tuple[int, int]:
+    """(chunk_size, total_chunk_count) válido para TikTok. Si el archivo entra en
+    64 MB va en un solo chunk; si no, se trocea y el ÚLTIMO chunk absorbe el resto
+    (queda entre 1 y 2 veces el chunk, siempre <=64 MB con target de 20 MB)."""
+    if size <= _CHUNK_MAX:
+        return size, 1
+    return _CHUNK_TARGET, size // _CHUNK_TARGET
+
+
+def _put_file(upload_url: str, video_path: Path, size: int, chunk_size: int, total: int) -> None:
+    """Sube el mp4 en N chunks con Content-Range (requisito de la Content Posting API).
+    Chunks intermedios devuelven 206; el último, 201."""
+    with open(video_path, "rb") as f:
+        for i in range(total):
+            start = i * chunk_size
+            end = size - 1 if i == total - 1 else start + chunk_size - 1
+            f.seek(start)
+            payload = f.read(end - start + 1)
+            put = requests.put(upload_url, headers={
+                "Content-Type": "video/mp4",
+                "Content-Range": f"bytes {start}-{end}/{size}",
+            }, data=payload, timeout=600)
+            if put.status_code not in (200, 201, 206):
+                raise RuntimeError(
+                    f"TikTok upload chunk {i + 1}/{total} falló ({put.status_code}): {put.text[:300]}")
+
+
 def upload_draft(video_path: Path | str, token_file: Path | None = None) -> str:
     """Sube el mp4 a los borradores (inbox) de TikTok. Devuelve el publish_id."""
     video_path = Path(video_path)
     size = video_path.stat().st_size
     token = _get_token(token_file)
 
-    # 1) Iniciar la subida (archivo < 64MB => un solo chunk)
+    # 1) Iniciar la subida (troceado en chunks si supera 64 MB)
+    chunk_size, total = _chunk_plan(size)
     init = requests.post(INBOX_INIT_URL, headers={
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json; charset=UTF-8",
     }, json={"source_info": {
         "source": "FILE_UPLOAD",
         "video_size": size,
-        "chunk_size": size,
-        "total_chunk_count": 1,
+        "chunk_size": chunk_size,
+        "total_chunk_count": total,
     }}, timeout=60)
     data = init.json()
     if data.get("error", {}).get("code") not in (None, "ok"):
         raise RuntimeError(f"TikTok init falló: {data['error']}")
     publish_id = data["data"]["publish_id"]
     upload_url = data["data"]["upload_url"]
-    print(f"  Subida iniciada: {publish_id}")
+    print(f"  Subida iniciada: {publish_id} ({total} chunk/s)")
 
     # 2) Subir el archivo
-    with open(video_path, "rb") as f:
-        put = requests.put(upload_url, headers={
-            "Content-Type": "video/mp4",
-            "Content-Range": f"bytes 0-{size - 1}/{size}",
-        }, data=f.read(), timeout=300)
-    if put.status_code not in (200, 201):
-        raise RuntimeError(f"TikTok upload falló ({put.status_code}): {put.text[:300]}")
+    _put_file(upload_url, video_path, size, chunk_size, total)
     print("  [OK] Video en tus borradores de TikTok (revisá las notificaciones de la app).")
     return publish_id
 
@@ -276,6 +302,7 @@ def publish_direct(video_path: Path | str, title: str, privacy_level: str,
     video_path = Path(video_path)
     size = video_path.stat().st_size
     token = _get_token(token_file)
+    chunk_size, total = _chunk_plan(size)
 
     init = requests.post(DIRECT_INIT_URL, headers={
         "Authorization": f"Bearer {token}",
@@ -291,8 +318,8 @@ def publish_direct(video_path: Path | str, title: str, privacy_level: str,
         "source_info": {
             "source": "FILE_UPLOAD",
             "video_size": size,
-            "chunk_size": size,
-            "total_chunk_count": 1,
+            "chunk_size": chunk_size,
+            "total_chunk_count": total,
         },
     }, timeout=60)
     data = init.json()
@@ -300,15 +327,9 @@ def publish_direct(video_path: Path | str, title: str, privacy_level: str,
         raise RuntimeError(f"TikTok direct post init falló: {data['error']}")
     publish_id = data["data"]["publish_id"]
     upload_url = data["data"]["upload_url"]
-    print(f"  Publicación directa iniciada: {publish_id}")
+    print(f"  Publicación directa iniciada: {publish_id} ({total} chunk/s)")
 
-    with open(video_path, "rb") as f:
-        put = requests.put(upload_url, headers={
-            "Content-Type": "video/mp4",
-            "Content-Range": f"bytes 0-{size - 1}/{size}",
-        }, data=f.read(), timeout=300)
-    if put.status_code not in (200, 201):
-        raise RuntimeError(f"TikTok upload falló ({put.status_code}): {put.text[:300]}")
+    _put_file(upload_url, video_path, size, chunk_size, total)
     print("  [OK] Video subido; TikTok lo está procesando para publicarlo.")
     return publish_id
 

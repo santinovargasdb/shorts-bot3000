@@ -1,6 +1,6 @@
 # Motor de edición (núcleo, gratis y local)
 faster-whisper>=1.0.0    # subtítulos por IA en local (no requiere API de pago)
-edge-tts>=7.0            # voz neuronal gratis (canal faceless), sin API key
+edge-tts>=7.3.1          # voz neuronal gratis (sin API key). <7.3.1 rompe con 403 (Sec-MS-GEC); si vuelve a fallar: pip install -U edge-tts
 PyYAML>=6.0              # lectura de config de canales
 numpy>=1.24             # detección de momentos destacados por energía de audio
 

@@ -407,13 +407,24 @@ def main() -> int:
                 _ensure_video(p, ctx, series)
         return 0
 
+    # Cada plataforma es INDEPENDIENTE: si una falla (p.ej. render/edge-tts caído),
+    # se loguea y se sigue con las otras, y SIEMPRE se guarda el estado DESPUÉS DE CADA
+    # UNA. Así una falla tardía no borra lo ya posteado -> no se re-postea el mismo video
+    # en la próxima corrida (bug del triple-upload de misterios, 2026-10-13).
+    plan = []
     if "yt" in ctx["platforms"] and only in (None, "yt"):
-        do_youtube(st, ctx, series)
+        plan.append(("YT", do_youtube))
     if "ig" in ctx["platforms"] and only in (None, "ig"):
-        do_instagram(st, ctx, series)
+        plan.append(("IG", do_instagram))
     if "tt" in ctx["platforms"] and only in (None, "tt"):
-        do_tiktok(st, ctx, series)
-    _save_state(state, channel)
+        plan.append(("TT", do_tiktok))
+    for label, fn in plan:
+        try:
+            fn(st, ctx, series)
+        except Exception as e:
+            _log(ctx, f"[{label}] ERROR, se saltea esta plataforma por hoy: {e}")
+        finally:
+            _save_state(state, channel)
     return 0
 
 
