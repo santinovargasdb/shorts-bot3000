@@ -632,6 +632,381 @@ MISTERIOS = {
                "lighthouse beam night", "ufo mystery forest"),
         ],
     },
+    26: {
+        "pregunta": "¿Motín, piratas o contrabando?",
+        "titulo": "El Carroll A. Deering: el velero fantasma del cabo Hatteras",
+        "resumen": ("el velero de cinco mástiles Carroll A. Deering hallado encallado en la costa de "
+                    "Carolina del Norte en mil novecientos veintiuno, sin un solo tripulante a bordo"),
+        "segments": [
+            _m("Un enorme velero apareció encallado en un banco de arena, con las velas puestas y la mesa "
+               "lista para comer. De sus once tripulantes no quedaba ni uno.",
+               "five masted schooner", "north carolina coast storm"),
+            _m("Fue a fines de enero de mil novecientos veintiuno, en Diamond Shoals, frente al cabo Hatteras. "
+               "El Carroll A. Deering volvía de Sudamérica cuando un faro lo vio pasar con un hombre "
+               "en cubierta gritando algo raro sobre la tripulación.",
+               "cape hatteras lighthouse", "sailing ship deck 1920s"),
+            _m("Cuando los rescatistas subieron, faltaban los botes salvavidas, la rueda del timón, los papeles "
+               "de navegación y las pertenencias de los marineros. La comida parecía estar preparándose "
+               "en la cocina. Nadie respondía.",
+               "empty ship galley", "ship steering wheel"),
+            _m("Las teorías fueron desde un motín de la tripulación hasta un ataque de piratas del ron "
+               "durante la ley seca. El gobierno de Estados Unidos llegó a investigarlo como un posible "
+               "caso internacional.",
+               "prohibition era rum runners", "government investigation 1920s"),
+            _m("Nunca se encontró a ninguno de los once hombres ni se probó ninguna teoría. El Deering "
+               "fue dinamitado por peligroso y sus restos todavía aparecen en la arena.",
+               "shipwreck remains beach", "ocean horizon fog"),
+        ],
+    },
+    27: {
+        "pregunta": "¿Espía o víctima de un crimen?",
+        "titulo": "La mujer de Isdal: la muerta con ocho identidades",
+        "resumen": ("el cadáver parcialmente quemado de una mujer no identificada hallado en el valle de "
+                    "Isdalen, Noruega, en mil novecientos setenta, rodeado de pistas imposibles"),
+        "segments": [
+            _m("Encontraron a una mujer muerta y parcialmente quemada en un valle solitario de Noruega. "
+               "Viajaba con ocho identidades falsas y nadie supo jamás quién era.",
+               "norway valley bergen", "mysterious burned scene"),
+            _m("Fue en noviembre de mil novecientos setenta, en el valle de Isdalen, cerca de Bergen. "
+               "La policía rastreó sus maletas en una estación de tren: había ropa con las etiquetas "
+               "arrancadas y frascos de crema sin marca.",
+               "train station lockers", "vintage suitcase luggage"),
+            _m("Había cambiado de hotel y de nombre una y otra vez, hablaba varios idiomas y la vieron "
+               "nerviosa, como si la siguieran. En un bloc encontraron un código de letras y números "
+               "que resultó ser sus fechas y lugares de viaje.",
+               "coded notebook cipher", "hotel register book"),
+            _m("La autopsia halló pastillas para dormir y monóxido de carbono. Se habló de suicidio, "
+               "pero también de que era una espía de la Guerra Fría eliminada por saber demasiado.",
+               "cold war espionage", "forensic autopsy vintage"),
+            _m("En dos mil diecisiete, análisis de sus dientes sugirieron que creció en Alemania. "
+               "Pero su nombre real sigue siendo un misterio más de cincuenta años después.",
+               "dna teeth analysis", "cold case evidence box"),
+        ],
+    },
+    28: {
+        "pregunta": "¿Se perdieron o huyeron de algo?",
+        "titulo": "Los cinco de Yuba County: la noche que nadie entiende",
+        "resumen": ("la desaparición en mil novecientos setenta y ocho de cinco jóvenes en California, "
+                    "hallados muertos en la montaña tras abandonar su auto en perfecto estado"),
+        "segments": [
+            _m("Cinco amigos volvían de un partido de básquet y desaparecieron. Encontraron su auto "
+               "abandonado en plena montaña nevada, con combustible y en perfecto estado.",
+               "abandoned car mountain road", "snowy forest california"),
+            _m("Fue en febrero de mil novecientos setenta y ocho, en el norte de California. Los cinco "
+               "hombres tenían discapacidades intelectuales leves y eran de costumbres muy rutinarias: "
+               "jamás se habrían desviado hacia la montaña por gusto.",
+               "basketball game 1970s", "sierra nevada mountains"),
+            _m("El auto estaba a kilómetros de su camino, en una ruta que no tenía sentido. No había señales "
+               "de choque ni de que se hubiera quedado atascado. Simplemente lo dejaron y caminaron "
+               "hacia el frío.",
+               "car headlights night", "mountain trail snow"),
+            _m("Meses después aparecieron cuatro cuerpos en la montaña. Uno se había refugiado en una "
+               "cabaña con comida y mantas, pero igual murió. El quinto nunca se encontró entero.",
+               "forest ranger cabin", "search rescue mountains"),
+            _m("¿Por qué se internaron en la montaña, de noche, en vez de esperar ayuda? Nadie pudo "
+               "explicarlo. Es uno de los casos más desconcertantes de Estados Unidos.",
+               "cold case files", "dark forest fog"),
+        ],
+    },
+    29: {
+        "pregunta": "¿Murieron en el incendio o no?",
+        "titulo": "Los niños Sodder: el incendio sin cenizas",
+        "resumen": ("el incendio de mil novecientos cuarenta y cinco en Virginia Occidental tras el cual "
+                    "cinco hermanos desaparecieron sin que jamás se hallaran sus restos"),
+        "segments": [
+            _m("Una casa se incendió en Nochebuena y cinco de los diez hijos desaparecieron. "
+               "Lo imposible: entre las cenizas no apareció ni un solo hueso.",
+               "house fire night", "1940s family home"),
+            _m("Pasó en mil novecientos cuarenta y cinco, en Fayetteville, Virginia Occidental. "
+               "Los padres y cuatro hijos escaparon; cinco niños quedaron adentro. El padre quiso volver "
+               "a entrar, pero la escalera había desaparecido y el camión no arrancaba.",
+               "snowy mountain town", "firefighters 1940s"),
+            _m("El incendio consumió todo en menos de una hora, pero los bomberos no encontraron restos "
+               "humanos. Antes esa noche, alguien había cortado la línea telefónica. Y meses atrás un hombre "
+               "había amenazado a la familia.",
+               "cut telephone wire", "burned house ruins"),
+            _m("Durante años llegaron supuestas pistas: gente que decía haber visto a los niños vivos, "
+               "y hasta una foto anónima de un joven parecido a uno de ellos. Nada se confirmó.",
+               "old photograph anonymous", "missing children poster"),
+            _m("Los padres pusieron un cartel gigante al costado de la ruta y lo sostuvieron hasta morir. "
+               "Nunca supieron si sus cinco hijos murieron esa noche o no.",
+               "roadside billboard vintage", "memorial grave family"),
+        ],
+    },
+    30: {
+        "pregunta": "¿Cayeron al mar o algo más?",
+        "titulo": "El dirigible L-8: la nave que aterrizó sin tripulación",
+        "resumen": ("el dirigible de la Armada de Estados Unidos L-8 que en mil novecientos cuarenta y dos "
+                    "regresó y aterrizó sin sus dos tripulantes a bordo"),
+        "segments": [
+            _m("Un dirigible militar salió a patrullar la costa con dos hombres a bordo. Volvió solo, "
+               "se desinfló sobre una calle y aterrizó sin nadie adentro.",
+               "navy blimp 1940s", "san francisco bay fog"),
+            _m("Fue en agosto de mil novecientos cuarenta y dos, sobre la bahía de San Francisco. "
+               "El L-8 patrullaba buscando submarinos japoneses cuando reportó haber visto una mancha "
+               "de aceite en el mar y fue a investigar.",
+               "world war two patrol", "ocean oil slick"),
+            _m("Horas después el dirigible apareció a la deriva y cayó sobre un barrio. La puerta estaba "
+               "abierta, los chalecos salvavidas seguían adentro, la radio funcionaba y el motor estaba bien. "
+               "Los dos tripulantes no estaban.",
+               "blimp crash street", "life jackets cabin"),
+            _m("No hubo pedido de auxilio ni señal de pelea. Se pensó que uno cayó al mar y el otro intentó "
+               "salvarlo, pero el dirigible va tan lento que debieron ser vistos. Nunca aparecieron.",
+               "coast guard search", "open aircraft hatch"),
+            _m("La Armada cerró el caso sin explicación. Qué pasó en esa cabina entre dos hombres "
+               "experimentados sigue sin respuesta ochenta años después.",
+               "military report classified", "pacific ocean empty"),
+        ],
+    },
+    31: {
+        "pregunta": "¿Baliza militar o algo oculto?",
+        "titulo": "UVB-76: la emisora que lleva décadas zumbando",
+        "resumen": ("la estación de radio de onda corta rusa, apodada 'El Zumbador', que emite un pitido "
+                    "monótono sin fin interrumpido de vez en cuando por voces en ruso"),
+        "segments": [
+            _m("En una frecuencia de radio hay un zumbido que no para desde hace décadas. "
+               "De golpe se corta y una voz lee números y nombres en ruso. Después, otra vez el zumbido.",
+               "shortwave radio dial", "radio tower antenna"),
+            _m("La estación se conoce como UVB-76 o 'El Zumbador'. Transmite desde Rusia desde al menos "
+               "los años ochenta un tono repetido las veinticuatro horas, sin que nadie oficialmente "
+               "explique para qué.",
+               "soviet radio equipment", "russian military base"),
+            _m("Los radioaficionados de todo el mundo la escuchan y graban sus mensajes. A veces se cuela "
+               "ruido de fondo, como una conversación lejana, lo que sugiere que hay alguien del otro lado.",
+               "person headphones radio", "audio waveform screen"),
+            _m("La teoría más aceptada es que sea una baliza militar que mantiene abierto un canal de "
+               "comunicación de emergencia. Los mensajes con códigos serían órdenes para unidades militares.",
+               "military communication room", "cold war bunker"),
+            _m("Nunca hubo confirmación oficial de su función. El Zumbador sigue ahí, en vivo, para "
+               "cualquiera que sintonice. Un latido de radio que nadie reconoce como propio.",
+               "radio static signal", "frequency spectrum display"),
+        ],
+    },
+    32: {
+        "pregunta": "¿Desorientación o algo inexplicable?",
+        "titulo": "El Vuelo 19: los cinco aviones que se tragó el mar",
+        "resumen": ("la desaparición en mil novecientos cuarenta y cinco de cinco bombarderos de la Marina "
+                    "de Estados Unidos durante un vuelo de entrenamiento sobre el Atlántico"),
+        "segments": [
+            _m("Cinco aviones militares salieron a entrenar sobre el mar y nunca volvieron. El avión enviado "
+               "a rescatarlos también desapareció. En total, veintisiete hombres.",
+               "navy bomber planes 1940s", "atlantic ocean aerial"),
+            _m("Fue en diciembre de mil novecientos cuarenta y cinco, frente a Florida. El llamado Vuelo "
+               "diecinueve eran cinco bombarderos en una misión de práctica que debía durar unas horas.",
+               "florida coast 1945", "military flight formation"),
+            _m("Por radio, el instructor dijo que sus brújulas fallaban y que no reconocía el terreno. "
+               "Creía estar sobre un lugar cuando en realidad estaba en otro. Volaron en círculos hasta "
+               "quedarse sin combustible.",
+               "airplane cockpit compass", "radio communication static"),
+            _m("Un hidroavión salió a buscarlos con trece hombres y estalló en el aire poco después del "
+               "despegue. De los cinco bombarderos, jamás se halló un solo resto confirmado.",
+               "rescue seaplane 1940s", "search operation ocean"),
+            _m("El caso alimentó la leyenda del Triángulo de las Bermudas. La explicación más sólida es "
+               "una desorientación fatal sobre el mar, pero el misterio de dónde cayeron sigue abierto.",
+               "bermuda triangle map", "deep ocean mystery"),
+        ],
+    },
+    33: {
+        "pregunta": "¿Accidente, robo o asesinato?",
+        "titulo": "Louis Le Prince: el padre del cine que se esfumó de un tren",
+        "resumen": ("la desaparición en mil ochocientos noventa del inventor Louis Le Prince, pionero del "
+                    "cine, que subió a un tren en Francia y jamás bajó de él"),
+        "segments": [
+            _m("El hombre que filmó la primera película de la historia subió a un tren para visitar a su "
+               "hermano. El tren llegó a destino, pero él no estaba. Ni su equipaje.",
+               "steam train 1890s", "vintage train platform"),
+            _m("Fue en septiembre de mil ochocientos noventa, en Francia. Louis Le Prince había grabado "
+               "escenas en movimiento dos años antes que Edison y los Lumière, y estaba por presentar "
+               "su invento en Estados Unidos.",
+               "early film camera", "19th century inventor"),
+            _m("Testigos lo vieron subir al tren en Dijon. Al llegar a París, su compartimento estaba vacío. "
+               "No había señales de que hubiera bajado en ninguna parada ni rastro de su cuerpo o sus cosas.",
+               "french railway dijon", "empty train compartment"),
+            _m("Las teorías son muchas: un accidente, un robo, un suicidio por deudas, o incluso que lo "
+               "hicieron desaparecer por la disputa de la patente del cine, que valía una fortuna.",
+               "patent documents vintage", "paris 1890s street"),
+            _m("Su familia lo buscó durante años sin resultado. El inventor que pudo haber sido el padre "
+               "oficial del cine desapareció justo antes de reclamar su lugar en la historia.",
+               "film reel old", "mystery disappearance archive"),
+        ],
+    },
+    34: {
+        "pregunta": "¿Un extraño o alguien conocido?",
+        "titulo": "Lago Bodom: la masacre que quedó sin culpable",
+        "resumen": ("el asesinato de tres adolescentes mientras acampaban a orillas del lago Bodom, "
+                    "en Finlandia, en mil novecientos sesenta, con un único sobreviviente"),
+        "segments": [
+            _m("Cuatro adolescentes acamparon junto a un lago. De madrugada, alguien atacó la carpa. "
+               "Tres murieron y el cuarto sobrevivió, pero no recordaba casi nada.",
+               "lakeside camping tent", "finland forest lake"),
+            _m("Fue en junio de mil novecientos sesenta, en el lago Bodom, cerca de Helsinki. Dos parejas "
+               "jóvenes habían ido a pasar la noche. El ataque ocurrió entre las cuatro y las seis "
+               "de la mañana.",
+               "finnish countryside summer", "vintage camp site"),
+            _m("A los tres los apuñalaron y golpearon con saña a través de la tela de la carpa. "
+               "El sobreviviente quedó malherido por fuera de ella. Nadie escuchó gritos ni vio huir "
+               "a nadie.",
+               "damaged tent crime", "police investigation 1960s"),
+            _m("Décadas después juzgaron al propio sobreviviente, acusándolo del crimen, pero la justicia "
+               "lo absolvió por falta de pruebas. También se sospechó de un vendedor de kioscos cercano.",
+               "courtroom trial", "detective evidence board"),
+            _m("El caso sigue oficialmente sin resolver. Quién atacó esa carpa junto al lago Bodom "
+               "es uno de los mayores misterios criminales de los países nórdicos.",
+               "cold case finland", "misty lake dawn"),
+        ],
+    },
+    35: {
+        "pregunta": "¿Secuestro o algo peor?",
+        "titulo": "Las tres de Springfield: desaparecieron de su propia casa",
+        "resumen": ("la desaparición en mil novecientos noventa y dos de tres mujeres de una casa en "
+                    "Springfield, Missouri, sin señales de robo ni de lucha"),
+        "segments": [
+            _m("Tres mujeres desaparecieron de una casa de un día para el otro. Los autos seguían afuera, "
+               "las carteras adentro y el perro suelto. Como si se hubieran evaporado.",
+               "suburban house night", "front porch missouri"),
+            _m("Fue en junio de mil novecientos noventa y dos, en Springfield, Missouri. Una madre, su hija "
+               "y una amiga habían festejado una graduación. A la mañana siguiente, ninguna respondía "
+               "el teléfono.",
+               "graduation celebration 1992", "quiet neighborhood street"),
+            _m("Dentro, todo estaba en orden salvo un detalle: la lámpara del porche, rota. No faltaba "
+               "dinero ni joyas. Amigos que pasaron ese día incluso contestaron el teléfono sin notar "
+               "nada raro.",
+               "broken porch light", "untouched living room"),
+            _m("Hubo cientos de pistas y hasta un hombre que dijo saber dónde estaban enterradas, "
+               "pero nada se comprobó. Se investigaron secuestros, un edificio con hormigón fresco "
+               "y decenas de sospechosos.",
+               "search investigation police", "cold case tip line"),
+            _m("Más de treinta años después, las tres siguen desaparecidas. No hay cuerpos, no hay arrestos, "
+               "no hay explicación. Solo una casa que un día quedó vacía.",
+               "empty house interior", "missing persons poster"),
+        ],
+    },
+    36: {
+        "pregunta": "¿Un animal o algo sin explicación?",
+        "titulo": "Las huellas del Diablo: ciento sesenta kilómetros en la nieve",
+        "resumen": ("el rastro de pisadas con forma de pezuña que apareció en la nieve del condado de "
+                    "Devon, Inglaterra, en mil ochocientos cincuenta y cinco, cruzando campos, techos y muros"),
+        "segments": [
+            _m("Una mañana de invierno, los vecinos de varios pueblos encontraron en la nieve un rastro "
+               "de pisadas con forma de pezuña. Iban en línea recta, sin importar qué hubiera en el camino.",
+               "hoof prints snow", "english village winter 1800s"),
+            _m("Fue en febrero de mil ochocientos cincuenta y cinco, cerca del estuario del río Exe, "
+               "en el condado de Devon, Inglaterra. Aparecieron en varios pueblos a la vez y la prensa "
+               "sensacionalista de entonces llegó a hablar de más de cien kilómetros de rastro.",
+               "devon countryside snow", "victorian newspaper article"),
+            _m("Según esos relatos, las pisadas cruzaban techos, saltaban muros altos y pasaban por caños "
+               "estrechos sin cortarse. Hay que aclararlo: nadie siguió el rastro entero, así que esa "
+               "distancia es más leyenda que dato comprobado.",
+               "snowy rooftops village", "stone wall snow"),
+            _m("Se propuso de todo: un tejón, ratones saltarines, un globo meteorológico suelto arrastrando "
+               "una cuerda, o varios animales distintos. Ninguna teoría explica el rastro completo.",
+               "badger animal snow", "weather balloon vintage"),
+            _m("La prensa de entonces lo bautizó 'las huellas del Diablo'. Casi dos siglos después, "
+               "nadie sabe con certeza qué dejó esas pisadas aquella noche.",
+               "mysterious tracks snow", "foggy english moor"),
+        ],
+    },
+    37: {
+        "pregunta": "¿Fenómeno natural desconocido o ilusión?",
+        "titulo": "Las luces de Hessdalen: el valle que brilla de noche",
+        "resumen": ("las luces inexplicables que aparecen desde los años ochenta en el valle de Hessdalen, "
+                    "en Noruega, estudiadas por científicos sin una respuesta definitiva"),
+        "segments": [
+            _m("En un valle de Noruega aparecen luces flotando de noche. A veces quietas, a veces "
+               "disparándose a gran velocidad. Llevan décadas apareciendo y nadie las explica del todo.",
+               "glowing lights valley night", "norway mountains dark"),
+            _m("El valle de Hessdalen empezó a tener avistamientos frecuentes a principios de los años "
+               "ochenta. Los vecinos veían bolas de luz blancas y amarillas que duraban desde segundos "
+               "hasta más de una hora.",
+               "norwegian rural valley", "strange light orb sky"),
+            _m("A diferencia de otros casos, acá los científicos montaron estaciones de medición. "
+               "Registraron las luces con cámaras y radares: algo real emite esa energía, no es solo "
+               "imaginación.",
+               "scientific measuring station", "radar monitoring equipment"),
+            _m("Se propuso que sea plasma generado por minerales del suelo, gases que arden en el aire "
+               "o reacciones eléctricas en el valle. Hay buenas pistas, pero ninguna explicación cierra "
+               "todos los casos.",
+               "plasma energy glow", "geology minerals rock"),
+            _m("Hessdalen es uno de los pocos misterios de luces que la ciencia estudia en serio y en vivo. "
+               "El valle sigue brillando, esperando que alguien entienda por qué.",
+               "camera night sky research", "mysterious lights horizon"),
+        ],
+    },
+    38: {
+        "pregunta": "¿Accidente o algo más oscuro?",
+        "titulo": "Elisa Lam: el ascensor, el tanque de agua y nadie",
+        "resumen": ("la muerte de la estudiante Elisa Lam en el tanque de agua de un hotel de Los Ángeles "
+                    "en dos mil trece, precedida por un video de ascensor imposible de explicar"),
+        "segments": [
+            _m("Los huéspedes de un hotel se quejaron de que el agua salía oscura y con mal sabor. "
+               "Al revisar los tanques del techo, encontraron el cuerpo de una joven adentro.",
+               "hotel water tank rooftop", "old los angeles hotel"),
+            _m("Era Elisa Lam, estudiante canadiense de veintiún años, desaparecida en enero de dos mil trece "
+               "en el hotel Cecil de Los Ángeles, un edificio con una historia siniestra de crímenes "
+               "y muertes.",
+               "cecil hotel downtown", "missing student poster"),
+            _m("La policía difundió un video del ascensor: Elisa aprieta todos los botones, se asoma al "
+               "pasillo como escondiéndose de alguien, gesticula con las manos y habla sola. "
+               "El ascensor no se mueve.",
+               "elevator security camera", "hotel hallway dark"),
+            _m("Para llegar al tanque había que subir al techo y abrir una tapa pesada, así que muchos "
+               "hablaron de homicidio. Importante: la tapa estaba abierta y la autopsia no halló signos "
+               "de violencia.",
+               "rooftop access ladder", "water tank hatch"),
+            _m("La conclusión oficial fue muerte accidental por ahogamiento, ligada a un trastorno bipolar "
+               "fuera de control. El caso está cerrado, pero el video del ascensor sigue generando "
+               "teorías imposibles de probar.",
+               "forensic report file", "water tank investigation"),
+        ],
+    },
+    39: {
+        "pregunta": "¿Fenómeno paranormal o fraude?",
+        "titulo": "Las caras de Bélmez: los rostros del piso de la cocina",
+        "resumen": ("los rostros que, según sus dueños, aparecieron y cambiaron solos en el piso de "
+                    "cemento de una casa en Bélmez, España, desde mil novecientos setenta y uno"),
+        "segments": [
+            _m("En el piso de cemento de una cocina empezaron a aparecer caras. Una mujer juró que surgían "
+               "solas, que cambiaban de expresión y que, por más que limpiaran, volvían.",
+               "face in concrete floor", "old spanish kitchen"),
+            _m("Pasó en Bélmez de la Moraleda, un pueblo del sur de España, desde mil novecientos setenta "
+               "y uno. La familia dijo que un día apareció un rostro en el suelo. Lo picaron y echaron "
+               "cemento nuevo, pero según ellos las caras reaparecieron.",
+               "andalusia village spain", "cement floor stains"),
+            _m("El caso se volvió famoso en toda España. Llegaron periodistas, curiosos y hasta "
+               "investigadores de lo paranormal. Decían que bajo la casa había un viejo cementerio.",
+               "crowd outside house", "paranormal investigation 1970s"),
+            _m("Algunos análisis sugirieron que las caras tenían pigmentos y pudieron ser pintadas, "
+               "quizás como un fraude para atraer turismo. Otros estudios no fueron concluyentes.",
+               "chemical pigment test", "skeptic investigation lab"),
+            _m("Nunca se demostró del todo si fue un engaño o un fenómeno real. Las caras de Bélmez "
+               "siguen siendo el caso paranormal más discutido de España.",
+               "mysterious faces wall", "spanish village mystery"),
+        ],
+    },
+    40: {
+        "pregunta": "¿Se perdieron o los hicieron desaparecer?",
+        "titulo": "La familia Jamison: la camioneta, el dinero y el perro",
+        "resumen": ("la desaparición en dos mil nueve de la familia Jamison en Oklahoma, cuya camioneta "
+                    "apareció con dinero, el perro con vida y ningún rastro de ellos"),
+        "segments": [
+            _m("Una familia entera se esfumó mirando un terreno en la montaña. Encontraron su camioneta "
+               "con treinta y dos mil dólares adentro y el perro, casi muerto de hambre, todavía ahí.",
+               "pickup truck rural oklahoma", "remote hilltop land"),
+            _m("Fue en octubre de dos mil nueve, en una zona agreste de Oklahoma. Bobby, Sherilyn y su hija "
+               "Madyson, de seis años, habían ido a ver un lote para construir. Nunca regresaron.",
+               "oklahoma mountains wilderness", "family photograph 2009"),
+            _m("Dentro de la camioneta estaban sus celulares, sus documentos, el dinero y hasta la comida "
+               "del perro. Una cámara mostró a la familia cargando cosas, pero el video no aclaraba nada "
+               "de lo que pasó después.",
+               "truck interior belongings", "security camera footage"),
+            _m("Antes de desaparecer, la familia estaba tensa: hablaban de amenazas, de disputas por tierras "
+               "y de cartas extrañas. Se investigaron peleas familiares, deudas y hasta una secta.",
+               "handwritten threatening note", "rural property dispute"),
+            _m("Casi cuatro años después, un cazador halló tres cuerpos a pocos kilómetros. Estaban tan "
+               "deteriorados que no se pudo saber cómo murieron. Qué pasó esa tarde sigue sin respuesta.",
+               "forest search recovery", "oklahoma backcountry fog"),
+        ],
+    },
 }
 
 PARTS = MISTERIOS
