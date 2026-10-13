@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>En 60 Segundos — en60segundos-bot</title>
+<title>En 60 Segundos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="en60segundos-bot: herramienta privada que publica los videos originales de los canales educativos En 60 Segundos en las cuentas de su propio titular (YouTube, TikTok, Instagram).">
+<meta name="description" content="En 60 Segundos is a desktop app that helps content creators publish their own original short-form videos to their own connected social accounts (YouTube, TikTok, Instagram).">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <style>
@@ -15,7 +15,7 @@
   .wrap{max-width:760px;margin:0 auto;padding:0 1.2rem 4rem}
   header{text-align:center;padding:3rem 1.2rem 2.4rem}
   header img{width:104px;height:104px;border-radius:24px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
-  header h1{font-size:1.7rem;margin:1rem 0 .3rem}
+  header h1{font-size:1.8rem;margin:1rem 0 .3rem;letter-spacing:-.01em}
   header .tag{color:var(--muted);font-size:1.05rem;margin:0}
   section{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.5rem;margin:1rem 0}
   h2{font-size:1.15rem;margin:.1rem 0 .7rem}
@@ -32,33 +32,37 @@
 <body>
 <div class="wrap">
   <header>
-    <img src="icon.png" alt="Ícono de En 60 Segundos">
+    <img src="icon.png" alt="En 60 Segundos app icon">
     <h1>En 60 Segundos</h1>
-    <p class="tag">Datos, historia y misterios en un minuto · herramienta <strong>en60segundos-bot</strong></p>
+    <p class="tag">App de escritorio para publicar tus videos cortos en tus redes</p>
   </header>
 
   <section>
-    <h2>Qué es</h2>
-    <p><strong>en60segundos-bot</strong> es una herramienta privada, de uso personal, que genera y
-    publica los videos cortos originales de la red de canales educativos <em>"En 60 Segundos"</em>
-    (curiosidades, historia y misterios) en las cuentas de redes sociales de su <strong>propio
-    titular</strong>: sus canales de YouTube, su cuenta de TikTok y sus cuentas de Instagram.</p>
+    <h2>Qué es En 60 Segundos</h2>
+    <p><strong>En 60 Segundos</strong> es una aplicación de escritorio que ayuda a los
+    creadores de contenido a producir y publicar sus propios videos cortos originales en
+    las cuentas de redes sociales que conectan (YouTube, TikTok e Instagram). El creador
+    conecta sus cuentas con una autorización OAuth y la app programa y publica sus videos
+    por él, para que mantenga una cadencia constante sin tener que subir cada video a mano.</p>
   </section>
 
   <section>
     <h2>Cómo funciona</h2>
     <ul>
-      <li>El titular conecta <strong>sus propias cuentas</strong> mediante autorización OAuth explícita.</li>
-      <li>La herramienta arma cada video (voz, subtítulos, imágenes con licencia y música libre) y lo
-      sube de forma programada a las cuentas del titular.</li>
-      <li>En TikTok, los videos llegan a la bandeja del titular, que completa la publicación desde la app.</li>
-      <li>Los tokens de acceso se guardan <strong>localmente</strong> en el equipo del titular; no hay servidores de terceros.</li>
-      <li>No presta servicios a terceros ni accede a datos de otros usuarios.</li>
+      <li>El creador conecta sus cuentas con <strong>autorización OAuth</strong> (Login Kit en TikTok).</li>
+      <li>La app arma cada video (voz, subtítulos, imágenes con licencia y música libre) y lo
+      publica de forma programada en las cuentas conectadas por el creador.</li>
+      <li>En TikTok, usa la Content Posting API y respeta siempre las opciones que elige el
+      creador: título, nivel de privacidad y ajustes de comentarios, dúo y stitch.</li>
+      <li>La app <strong>solo publica en la cuenta que la autorizó</strong>; nunca accede a la
+      cuenta de otra persona.</li>
+      <li>Los tokens de acceso se guardan <strong>localmente</strong> en el equipo del creador;
+      no hay servidores de terceros ni se recopilan datos de otros usuarios.</li>
     </ul>
   </section>
 
   <section>
-    <h2>Los canales</h2>
+    <h2>Contenido que publica</h2>
     <div class="channels">
       <div class="ch"><b>En 60 Segundos</b>Datos y curiosidades para parecer más inteligente.</div>
       <div class="ch"><b>Historia en 60 Segundos</b>Historias reales que parecen inventadas.</div>
@@ -67,10 +71,10 @@
   </section>
 
   <section>
-    <h2>Tus datos y tu privacidad</h2>
-    <p>La aplicación solo accede a las cuentas de su propietario, no usa cookies ni rastreadores, y no
-    recopila, vende ni comparte datos personales de terceros. El acceso puede revocarse en cualquier
-    momento desde la configuración de seguridad de cada plataforma.</p>
+    <h2>Privacidad</h2>
+    <p>La app solo accede a las cuentas que la autorizan, no usa cookies ni rastreadores, y no
+    recopila, vende ni comparte datos personales de terceros. El creador puede revocar el acceso
+    en cualquier momento desde la configuración de seguridad de cada plataforma.</p>
     <p>Más detalle en la <a href="privacy.html">Política de Privacidad</a> y los
     <a href="terms.html">Términos de Servicio</a>.</p>
   </section>
@@ -82,13 +86,15 @@
 
   <section>
     <h2 class="en">English</h2>
-    <p class="en"><strong>en60segundos-bot</strong> is a private, personal-use tool that creates and
-    publishes the original short videos of the educational "En 60 Segundos" channels (fun facts,
-    history and mysteries) to the <strong>owner's own</strong> social accounts: their YouTube channels,
-    TikTok account and Instagram accounts. It connects only to the owner's own accounts via explicit
-    OAuth authorization, stores access tokens locally on the owner's computer, uses YouTube API
-    Services solely to upload videos to the owner's own channels, serves no third parties and collects
-    no data from other users. See the <a href="privacy.html">Privacy Policy</a> and
+    <p class="en"><strong>En 60 Segundos</strong> is a desktop app that helps content creators
+    produce and publish their own original short-form videos to the social accounts they connect
+    (YouTube, TikTok and Instagram). The creator connects their accounts via OAuth authorization
+    (Login Kit on TikTok), and the app builds each video (voice-over, captions, licensed footage
+    and royalty-free music) and publishes it on a schedule to the creator's connected accounts. On
+    TikTok it uses the Content Posting API and always applies the creator's own choices (title,
+    privacy level, comment/duet/stitch settings). The app only ever posts to the account that
+    authorized it, stores access tokens locally on the creator's computer, and collects no data
+    from other users. See the <a href="privacy.html">Privacy Policy</a> and
     <a href="terms.html">Terms of Service</a>.</p>
   </section>
 

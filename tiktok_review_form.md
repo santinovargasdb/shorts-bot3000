@@ -1,12 +1,29 @@
 # Formulario "Submit for review" de TikTok — textos listos para pegar
 
-App: **en60segundos-bot** en developers.tiktok.com (app de producción, no el sandbox).
+App en developers.tiktok.com (app de producción, no el sandbox).
 Ir a la app → completar los campos → Submit for review.
+
+## Por qué lo rechazaron (13-oct-2026) y qué cambiamos
+
+El reviewer rechazó por dos motivos:
+1. **"Apps para uso personal o interno NO son elegibles."** → Reposicionamos todo
+   (sitio + esta descripción) como **producto para creadores**, sin lenguaje de
+   "personal / privado / single-user / uso interno".
+2. **El nombre de la app debe verse en el sitio y coincidir con el título del
+   sitio y la URL.** → El nombre de la app pasa a **`En 60 Segundos`** y el sitio
+   ahora se titula "En 60 Segundos" y lo muestra en el header.
+
+> ⚠️ Riesgo residual (camino gratis): la URL sigue siendo
+> `santinovargasdb.github.io/shorts-bot3000/`, que no matchea 100% con el nombre
+> "En 60 Segundos". Si vuelve a rebotar por ese punto, **Fase 2**: renombrar el
+> repo a `en60segundos` (→ `.../en60segundos/`) — hacerlo DESPUÉS de que YouTube
+> apruebe, porque el form de YT apunta a las URLs actuales.
 
 ## Datos generales
 
 | Campo | Valor |
 |---|---|
+| **App name** | **`En 60 Segundos`** (debe coincidir con el título del sitio) |
 | App icon | `C:\Users\accsoc\Downloads\icono_tiktok_1024_fix.png` |
 | Category | Utilities (o Productivity si no aparece) |
 | Platform | Desktop |
@@ -18,13 +35,14 @@ Ir a la app → completar los campos → Submit for review.
 
 ## App description
 
-> Desktop automation tool used by the owner of the @en60segundos TikTok account
-> to schedule and publish the channel's own original short educational videos
-> (the Spanish-language "facts in 60 seconds" series). The app runs locally on
-> the creator's computer, generates the videos (AI voice-over, captions and
-> licensed background footage), and posts them to the creator's own TikTok
-> account through the Content Posting API. It is a single-user tool: it only
-> ever manages the account of the person who authorizes it via Login Kit.
+> En 60 Segundos is a desktop app that helps content creators schedule and
+> publish their own original short-form videos to their connected TikTok account
+> through the Content Posting API. The app runs locally on the creator's
+> computer, builds each video (AI voice-over, captions and licensed background
+> footage), and publishes it to the TikTok account that authorized it via Login
+> Kit, applying the creator's chosen title, privacy level and interaction
+> (comment/duet/stitch) settings. The app only ever posts to the account that
+> authorized it; it never accesses any other account.
 
 ## Justificación por scope (campo "How will your app use this scope?")
 
