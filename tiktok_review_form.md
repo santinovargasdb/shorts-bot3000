@@ -33,16 +33,12 @@ El reviewer rechazó por dos motivos:
 | Products | Login Kit + Content Posting API (con Direct Post) |
 | Demo video | `tiktok_review_demo.mp4` (la toma 7) |
 
-## App description
+## App description (campo corto — MÁX 120 caracteres)
 
-> En 60 Segundos is a desktop app that helps content creators schedule and
-> publish their own original short-form videos to their connected TikTok account
-> through the Content Posting API. The app runs locally on the creator's
-> computer, builds each video (AI voice-over, captions and licensed background
-> footage), and publishes it to the TikTok account that authorized it via Login
-> Kit, applying the creator's chosen title, privacy level and interaction
-> (comment/duet/stitch) settings. The app only ever posts to the account that
-> authorized it; it never accesses any other account.
+> En 60 Segundos helps creators schedule and auto-publish their own short videos to their connected TikTok account.
+
+(113 caracteres. El framing largo "para creadores" va en las justificaciones por
+scope de más abajo, que no tienen ese límite.)
 
 ## Justificación por scope (campo "How will your app use this scope?")
 
