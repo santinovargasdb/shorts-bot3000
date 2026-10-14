@@ -66,11 +66,20 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     dst = dst_dir / f"{channel_key}_{seq:04d}.mp4"
     shutil.move(str(outs[0]), str(dst))
 
+    # QC AUTOMÁTICO con visión (Gemini): aprueba/rechaza solo (plug-and-forget).
+    # ok=None (sin GEMINI_API_KEY o error) -> queda PENDING para revisión manual.
+    from streamers.verify import verify_clip
+    v = verify_clip(dst, verbose=verbose)
+    status = {True: "approved", False: "rejected"}.get(v["ok"], "pending")
+
     real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
                        video_path=str(dst), streamer=clip["streamer"],
-                       clip_id=clip["id"], views=clip.get("views", 0), status="pending")
+                       clip_id=clip["id"], views=clip.get("views", 0),
+                       status=status, qc_note=v.get("problema", ""))
     if verbose:
-        print(f"[{channel_key}] PENDIENTE seq {real} ({clip['streamer']}) -> {dst}")
+        tag = {"approved": "APROBADO auto", "rejected": "RECHAZADO auto",
+               "pending": "PENDIENTE (manual)"}[status]
+        print(f"[{channel_key}] {tag} seq {real} ({clip['streamer']}) -> {dst.name}")
     return real
 
 

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS clips (
     clip_id TEXT NOT NULL UNIQUE,
     views INTEGER,
     status TEXT NOT NULL DEFAULT 'pending',
+    qc_note TEXT,
     created_utc TEXT
 );
 """
@@ -32,25 +33,30 @@ def connect(path) -> sqlite3.Connection:
     cols = {r[1] for r in conn.execute("PRAGMA table_info(clips)")}
     if "status" not in cols:                       # migración de db vieja (sin aprobación)
         conn.execute("ALTER TABLE clips ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
+    if "qc_note" not in cols:                       # migración: veredicto del QC con visión
+        conn.execute("ALTER TABLE clips ADD COLUMN qc_note TEXT")
     conn.commit()
     return conn
 
 
 def add_clip(conn, *, title, description, video_path, streamer, clip_id,
-             views=0, status="pending") -> int:
+             views=0, status="pending", qc_note="") -> int:
     cur = conn.execute(
         "INSERT INTO clips (title, description, video_path, streamer, clip_id, views, status,"
-        " created_utc) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))",
-        (title, description, video_path, streamer, clip_id, int(views or 0), status),
+        " qc_note, created_utc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+        (title, description, video_path, streamer, clip_id, int(views or 0), status, qc_note),
     )
     conn.commit()
     return int(cur.lastrowid)
 
 
 def _row(r) -> dict:
+    keys = r.keys()
     return {"seq": r["seq"], "title": r["title"], "description": r["description"],
             "video_path": r["video_path"], "streamer": r["streamer"], "clip_id": r["clip_id"],
-            "views": r["views"], "status": r["status"], "created_utc": r["created_utc"]}
+            "views": r["views"], "status": r["status"],
+            "qc_note": r["qc_note"] if "qc_note" in keys else "",
+            "created_utc": r["created_utc"]}
 
 
 def all_clips(conn) -> list:
