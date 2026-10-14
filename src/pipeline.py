@@ -20,6 +20,41 @@ from .transcribe import Word, transcribe_words
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "output"
+MUSIC_STREAMERS = ROOT / "music" / "streamers"
+
+
+# Pools de música firma: mood -> (archivo en music/streamers/, segundo de arranque).
+MUSIC = {
+    "emotivo": ("emotiva.mp3", 0.0),
+    "epico": ("epica.mp3", 30.0),     # ALLBA: arranca en el drop épico (~0:30)
+    "gracioso": ("graciosa.mp3", 0.0),
+}
+
+
+def _classify_mood(transcript: str) -> str:
+    """'emotivo' | 'epico' | 'gracioso' según el transcript, vía LLM (Groq). Default epico."""
+    try:
+        from reddit_pipeline.rewrite import build_client, model_name
+        client = build_client()
+        prompt = (
+            "Clasificá el MOOD de este clip de streamer en UNA sola palabra:\n"
+            "- 'emotivo': triste, sentido, wholesome, conmovedor.\n"
+            "- 'epico': hype, epico, con aura, jugada/momento fuerte, serio-intenso.\n"
+            "- 'gracioso': chistoso, meme, fail, divertido.\n"
+            "Responde SOLO una de esas tres palabras, nada mas.\n\n"
+            f"Transcript:\n{transcript[:1500]}"
+        )
+        r = client.chat.completions.create(
+            model=model_name(), temperature=0, max_tokens=4,
+            messages=[{"role": "user", "content": prompt}])
+        ans = (r.choices[0].message.content or "").strip().lower()
+        if "emot" in ans:
+            return "emotivo"
+        if "grac" in ans:
+            return "gracioso"
+        return "epico"   # default (incluye 'epico'/'épico' y cualquier respuesta rara)
+    except Exception:
+        return "epico"
 
 
 def _words_in(words: list[Word], start: float, end: float) -> list[Word]:
@@ -89,6 +124,61 @@ def process_source(
         language=channel.get("language"),
     )
 
+    # 2b) Música firma por MOOD (solo canales con music_mood): emotivo/epico/gracioso.
+    music, music_start = "", 0.0
+    if channel.get("music_mood"):
+        mood = _classify_mood(" ".join(w.text for w in words))
+        fname, music_start = MUSIC.get(mood, MUSIC["epico"])
+        track = MUSIC_STREAMERS / fname
+        if not track.exists():            # fallback a épica (la que siempre está)
+            fname, music_start = MUSIC["epico"]
+            track = MUSIC_STREAMERS / fname
+        music = str(track) if track.exists() else ""
+        if verbose:
+            tag = (track.name + (f" (desde {music_start:.0f}s)" if music_start else "")) if music else "sin música"
+            print(f"[{channel_name}] Mood: {mood} -> {tag}")
+
+    # 2c) Layout según el clip (solo canales con face_crop). Auto-detecta:
+    #   - GAMING (hay gameplay detrás: la cara es un box chico) -> 2 paneles (cara/juego/negro).
+    #   - IRL/sin gameplay (la cara llena el cuadro) -> facecam-only 9:16 (formato que ya va bien,
+    #     el del nicho inglés). El umbral es la fracción ancho-de-cara / ancho-de-fuente.
+    crop_rect = None
+    face_box = None
+    layout = ""
+    caption = channel["caption"]
+    if channel.get("face_crop"):
+        from .facecrop import detect_face, facecam_crop
+        fb = detect_face(source)
+        if fb:
+            cx, cy, fw, fh, W, H = fb
+            lay = channel.get("layout", "")
+            frac = (fw / W) if W else 1.0
+            gaming = (lay == "gaming") or (
+                lay == "auto" and frac < float(channel.get("gaming_face_frac", 0.18)))
+            if gaming:
+                layout = "gaming"
+                # Box de la facecam estimado desde la cara (YuNet da la cara "tight"; la cam
+                # es ~4x el ancho de la cara). Multiplicadores altos = menos upscale del panel
+                # superior y más cabeza+hombros (no una cara recortada y blanda).
+                cam_w = min(W, fw * 4.0)
+                cam_h = min(H, fh * 3.2)
+                cam_x = max(0, min(cx - cam_w / 2, W - cam_w))
+                cam_y = max(0, min(cy - cam_h * 0.5, H - cam_h))
+                face_box = (int(cam_x), int(cam_y), int(cam_w), int(cam_h))
+                caption = {**channel["caption"],
+                           "margin_v": int(channel.get("caption_margin_gaming", 560))}
+            else:
+                crop_rect = facecam_crop(cx, cy, fh, W, H)
+                caption = {**channel["caption"],
+                           "margin_v": int(channel.get("caption_margin_facecam", 660))}
+        if verbose:
+            if layout == "gaming":
+                print(f"[{channel_name}] Layout: GAMING 2-paneles (box cara {face_box})")
+            elif crop_rect:
+                print(f"[{channel_name}] Layout: facecam-only {crop_rect}")
+            else:
+                print(f"[{channel_name}] Layout: sin cara estable -> crop/blur normal")
+
     # 3) Render por clip
     outputs: list[Path] = []
     for i, clip in enumerate(clips, 1):
@@ -97,7 +187,7 @@ def process_source(
         build_ass(
             clip_words,
             ass_path,
-            caption=channel["caption"],
+            caption=caption,
             target_width=int(channel["target_width"]),
             target_height=int(channel["target_height"]),
             offset=clip.start,
@@ -116,6 +206,18 @@ def process_source(
             crop_mode=channel["crop_mode"],
             width=int(channel["target_width"]),
             height=int(channel["target_height"]),
+            grade=channel.get("grade", ""),
+            music=music,
+            music_start=music_start,
+            crop_rect=crop_rect,
+            fonts_dir=(ROOT / "fonts"),
+            zoom_punch=bool(channel.get("zoom_punch")),
+            punch_interval=float(channel.get("punch_interval", 2.5)),
+            sfx_whoosh=(ROOT / "sfx" / "whoosh.wav") if channel.get("sfx_cut") else None,
+            sfx_vol=float(channel.get("sfx_vol", 0.3)),
+            layout=layout,
+            face_box=face_box,
+            crf=int(channel.get("crf", 20)),
         )
         final = out_dir / tmp_out
         shutil.move(str(rendered), str(final))

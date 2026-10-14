@@ -99,6 +99,9 @@ def build_ass(
     shadow = caption.get("shadow", 1)
     margin_v = caption.get("margin_v", 260)
     uppercase = caption.get("uppercase", True)
+    italic = 1 if caption.get("italic") else 0       # fuente itálica (estilo clip viral)
+    blur = float(caption.get("blur", 0) or 0)        # glow suave alrededor del texto (\blur)
+    blur_tag = f"{{\\blur{blur:.1f}}}" if blur else ""
     hook_size = int(size * 0.62)   # más chico para que el título entre y pueda envolver
     # El título ya no tiene ventana propia: convive con el dato 1 (fórmula §2),
     # en la banda libre entre la tarjeta de imagen (termina y≈830) y el karaoke.
@@ -119,10 +122,10 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,{font},{size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},2,60,60,{margin_v},1
-Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,180,1
-Style: Titulo,{font},{title_size},{accent},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,80,80,{title_margin},1
-Style: Pregunta,{font},{quest_size},{accent},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{quest_margin},1
+Style: Cap,{font},{size},{primary},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},2,60,60,{margin_v},1
+Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,60,60,180,1
+Style: Titulo,{font},{title_size},{accent},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,80,80,{title_margin},1
+Style: Pregunta,{font},{quest_size},{accent},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{quest_margin},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -182,7 +185,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     parts.append(f"{{\\c{highlight}}}{token}{{\\c{primary}}}")
                 else:
                     parts.append(token)
-            text = " ".join(parts)
+            text = blur_tag + " ".join(parts)
             lines.append(
                 f"Dialogue: 0,{_fmt_time(start)},{_fmt_time(end)},Cap,,0,0,0,,{text}\n"
             )

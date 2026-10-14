@@ -38,6 +38,12 @@ rec_ffmpeg.log
 # Base de estado del pipeline de Reddit (se regenera)
 reddit_pipeline/stories.sqlite
 
+# Backlog de clips de streamers (estado generado, se regenera con build/review)
+streamers/backlog_*.sqlite
+
+# Logs sueltos de builds
+*.log
+
 # Backlog de videos pre-renderizados de whatonearth (se regenera)
 whatonearth/videos.sqlite
 

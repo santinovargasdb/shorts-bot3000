@@ -71,6 +71,33 @@ CHANNELS = {
         "first_comment": "Could you name them all? \U0001F440 Drop your score below!",
         "sfx_style": "datos",
     },
+    # --- TIER RIESGOSO: clips de streamers (video pre-renderizado en streamers/backlog_*.sqlite).
+    # platforms=() hasta que existan las cuentas/infra AISLADAS (email+Cloud+Meta propios).
+    # Ver [[tier-riesgoso-canales-clips]]. Backlog: python -m streamers.build streamers_a 5
+    "streamers_a": {
+        "display": "Clips Hispanos",
+        "series": "series_streamers_a",    # adaptador: lee streamers/backlog_a.sqlite
+        "engine_channel": "streamers",
+        "music": "music/streamers",        # no se usa (pre-renderizado), requerido por el ctx
+        "yt_token": "secrets/streamers_a/token.json",
+        "ig_creds": "secrets/streamers_a/instagram.json",
+        "tt_token": "secrets/streamers_a/tiktok_token.json",
+        "platforms": (),                   # activar ("ig","tt") cuando existan las cuentas aisladas
+        "first_comment": "¿De qué streamer querés el próximo clip? \U0001F447",
+        "sfx_style": "datos",
+    },
+    "streamers_b": {
+        "display": "Clips Argentinos",
+        "series": "series_streamers_b",    # adaptador: lee streamers/backlog_b.sqlite
+        "engine_channel": "streamers",
+        "music": "music/streamers",
+        "yt_token": "secrets/streamers_b/token.json",
+        "ig_creds": "secrets/streamers_b/instagram.json",
+        "tt_token": "secrets/streamers_b/tiktok_token.json",
+        "platforms": (),                   # activar ("ig","tt") cuando existan las cuentas aisladas
+        "first_comment": "¿De qué streamer querés el próximo clip? \U0001F447",
+        "sfx_style": "datos",
+    },
 }
 
 
