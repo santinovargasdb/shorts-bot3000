@@ -108,6 +108,36 @@ def _magnifier(d, cx, cy, r, color, lw):
     d.ellipse([x1 - hw // 2, y1 - hw // 2, x1 + hw // 2, y1 + hw // 2], fill=color)
 
 
+def _make_globe(r: int):
+    """Globo terráqueo estilizado (océano + continentes + grilla), recortado a círculo.
+    Devuelve (imagen RGBA, centro)."""
+    import math
+
+    pad = max(4, r // 18)
+    size = 2 * r + 2 * pad
+    g = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(g)
+    c = size // 2
+    ocean, land, grid = (41, 128, 185, 255), (93, 184, 122, 255), (255, 255, 255, 80)
+    gd.ellipse([c - r, c - r, c + r, c + r], fill=ocean)
+    for bx, by, bw, bh in [(-0.5, -0.38, 0.52, 0.5), (0.12, 0.0, 0.55, 0.62),
+                           (-0.12, 0.42, 0.46, 0.42), (0.12, -0.55, 0.4, 0.32)]:
+        gd.ellipse([c + r * bx, c + r * by, c + r * (bx + bw), c + r * (by + bh)], fill=land)
+    for dy in (-0.55, -0.2, 0.2, 0.55):                  # paralelos
+        yy = c + r * dy
+        hw = r * math.sqrt(max(0.0, 1 - dy * dy))
+        gd.line([(c - hw, yy), (c + hw, yy)], fill=grid, width=max(2, r // 32))
+    for sx in (0.42, 0.82):                              # meridianos
+        gd.ellipse([c - r * sx, c - r, c + r * sx, c + r], outline=grid, width=max(2, r // 32))
+    gd.line([(c, c - r), (c, c + r)], fill=grid, width=max(2, r // 32))
+    mask = Image.new("L", (size, size), 0)
+    ImageDraw.Draw(mask).ellipse([c - r, c - r, c + r, c + r], fill=255)
+    g = Image.composite(g, Image.new("RGBA", (size, size), (0, 0, 0, 0)), mask)
+    ImageDraw.Draw(g).ellipse([c - r, c - r, c + r, c + r], outline=(255, 255, 255, 215),
+                              width=max(3, r // 22))
+    return g, c
+
+
 def make_pfp(key: str, b: dict) -> Path:
     """Foto de perfil TIKTOK/IG-friendly: SOLO elemento visual (sin texto), grande y
     centrado para que lea bien en el recorte CIRCULAR."""
@@ -116,8 +146,17 @@ def make_pfp(key: str, b: dict) -> Path:
     d = ImageDraw.Draw(img)
     cx = cy = w // 2
     white = (255, 255, 255, 255)
-    if b["symbol"] == "q":                               # whatonearth -> lupa
-        _magnifier(d, int(cx - w * 0.045), int(cy - w * 0.045), int(w * 0.155), white, int(w * 0.05))
+    if b["symbol"] == "q":                               # whatonearth -> globo + signos "?"
+        gr = int(w * 0.235)
+        globe, gc = _make_globe(gr)
+        img.alpha_composite(globe, (cx - gc, cy - gc))
+        d = ImageDraw.Draw(img)
+        _text(d, (int(cx + gr * 1.05), int(cy - gr * 0.95)), "?",
+              _font("Montserrat-BlackItalic.ttf", int(w * 0.2)), b["accent"], sw=6)
+        _text(d, (int(cx - gr * 1.05), int(cy - gr * 0.45)), "?",
+              _font("Montserrat-BlackItalic.ttf", int(w * 0.12)), b["accent"], sw=4)
+        _text(d, (int(cx + gr * 0.5), int(cy + gr * 1.1)), "?",
+              _font("Montserrat-BlackItalic.ttf", int(w * 0.1)), b["accent"], sw=4)
     elif b["symbol"] == "play":                          # streamers gameplay
         s = int(w * 0.2)
         d.polygon([(cx - s * 0.45, cy - s * 0.82), (cx - s * 0.45, cy + s * 0.82),
