@@ -98,6 +98,18 @@ CHANNELS = {
         "first_comment": "¿De qué streamer querés el próximo clip? \U0001F447",
         "sfx_style": "datos",
     },
+    "streamers_c": {
+        "display": "Clips IRL Españoles",
+        "series": "series_streamers_c",    # adaptador: lee streamers/backlog_c.sqlite (facecam-only)
+        "engine_channel": "streamers",
+        "music": "music/streamers",
+        "yt_token": "secrets/streamers_c/token.json",
+        "ig_creds": "secrets/streamers_c/instagram.json",
+        "tt_token": "secrets/streamers_c/tiktok_token.json",
+        "platforms": (),                   # activar ("ig","tt") cuando existan las cuentas aisladas
+        "first_comment": "¿Qué streamer querés que subamos? \U0001F447",
+        "sfx_style": "datos",
+    },
 }
 
 

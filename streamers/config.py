@@ -17,12 +17,22 @@ CHANNELS = {
         "streamers": ["ibai", "auronplay", "illojuan", "elxokas"],
         "db": ROOT / "streamers" / "backlog_a.sqlite",
         "period": "30d",
+        "content": "gameplay",         # solo GAMEPLAY (el IRL va al canal C); layout auto 2-paneles
     },
     "streamers_b": {
         "display": "Clips Argentinos",
         "streamers": ["coscu", "spreen", "davooxeneize"],
         "db": ROOT / "streamers" / "backlog_b.sqlite",
         "period": "30d",
+        "content": "gameplay",
+    },
+    "streamers_c": {
+        "display": "Clips IRL Españoles",
+        "streamers": ["ibai", "auronplay", "elxokas", "illojuan"],
+        "db": ROOT / "streamers" / "backlog_c.sqlite",
+        "period": "30d",
+        "content": "irl",              # solo CHARLA/IRL (descarta gameplay)
+        "layout_override": "facecam",  # formato facecam-only (cara sola), no 2-paneles
     },
 }
 

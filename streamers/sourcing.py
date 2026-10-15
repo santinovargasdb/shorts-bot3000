@@ -74,7 +74,7 @@ def _extract_json(text: str) -> str:
 _OK_SCORE = 0.65   # título que pasa el filtro (neutro-bueno); rankea por views/audio/duración
 
 
-def score_titles(clips: list[dict], max_llm: int = 20) -> None:
+def score_titles(clips: list[dict], want: str = "gameplay", max_llm: int = 20) -> None:
     """El LLM NO puntúa calidad fina (los títulos de Twitch son crípticos: 'JAJAJA', 'guan
     yar'). Lo usa como FILTRO BINARIO: marca los que hay que SALTEAR (compilación, evento
     multi-streamer/watch-party, basura). Los saltea -> 0.0; el resto -> neutro-bueno."""
@@ -85,18 +85,21 @@ def score_titles(clips: list[dict], max_llm: int = 20) -> None:
         from reddit_pipeline.rewrite import build_client, model_name
         client = build_client()
         listing = "\n".join(f"{i}. {c['title']!r}" for i, c in enumerate(top))
+        foco = ("de GAMEPLAY (momentos de JUEGO: jugada, fail, grito jugando)" if want == "gameplay"
+                else "de IRL/CHARLA (el streamer hablando a cámara, anécdotas, reacciones)"
+                if want == "irl" else "de UN streamer")
+        extra = ("- claramente CHARLA/REACCIÓN/IRL sin juego ('hablando de', 'opina sobre', "
+                 "'reacciona a', 'entrevista', 'just chatting', 'contando');\n"
+                 if want == "gameplay" else "")
         prompt = (
-            "Canal de clips de GAMEPLAY de UN streamer para TikTok. Preferimos momentos de JUEGO "
-            "(reacción jugando, jugada, fail, grito). Decime qué títulos hay que SALTEAR porque "
-            "NO sirven:\n"
+            f"Canal de clips {foco} para TikTok. Decime qué títulos hay que SALTEAR porque NO sirven:\n"
             "- recopilación/resumen/'histórico'/'lo mejor'/'top';\n"
             "- evento MULTI-STREAMER o watch-party (velada, 'todos', 'squad', among us con "
             "muchos jugadores);\n"
-            "- claramente CHARLA/REACCIÓN/IRL sin juego ('hablando de', 'opina sobre', 'reacciona "
-            "a', 'entrevista', 'just chatting', 'contando');\n"
+            f"{extra}"
             "- basura sin sentido ('a', 'asd', 'ggg').\n"
-            "El resto NO se saltea (un momento jugando sirve aunque el título sea una risa o un "
-            "chiste interno). Ante la duda, NO saltear. Respondé SOLO JSON con los índices a saltear:\n"
+            "El resto NO se saltea (sirve aunque el título sea una risa o un chiste interno). "
+            "Ante la duda, NO saltear. Respondé SOLO JSON con los índices a saltear:\n"
             '{"skip":[2,7]}\n\n' + listing)
         try:
             r = client.chat.completions.create(
@@ -181,7 +184,7 @@ def is_watchparty(path, min_faces: int = 4, samples: int = 12) -> bool:
 
 
 def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
-              verbose: bool = True) -> dict | None:
+              want: str = "gameplay", verbose: bool = True) -> dict | None:
     """Devuelve el mejor clip del streamer (listo en disco) que: no se usó, baja en HD y
     TIENE un pico de audio (algo pasa). dict con local_path/title/url/... o None."""
     used_ids = used_ids or set()
@@ -193,7 +196,7 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
         if verbose:
             print(f"[streamers] {streamer}: sin clips nuevos en {period}")
         return None
-    score_titles(clips)
+    score_titles(clips, want=want)
     ordered = rank(clips)
     if verbose:
         print(f"[streamers] {streamer}: {len(ordered)} candidatos rankeados")
@@ -214,7 +217,7 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
             out.unlink(missing_ok=True)
             continue
         from streamers.verify import verify_source   # QC con visión del clip CRUDO (pre-render)
-        src = verify_source(out, verbose=verbose)
+        src = verify_source(out, want=want, verbose=verbose)
         if src["ok"] is False:                 # NSFW / subs quemados / grilla / chat -> no renderizar
             if verbose:
                 print(f"[streamers]   descartado (QC fuente: {src['problema'][:40]}): {_s(cand['title'])!r}")

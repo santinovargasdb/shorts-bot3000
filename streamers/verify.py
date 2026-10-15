@@ -23,8 +23,8 @@ MODEL = os.environ.get("GEMINI_VISION_MODEL", "gemini-3.5-flash")
 _FALLBACKS = ("gemini-3.5-flash-lite", "gemini-3.6-flash")   # si el principal da 503/overload
 _URL = "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={k}"
 
-# Chequeo del clip CRUDO (horizontal), ANTES de editar.
-_SRC_PROMPT = (
+# Chequeo del clip CRUDO (horizontal), ANTES de editar. Se arma según require_gameplay.
+_SRC_DEALBREAKERS = (
     "Es un clip CRUDO (horizontal) de Twitch de UN streamer, todavía SIN editar. Lo vamos a "
     "re-editar a un short vertical con NUESTROS subtítulos. Decime si NO conviene usarlo: ok=false si:\n"
     "- NSFW (lo más grave, banea la cuenta): desnudez, genitales, sexual, gore/sangre extrema. "
@@ -33,11 +33,16 @@ _SRC_PROMPT = (
     "editado) -> si lo re-subtitulamos quedarían DOBLES.\n"
     "- MULTI-STREAMER: mosaico/grilla de varias caras de streamers (watch-party).\n"
     "- CHAT de Twitch o ALERTAS de suscripción ocupando parte importante del cuadro.\n"
-    "- Pantalla estática / sin nada pasando / solo un menú o texto.\n"
-    "Si es un momento normal de UN streamer (gameplay con su facecam, o charla limpia sin texto "
-    "quemado), ok=true.\n"
-    'Respondé SOLO JSON: {"ok": true/false, "problema": "breve o vacío"}'
-)
+    "- Pantalla estática / sin nada pasando / solo un menú o texto.\n")
+_SRC_GAMEPLAY = (
+    "- NO hay ningún VIDEOJUEGO en pantalla: es solo el streamer hablando/IRL. Este canal es de "
+    "GAMEPLAY; el contenido IRL/charla va a OTRA cuenta, así que acá IRL = descartar.\n")
+_SRC_IRL = (
+    "- Es GAMEPLAY (hay un videojuego en pantalla, el streamer está jugando). Este canal es de "
+    "IRL/CHARLA (streamer hablando a cámara); el gameplay va a OTRA cuenta, así que acá gameplay "
+    "= descartar.\n")
+_SRC_END = ('Si pasa todo, ok=true.\n'
+            'Respondé SOLO JSON: {"ok": true/false, "problema": "breve o vacío"}')
 
 # Chequeo de NUESTRO short ya renderizado (vertical, 2 paneles o facecam).
 _PROMPT = (
@@ -138,9 +143,12 @@ def _check(video_path, prompt: str, label: str, verbose: bool) -> dict:
     return {"ok": ok, "problema": str(v.get("problema", ""))}
 
 
-def verify_source(video_path, verbose: bool = True) -> dict:
-    """Chequeo del clip CRUDO ANTES de renderizar. ok False -> no vale la pena editarlo."""
-    return _check(video_path, _SRC_PROMPT, "fuente", verbose)
+def verify_source(video_path, want: str = "gameplay", verbose: bool = True) -> dict:
+    """Chequeo del clip CRUDO ANTES de renderizar. ok False -> no vale la pena editarlo.
+    want: 'gameplay' (A/B, descarta IRL) | 'irl' (C, descarta gameplay) | 'any' (acepta ambos)."""
+    clause = {"gameplay": _SRC_GAMEPLAY, "irl": _SRC_IRL}.get(want, "")
+    prompt = _SRC_DEALBREAKERS + clause + _SRC_END
+    return _check(video_path, prompt, "fuente", verbose)
 
 
 def verify_clip(video_path, verbose: bool = True) -> dict:

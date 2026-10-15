@@ -46,7 +46,7 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     clip = None
     for s in order:
         clip = sourcing.best_clip(s, work, used_ids=used, period=cfg.get("period", "30d"),
-                                  verbose=verbose)
+                                  want=cfg.get("content", "gameplay"), verbose=verbose)
         if clip:
             break
     if not clip:
@@ -54,7 +54,10 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
             print(f"[{channel_key}] sin clip nuevo que pegue en ningún streamer")
         return None
 
-    outs = process_source(clip["local_path"], "streamers", overrides={"clips_per_source": 1})
+    ov = {"clips_per_source": 1}
+    if cfg.get("layout_override"):                  # canal C (IRL): fuerza facecam-only
+        ov["layout"] = cfg["layout_override"]
+    outs = process_source(clip["local_path"], "streamers", overrides=ov)
     if not outs:
         if verbose:
             print(f"[{channel_key}] el render no produjo short")
@@ -84,10 +87,14 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
 
 
 def build_backlog(channel_key: str, n: int = 5) -> int:
+    from collections import Counter
     conn = db.connect(scfg.get(channel_key)["db"])
     made = sum(1 for _ in range(n) if build_clip(channel_key, conn=conn))
-    print(f"\n[{channel_key}] {made}/{n} candidatos PENDIENTES de tu visto bueno.")
-    print(f"   Revisalos:  python -m streamers.review {channel_key}")
+    c = Counter(x["status"] for x in db.all_clips(conn))
+    print(f"\n[{channel_key}] listo. El QC auto dejó: {c.get('approved', 0)} aprobados, "
+          f"{c.get('rejected', 0)} rechazados, {c.get('pending', 0)} pendientes.")
+    if c.get("pending"):
+        print(f"   (pendientes = sin GEMINI_API_KEY) revisá: python -m streamers.review {channel_key}")
     return made
 
 
