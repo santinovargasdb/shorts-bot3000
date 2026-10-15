@@ -21,10 +21,11 @@ CHANNELS = {
     },
     "streamers_b": {
         "display": "Clips Argentinos",
-        "streamers": ["coscu", "spreen", "davooxeneize"],
+        "streamers": ["coscu", "spreen", "davooxeneize", "brunenger"],
         "db": ROOT / "streamers" / "backlog_b.sqlite",
-        "period": "30d",
+        "period": "all",               # Kick time 'all' = los bangers del streamer
         "content": "gameplay",
+        "platform": "kick",            # los AR grandes se mudaron a Kick (API JSON + m3u8, NO Twitch)
     },
     "streamers_c": {
         "display": "Clips IRL Españoles",

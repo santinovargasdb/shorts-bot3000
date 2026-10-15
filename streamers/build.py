@@ -46,7 +46,8 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     clip = None
     for s in order:
         clip = sourcing.best_clip(s, work, used_ids=used, period=cfg.get("period", "30d"),
-                                  want=cfg.get("content", "gameplay"), verbose=verbose)
+                                  want=cfg.get("content", "gameplay"),
+                                  platform=cfg.get("platform", "twitch"), verbose=verbose)
         if clip:
             break
     if not clip:

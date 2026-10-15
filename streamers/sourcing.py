@@ -19,6 +19,8 @@ from pathlib import Path
 
 _YTDLP = ["yt-dlp", "--no-warnings"]
 _SEP = "|@|"
+_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+       "Chrome/125.0 Safari/537.36")
 LIST_LIMIT = 30          # clips a listar por streamer
 TRY_TOP = 6              # candidatos a bajar+validar antes de rendirse
 SPIKE_MIN = 1.25         # gate LENIENT: solo descarta audio muerto/plano. El juez de "momento
@@ -36,8 +38,8 @@ def _s(t: str) -> str:
     return (t or "")[:50].encode("ascii", "replace").decode()
 
 
-def list_clips(streamer: str, period: str = "30d", limit: int = LIST_LIMIT) -> list[dict]:
-    """Top clips (por views) del streamer en el período. Flat = rápido, con metadata."""
+def _list_twitch(streamer: str, period: str, limit: int) -> list[dict]:
+    """Clips de Twitch vía yt-dlp (flat). `url` = página del clip (la baja yt-dlp)."""
     url = f"https://www.twitch.tv/{streamer}/clips?range={period}"
     fmt = _SEP.join(["%(id)s", "%(view_count)s", "%(duration)s", "%(title)s", "%(url)s"])
     try:
@@ -60,9 +62,40 @@ def list_clips(streamer: str, period: str = "30d", limit: int = LIST_LIMIT) -> l
             dur = 0.0
         if not vid or not u:
             continue
-        out.append({"id": vid, "views": views, "duration": dur,
-                    "title": title, "url": u, "streamer": streamer, "title_score": 0.5})
+        out.append({"id": vid, "views": views, "duration": dur, "title": title, "url": u,
+                    "streamer": streamer, "platform": "twitch", "title_score": 0.5})
     return out
+
+
+def _kick_time(period: str) -> str:
+    return {"7d": "week", "30d": "month", "90d": "month"}.get(period, "all")
+
+
+def _list_kick(streamer: str, period: str, limit: int) -> list[dict]:
+    """Clips de Kick vía su API JSON (muchos AR grandes se mudaron a Kick). `url` = m3u8
+    (lo baja ffmpeg). Cloudflare deja pasar con User-Agent de navegador."""
+    import urllib.request
+    api = f"https://kick.com/api/v2/channels/{streamer}/clips?sort=view&time={_kick_time(period)}"
+    try:
+        req = urllib.request.Request(api, headers={"User-Agent": _UA})
+        data = json.loads(urllib.request.urlopen(req, timeout=30).read())
+    except Exception:
+        return []
+    out = []
+    for c in (data.get("clips") or [])[:limit]:
+        cid, m3u8 = str(c.get("id") or ""), c.get("clip_url") or ""
+        if not cid or not m3u8:
+            continue
+        out.append({"id": cid, "views": int(c.get("views") or 0),
+                    "duration": float(c.get("duration") or 0), "title": c.get("title") or "",
+                    "url": m3u8, "streamer": streamer, "platform": "kick", "title_score": 0.5})
+    return out
+
+
+def list_clips(streamer: str, period: str = "30d", limit: int = LIST_LIMIT,
+               platform: str = "twitch") -> list[dict]:
+    """Top clips (por views) del streamer. platform: 'twitch' (yt-dlp) | 'kick' (API)."""
+    return (_list_kick if platform == "kick" else _list_twitch)(streamer, period, limit)
 
 
 def _extract_json(text: str) -> str:
@@ -140,13 +173,18 @@ def rank(clips: list[dict]) -> list[dict]:
     return sorted(usable, key=lambda c: c["score"], reverse=True)
 
 
-def download_hd(url: str, out: Path) -> bool:
-    """Baja el clip en la MEJOR resolución hasta 1080p (facecam nítida). True si OK."""
+def download_hd(clip: dict, out: Path) -> bool:
+    """Baja el clip en HD hasta 1080p (facecam nítida). True si OK. Kick = ffmpeg desde
+    el m3u8; Twitch = yt-dlp desde la página del clip."""
     out = Path(out)
     for f in out.parent.glob(out.stem + ".*"):
         f.unlink(missing_ok=True)
-    cmd = [*_YTDLP, url, "-S", "res:1080,fps,vbr,ext:mp4:m4a",
-           "--merge-output-format", "mp4", "-o", str(out)]
+    if clip.get("platform") == "kick":
+        cmd = ["ffmpeg", "-y", "-user_agent", _UA, "-i", clip["url"], "-c", "copy",
+               "-bsf:a", "aac_adtstoasc", str(out)]
+    else:
+        cmd = [*_YTDLP, clip["url"], "-S", "res:1080,fps,vbr,ext:mp4:m4a",
+               "--merge-output-format", "mp4", "-o", str(out)]
     try:
         _run(cmd, 300)
     except Exception:
@@ -184,14 +222,15 @@ def is_watchparty(path, min_faces: int = 4, samples: int = 12) -> bool:
 
 
 def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
-              want: str = "gameplay", verbose: bool = True) -> dict | None:
+              want: str = "gameplay", platform: str = "twitch",
+              verbose: bool = True) -> dict | None:
     """Devuelve el mejor clip del streamer (listo en disco) que: no se usó, baja en HD y
     TIENE un pico de audio (algo pasa). dict con local_path/title/url/... o None."""
     used_ids = used_ids or set()
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
 
-    clips = [c for c in list_clips(streamer, period) if c["id"] not in used_ids]
+    clips = [c for c in list_clips(streamer, period, platform=platform) if c["id"] not in used_ids]
     if not clips:
         if verbose:
             print(f"[streamers] {streamer}: sin clips nuevos en {period}")
@@ -203,7 +242,7 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
 
     out = workdir / f"tw_{streamer}.mp4"
     for cand in ordered[:TRY_TOP]:
-        if not download_hd(cand["url"], out):
+        if not download_hd(cand, out):
             continue
         spike = audio_spike(out)
         if spike < SPIKE_MIN:                  # audio muerto/plano -> siguiente
