@@ -95,6 +95,48 @@ def _symbol(d: ImageDraw.ImageDraw, kind: str, cx, cy, r, color, font_big):
         _text(d, (cx, cy), "?!", font_big, color, shadow=False)
 
 
+def _magnifier(d, cx, cy, r, color, lw):
+    """Lupa: aro (lente) + mango hacia abajo-derecha. Para el pfp de whatonearth."""
+    import math
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=color, width=lw)
+    a = math.radians(48)
+    x1, y1 = cx + (r - lw * 0.2) * math.cos(a), cy + (r - lw * 0.2) * math.sin(a)
+    x2, y2 = cx + (r * 2.05) * math.cos(a), cy + (r * 2.05) * math.sin(a)
+    hw = int(lw * 1.5)
+    d.line([(x1, y1), (x2, y2)], fill=color, width=hw)
+    d.ellipse([x2 - hw // 2, y2 - hw // 2, x2 + hw // 2, y2 + hw // 2], fill=color)
+    d.ellipse([x1 - hw // 2, y1 - hw // 2, x1 + hw // 2, y1 + hw // 2], fill=color)
+
+
+def make_pfp(key: str, b: dict) -> Path:
+    """Foto de perfil TIKTOK/IG-friendly: SOLO elemento visual (sin texto), grande y
+    centrado para que lea bien en el recorte CIRCULAR."""
+    w = 1080 * S
+    img = _vignette(_gradient(w, w, b["c1"], b["c2"]), 0.42).convert("RGBA")
+    d = ImageDraw.Draw(img)
+    cx = cy = w // 2
+    white = (255, 255, 255, 255)
+    if b["symbol"] == "q":                               # whatonearth -> lupa
+        _magnifier(d, int(cx - w * 0.045), int(cy - w * 0.045), int(w * 0.155), white, int(w * 0.05))
+    elif b["symbol"] == "play":                          # streamers gameplay
+        s = int(w * 0.2)
+        d.polygon([(cx - s * 0.45, cy - s * 0.82), (cx - s * 0.45, cy + s * 0.82),
+                   (cx + s * 1.0, cy)], fill=white)
+    elif b["symbol"] == "mic":                           # streamers IRL
+        mw, mh = int(w * 0.1), int(w * 0.16)
+        d.rounded_rectangle([cx - mw, cy - mh, cx + mw, cy + mh * 0.3], radius=mw, fill=white)
+        d.arc([cx - mw * 1.9, cy - mh * 0.3, cx + mw * 1.9, cy + mh * 1.5], 20, 160,
+              fill=white, width=int(w * 0.028))
+        d.line([(cx, cy + mh * 1.15), (cx, cy + mh * 1.6)], fill=white, width=int(w * 0.028))
+        d.line([(cx - mw * 1.4, cy + mh * 1.6), (cx + mw * 1.4, cy + mh * 1.6)],
+               fill=white, width=int(w * 0.028))
+    img = img.resize((1080, 1080), Image.LANCZOS)
+    p = OUT / key / "pfp.png"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    img.convert("RGB").save(p)
+    return p
+
+
 def make_icon(key: str, b: dict) -> Path:
     w = 1080 * S
     img = _vignette(_gradient(w, w, b["c1"], b["c2"]), 0.5).convert("RGBA")
@@ -162,6 +204,7 @@ def make_banner(key: str, b: dict) -> Path:
 if __name__ == "__main__":
     for key, b in BRANDS.items():
         make_icon(key, b)
+        make_pfp(key, b)
         make_watermark(key, b)
         make_banner(key, b)
-        print(f"[branding] {key}: icon + watermark + banner -> branding/{key}/")
+        print(f"[branding] {key}: icon + pfp + watermark + banner -> branding/{key}/")
