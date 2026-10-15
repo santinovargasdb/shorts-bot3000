@@ -86,14 +86,17 @@ def score_titles(clips: list[dict], max_llm: int = 20) -> None:
         client = build_client()
         listing = "\n".join(f"{i}. {c['title']!r}" for i, c in enumerate(top))
         prompt = (
-            "Canal de clips de UN streamer para TikTok. Decime qué títulos hay que SALTEAR "
-            "porque NO sirven:\n"
+            "Canal de clips de GAMEPLAY de UN streamer para TikTok. Preferimos momentos de JUEGO "
+            "(reacción jugando, jugada, fail, grito). Decime qué títulos hay que SALTEAR porque "
+            "NO sirven:\n"
             "- recopilación/resumen/'histórico'/'lo mejor'/'top';\n"
             "- evento MULTI-STREAMER o watch-party (velada, 'todos', 'squad', among us con "
             "muchos jugadores);\n"
+            "- claramente CHARLA/REACCIÓN/IRL sin juego ('hablando de', 'opina sobre', 'reacciona "
+            "a', 'entrevista', 'just chatting', 'contando');\n"
             "- basura sin sentido ('a', 'asd', 'ggg').\n"
-            "El resto NO se saltea (un momento de un streamer sirve aunque el título sea una "
-            "risa o un chiste interno). gpt-oss: respondé SOLO JSON con los índices a saltear:\n"
+            "El resto NO se saltea (un momento jugando sirve aunque el título sea una risa o un "
+            "chiste interno). Ante la duda, NO saltear. Respondé SOLO JSON con los índices a saltear:\n"
             '{"skip":[2,7]}\n\n' + listing)
         try:
             r = client.chat.completions.create(
@@ -208,6 +211,13 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
         if is_watchparty(out):                 # grilla multi-cam -> no es momento puntual
             if verbose:
                 print(f"[streamers]   descartado (watch-party/multi-cam): {_s(cand['title'])!r}")
+            out.unlink(missing_ok=True)
+            continue
+        from streamers.verify import verify_source   # QC con visión del clip CRUDO (pre-render)
+        src = verify_source(out, verbose=verbose)
+        if src["ok"] is False:                 # NSFW / subs quemados / grilla / chat -> no renderizar
+            if verbose:
+                print(f"[streamers]   descartado (QC fuente: {src['problema'][:40]}): {_s(cand['title'])!r}")
             out.unlink(missing_ok=True)
             continue
         if verbose:

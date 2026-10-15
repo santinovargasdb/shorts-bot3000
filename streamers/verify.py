@@ -1,11 +1,12 @@
-"""QC AUTOMÁTICO con visión (Gemini): mira frames del clip YA RENDERIZADO y decide
-aprobar/rechazar, para que el canal sea plug-and-forget SIN revisión manual del usuario.
+"""QC AUTOMÁTICO con visión (Gemini): para que el canal sea plug-and-forget SIN revisión manual.
 
-Caza los duds que vimos: subtítulos DOBLES (el clip de origen ya traía subs quemados),
-grilla multi-cámara / watch-party, chat/alertas de Twitch encima, borroso, cara mal encuadrada.
+Dos chequeos:
+- verify_source(): sobre el clip CRUDO recién bajado, ANTES de renderizar. Descarta duds
+  (NSFW, subtítulos quemados = clip ya editado, grilla multi-cam, chat) sin gastar el render.
+- verify_clip(): sobre NUESTRO short ya renderizado, chequeo final (layout, subs limpios).
 
-Requiere GEMINI_API_KEY en .env (gratis, aistudio.google.com). Sin key -> devuelve ok=None
-y el clip queda PENDING (fallback a revisión manual). Groq no tiene modelo de visión."""
+Requiere GEMINI_API_KEY en .env (gratis). Sin key -> ok=None y el que llama hace fallback
+(deja PENDING para revisión manual). Groq no tiene modelo de visión."""
 from __future__ import annotations
 
 import base64
@@ -18,11 +19,27 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-_FALLBACKS = ("gemini-3.5-flash-lite", "gemini-3.6-flash")   # si el principal da 503/overload
-
 MODEL = os.environ.get("GEMINI_VISION_MODEL", "gemini-3.5-flash")
+_FALLBACKS = ("gemini-3.5-flash-lite", "gemini-3.6-flash")   # si el principal da 503/overload
 _URL = "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={k}"
 
+# Chequeo del clip CRUDO (horizontal), ANTES de editar.
+_SRC_PROMPT = (
+    "Es un clip CRUDO (horizontal) de Twitch de UN streamer, todavía SIN editar. Lo vamos a "
+    "re-editar a un short vertical con NUESTROS subtítulos. Decime si NO conviene usarlo: ok=false si:\n"
+    "- NSFW (lo más grave, banea la cuenta): desnudez, genitales, sexual, gore/sangre extrema. "
+    "Ante la duda, false.\n"
+    "- SUBTÍTULOS/TEXTO QUEMADOS: el clip YA trae subtítulos o texto grande encima (ya está "
+    "editado) -> si lo re-subtitulamos quedarían DOBLES.\n"
+    "- MULTI-STREAMER: mosaico/grilla de varias caras de streamers (watch-party).\n"
+    "- CHAT de Twitch o ALERTAS de suscripción ocupando parte importante del cuadro.\n"
+    "- Pantalla estática / sin nada pasando / solo un menú o texto.\n"
+    "Si es un momento normal de UN streamer (gameplay con su facecam, o charla limpia sin texto "
+    "quemado), ok=true.\n"
+    'Respondé SOLO JSON: {"ok": true/false, "problema": "breve o vacío"}'
+)
+
+# Chequeo de NUESTRO short ya renderizado (vertical, 2 paneles o facecam).
 _PROMPT = (
     "Sos control de calidad de un canal de TikTok de clips de UN streamer. El video YA fue "
     "editado por NOSOTROS con este formato VÁLIDO (NO es un error): arriba la cara del streamer, "
@@ -54,7 +71,7 @@ def _duration(video) -> float:
 
 
 def _frames(video, n: int = 3) -> list[Path]:
-    """n frames repartidos en el medio del clip (donde el subtítulo está activo)."""
+    """n frames repartidos en el medio del clip (donde suele estar la acción)."""
     dur = _duration(video)
     tmp = Path(tempfile.mkdtemp(prefix="qc_"))
     out = []
@@ -62,15 +79,14 @@ def _frames(video, n: int = 3) -> list[Path]:
         t = dur * (0.3 + 0.5 * i / max(1, n - 1))      # ~30%..80% del clip
         f = tmp / f"f{i}.jpg"
         subprocess.run(["ffmpeg", "-y", "-ss", f"{t:.2f}", "-i", str(video), "-frames:v", "1",
-                        "-vf", "scale=540:-1", str(f)], capture_output=True)
+                        "-vf", "scale=640:-1", str(f)], capture_output=True)
         if f.exists():
             out.append(f)
     return out
 
 
-def verify_clip(video_path, verbose: bool = True) -> dict:
-    """Devuelve {'ok': True|False|None, 'problema': str}. None = no se pudo verificar
-    (sin key o error) -> el que llama lo deja PENDING para revisión manual."""
+def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | None:
+    """POST a Gemini con prompt + frames. Devuelve el dict JSON, o None (sin key / error)."""
     try:
         from reddit_pipeline.env import load_env
         load_env()
@@ -79,14 +95,9 @@ def verify_clip(video_path, verbose: bool = True) -> dict:
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
         if verbose:
-            print("[qc] sin GEMINI_API_KEY -> PENDING (revisión manual)")
-        return {"ok": None, "problema": "sin GEMINI_API_KEY"}
-
-    frames = _frames(video_path)
-    if not frames:
-        return {"ok": None, "problema": "no pude extraer frames"}
-
-    parts = [{"text": _PROMPT}]
+            print("[qc] sin GEMINI_API_KEY")
+        return None
+    parts = [{"text": prompt}]
     for f in frames:
         parts.append({"inline_data": {"mime_type": "image/jpeg",
                                       "data": base64.b64encode(f.read_bytes()).decode()}})
@@ -101,12 +112,7 @@ def verify_clip(video_path, verbose: bool = True) -> dict:
                     headers={"Content-Type": "application/json"})
                 with urllib.request.urlopen(req, timeout=60) as resp:
                     data = json.loads(resp.read())
-                text = data["candidates"][0]["content"]["parts"][0]["text"]
-                v = json.loads(text)
-                ok = bool(v.get("ok"))
-                if verbose:
-                    print(f"[qc] {'APROBADO' if ok else 'RECHAZADO'} ({m}): {v.get('problema', '')[:60]}")
-                return {"ok": ok, "problema": str(v.get("problema", ""))}
+                return json.loads(data["candidates"][0]["content"]["parts"][0]["text"])
             except urllib.error.HTTPError as e:
                 if e.code in (503, 429, 500):           # sobrecargado -> reintentar
                     time.sleep(3)
@@ -114,6 +120,29 @@ def verify_clip(video_path, verbose: bool = True) -> dict:
                 break                                    # otro error http -> siguiente modelo
             except Exception:
                 break
+    return None
+
+
+def _check(video_path, prompt: str, label: str, verbose: bool) -> dict:
+    frames = _frames(video_path)
+    if not frames:
+        return {"ok": None, "problema": "no pude extraer frames"}
+    v = _gemini(prompt, frames, verbose)
+    if v is None:
+        if verbose:
+            print(f"[qc] {label}: no disponible -> fallback")
+        return {"ok": None, "problema": "QC no disponible"}
+    ok = bool(v.get("ok"))
     if verbose:
-        print("[qc] QC no disponible (reintentos agotados) -> PENDING")
-    return {"ok": None, "problema": "QC no disponible (reintentos)"}
+        print(f"[qc] {label}: {'OK' if ok else 'RECHAZADO'} {v.get('problema', '')[:55]}")
+    return {"ok": ok, "problema": str(v.get("problema", ""))}
+
+
+def verify_source(video_path, verbose: bool = True) -> dict:
+    """Chequeo del clip CRUDO ANTES de renderizar. ok False -> no vale la pena editarlo."""
+    return _check(video_path, _SRC_PROMPT, "fuente", verbose)
+
+
+def verify_clip(video_path, verbose: bool = True) -> dict:
+    """Chequeo de NUESTRO short ya renderizado. ok True -> approved, False -> rejected."""
+    return _check(video_path, _PROMPT, "final", verbose)
