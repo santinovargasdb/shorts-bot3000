@@ -17,7 +17,7 @@ BRANDS = {
     "whatonearth": {
         "big": "?!", "name": "WHAT ON\nEARTH", "tag": "SATISFYING · WEIRD · NATURE",
         "c1": (22, 170, 150), "c2": (8, 48, 60), "accent": (255, 216, 92), "symbol": "q",
-        "handle": "@whatonearth",
+        "handle": "@what.onearthisthat",
     },
     "streamers_a": {
         "big": "CLIPS", "name": "HISPANOS", "tag": "LOS MEJORES MOMENTOS",
