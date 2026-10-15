@@ -44,6 +44,9 @@ streamers/backlog_*.sqlite
 # Logs sueltos de builds
 *.log
 
+# Guía de despliegue del tier riesgoso (estrategia privada, no publicar en el repo público)
+DESPLIEGUE_TIER_RIESGOSO.md
+
 # Backlog de videos pre-renderizados de whatonearth (se regenera)
 whatonearth/videos.sqlite
 

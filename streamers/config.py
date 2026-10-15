@@ -21,7 +21,9 @@ CHANNELS = {
     },
     "streamers_b": {
         "display": "Clips Argentinos",
-        "streamers": ["coscu", "spreen", "davooxeneize", "brunenger"],
+        # Orden = prioridad del round-robin. Gameplay primero (davoo=FIFA, brunenger=gaming);
+        # coscu último porque hace mucho casino (el QC le rechaza casi todo).
+        "streamers": ["davooxeneize", "brunenger", "spreen", "coscu"],
         "db": ROOT / "streamers" / "backlog_b.sqlite",
         "period": "all",               # Kick time 'all' = los bangers del streamer
         "content": "gameplay",
