@@ -47,6 +47,9 @@ streamers/backlog_*.sqlite
 # Guía de despliegue del tier riesgoso (estrategia privada, no publicar en el repo público)
 DESPLIEGUE_TIER_RIESGOSO.md
 
+# Re-auth YT del tier riesgoso (lleva el mail/cuentas aisladas, no linkear al repo público)
+reauth_youtube_risky.bat
+
 # Backlog de videos pre-renderizados de whatonearth (se regenera)
 whatonearth/videos.sqlite
 

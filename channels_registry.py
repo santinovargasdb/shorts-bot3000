@@ -67,7 +67,9 @@ CHANNELS = {
         "yt_token": "secrets/whatonearth/token.json",
         "ig_creds": "secrets/whatonearth/instagram.json",
         "tt_token": "secrets/whatonearth/tiktok_token.json",
-        "platforms": ("ig", "tt"),        # YT se suma luego (2º proyecto Cloud)
+        # YT activo (2026-10-15): proyecto Cloud propio "riskyshortvids" (779426266234),
+        # cuota aparte del tier seguro. client_secret+token en secrets/whatonearth/.
+        "platforms": ("yt", "ig", "tt"),
         "first_comment": "Could you name them all? \U0001F440 Drop your score below!",
         "sfx_style": "datos",
     },

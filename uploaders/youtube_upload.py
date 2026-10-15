@@ -43,11 +43,16 @@ def _get_service(token_file: str | Path | None = None):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            if not CLIENT_SECRET.exists():
+            # client_secret del canal (tier aislado, ej. secrets/whatonearth/client_secret.json)
+            # si existe; si no, el compartido legacy (secrets/client_secret.json).
+            cs = tok.parent / "client_secret.json"
+            if not cs.exists():
+                cs = CLIENT_SECRET
+            if not cs.exists():
                 raise FileNotFoundError(
-                    f"Falta {CLIENT_SECRET}. Seguí setup_youtube_auth.md."
+                    f"Falta {cs}. Seguí setup_youtube_auth.md."
                 )
-            flow = InstalledAppFlow.from_client_secrets_file(str(CLIENT_SECRET), SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(str(cs), SCOPES)
             creds = flow.run_local_server(port=0)
         tok.parent.mkdir(parents=True, exist_ok=True)
         tok.write_text(creds.to_json(), encoding="utf-8")
@@ -98,7 +103,7 @@ def upload_from_folder(clip_path: Path | str, privacy: str = "private", token_fi
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         title = meta.get("title", title)
         description = meta.get("description", "")
-        tags = [t.lstrip("#") for t in meta.get("hashtags", [])]
+        tags = [t.lstrip("#") for t in (meta.get("hashtags") or [])]
     return upload(clip_path, title, description, tags, privacy=privacy, token_file=token_file)
 
 
