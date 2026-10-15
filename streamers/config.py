@@ -14,16 +14,20 @@ ROOT = Path(__file__).resolve().parents[1]
 CHANNELS = {
     "streamers_a": {
         "display": "Clips Hispanos",
-        "streamers": ["ibai", "auronplay", "illojuan", "elxokas"],
+        # Streamers hispanos de gameplay en Twitch. Handles que no existan se saltean solos.
+        "streamers": ["ibai", "auronplay", "illojuan", "elxokas", "thegrefg", "elrubius",
+                      "knekro", "perxitaa", "werlyb", "alexby11", "fargan", "ampeterby7",
+                      "reborn_live", "outconsumer"],
         "db": ROOT / "streamers" / "backlog_a.sqlite",
         "period": "30d",
         "content": "gameplay",         # solo GAMEPLAY (el IRL va al canal C); layout auto 2-paneles
     },
     "streamers_b": {
         "display": "Clips Argentinos",
-        # Orden = prioridad del round-robin. Gameplay primero (davoo=FIFA, brunenger=gaming);
-        # coscu último porque hace mucho casino (el QC le rechaza casi todo).
-        "streamers": ["davooxeneize", "brunenger", "spreen", "coscu"],
+        # Orden = prioridad del round-robin. Gameplay primero; coscu último (casino -> QC rechaza).
+        # Handles de Kick; los que no existan se saltean solos.
+        "streamers": ["davooxeneize", "brunenger", "spreen", "robleis", "zeko", "frankkaster",
+                      "buur", "lacobra", "tomasmazza", "momoabrego", "coscu"],
         "db": ROOT / "streamers" / "backlog_b.sqlite",
         "period": "all",               # Kick time 'all' = los bangers del streamer
         "content": "gameplay",
@@ -31,7 +35,9 @@ CHANNELS = {
     },
     "streamers_c": {
         "display": "Clips IRL Españoles",
-        "streamers": ["ibai", "auronplay", "elxokas", "illojuan"],
+        # Españoles que hacen mucha charla/IRL (el QC con content=irl filtra sus momentos de charla).
+        "streamers": ["ibai", "auronplay", "elxokas", "illojuan", "thegrefg", "elrubius",
+                      "perxitaa", "knekro", "werlyb", "fargan"],
         "db": ROOT / "streamers" / "backlog_c.sqlite",
         "period": "30d",
         "content": "irl",              # solo CHARLA/IRL (descarta gameplay)
