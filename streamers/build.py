@@ -58,6 +58,9 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     ov = {"clips_per_source": 1}
     if cfg.get("layout_override"):                  # canal C (IRL): fuerza facecam-only
         ov["layout"] = cfg["layout_override"]
+    wm = ROOT / "branding" / channel_key / "watermark.png"
+    if wm.exists():                                 # watermark @handle del canal (branding/)
+        ov["watermark"] = str(wm)
     outs = process_source(clip["local_path"], "streamers", overrides=ov)
     if not outs:
         if verbose:

@@ -61,6 +61,10 @@ def render_short(
     layout: str = "",
     face_box=None,
     crf: int = 20,
+    watermark: Path | str | None = None,
+    wm_opacity: float = 0.55,
+    wm_scale: float = 0.42,
+    wm_margin: int = 45,
 ) -> Path:
     """Renderiza un short. `ass_file` y `out_file` deben estar en la misma
     carpeta de trabajo (se ejecuta ffmpeg con cwd ahí). `grade` = filtro de color
@@ -155,14 +159,25 @@ def render_short(
                 a_labels.append(f"[sd{j}]")
             idx += 1
 
+    # Watermark (branding): overlay del @handle arriba-centro, semi-transparente, sobre [v].
+    wm_parts, vlabel = [], "[v]"
+    if watermark and Path(watermark).exists():
+        extra_inputs += ["-i", str(Path(watermark).resolve())]
+        wm_parts.append(
+            f"[{idx}:v]format=rgba,colorchannelmixer=aa={wm_opacity:.2f},"
+            f"scale={int(width * wm_scale)}:-1[wm];[v][wm]overlay=(W-w)/2:{wm_margin}[vw]")
+        vlabel = "[vw]"
+        idx += 1
+
+    video_parts = [vfc] + wm_parts
     if len(a_labels) == 1:                                  # solo el audio del clip
-        fc = vfc
-        maps = ["-map", "[v]", "-map", "0:a"]
+        fc = ";".join(video_parts)
+        maps = ["-map", vlabel, "-map", "0:a"]
     else:
         amix = ("".join(a_labels) +
                 f"amix=inputs={len(a_labels)}:duration=first:dropout_transition=0:normalize=0[a]")
-        fc = ";".join([vfc] + a_fc + [amix])
-        maps = ["-map", "[v]", "-map", "[a]"]
+        fc = ";".join(video_parts + a_fc + [amix])
+        maps = ["-map", vlabel, "-map", "[a]"]
 
     cmd = ["ffmpeg", "-y", "-sws_flags", "lanczos",
            "-ss", f"{start:.3f}", "-t", f"{duration:.3f}", "-i", str(source),

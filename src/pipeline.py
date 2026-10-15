@@ -218,6 +218,7 @@ def process_source(
             layout=layout,
             face_box=face_box,
             crf=int(channel.get("crf", 20)),
+            watermark=channel.get("watermark"),
         )
         final = out_dir / tmp_out
         shutil.move(str(rendered), str(final))
