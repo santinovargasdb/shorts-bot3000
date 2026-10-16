@@ -20,7 +20,7 @@ REFILL: dict[str, dict] = {
     # Guiones a mano: placeholder hasta la Pieza 2 (generador LLM). Entran al loop
     # pero su refiller levanta NotImplementedError -> se reportan como SKIP, no rompen.
     "faceless":  {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
-                  "yield": 1.0, "max_attempts": 5, "batch": 1, "gen": "script"},
+                  "yield": 0.6, "max_attempts": 15, "batch": 3, "gen": "script"},
     "historia":  {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
                   "yield": 1.0, "max_attempts": 5, "batch": 1, "gen": "script"},
     "misterios": {"target_days": 14, "critical_days": 2, "posts_per_day": 2,

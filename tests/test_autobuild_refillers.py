@@ -42,7 +42,7 @@ def test_refill_reddit_llama_cmd_rewrite(monkeypatch):
 
 def test_refill_script_levanta_not_implemented():
     with pytest.raises(NotImplementedError):
-        rf.REFILLERS["script"]("faceless", 1)
+        rf.REFILLERS["script"]("historia", 1)
 
 
 def test_refill_clips_resuelve_pendientes_antes_de_buildear(monkeypatch):
@@ -85,3 +85,16 @@ def test_refill_clips_salta_build_si_resolve_ya_agoto_quota(monkeypatch):
     with pytest.raises(QuotaExhausted):
         rf.REFILLERS["clips"]("streamers_a", 5)
     assert built == []                     # no intentó buildear si ya no había cuota
+
+
+def test_refill_script_faceless_corre_autoscripts(monkeypatch):
+    import autoscripts.build as ab
+    llamado = []
+    monkeypatch.setattr(ab, "build", lambda ch, n: llamado.append((ch, n)) or 1)
+    rf.REFILLERS["script"]("faceless", 3)
+    assert llamado == [("faceless", 3)]
+
+
+def test_refill_script_historia_sigue_sin_implementar():
+    with pytest.raises(NotImplementedError):
+        rf.REFILLERS["script"]("historia", 1)
