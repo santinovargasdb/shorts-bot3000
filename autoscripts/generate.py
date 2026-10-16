@@ -8,21 +8,51 @@ import re
 from reddit_pipeline.rewrite import _chat  # cliente compat-OpenAI (reuso)
 
 _PROMPT = """Sos guionista del canal "Datos para parecer inteligente" (shorts de cultura general en
-ESPAÑOL NEUTRO). Devolvé SOLO un objeto JSON con claves exactas: "pregunta", "resumen", "datos".
+ESPAÑOL NEUTRO). Escribís con la MISMA calidad y estilo que estos episodios REALES del canal (son tu
+estándar de oro: igualá su tono, su largo por dato, su precisión y su naturalidad hablada):
 
-- "datos": una lista de {n} datos curiosos, verdaderos y verificables. Cada dato es un objeto con:
-  - "text": el dato CON CONTEXTO (por qué/cómo), 2-3 frases, hablado y natural. NÚMEROS SIEMPRE EN
-    PALABRAS (ej. "tres corazones", no "3"). Nada de dígitos.
-  - "imgs": EXACTAMENTE 2 términos de búsqueda en inglés para Pixabay (ej. ["octopus","octopus underwater"]).
-  - "topic": 2-4 palabras que nombran el sujeto del dato (ej. "pulpo sangre azul").
-- "pregunta": una pregunta corta a comentarios (ej. "¿Qué dato sabés vos?").
+{examples}
+
+Ahora escribí UNO NUEVO (otros temas). Devolvé SOLO un objeto JSON con claves exactas:
+"pregunta", "resumen", "datos".
+
+- "datos": lista de {n} datos curiosos, VERDADEROS y VERIFICABLES. Cada dato = objeto con:
+  - "text": el dato CON CONTEXTO (el por qué/cómo), 2-3 frases, hablado y natural, como en los
+    ejemplos. NÚMEROS SIEMPRE EN PALABRAS (ej. "tres corazones", no "3"). Nada de dígitos.
+  - "imgs": EXACTAMENTE 2 términos de búsqueda en inglés para Pixabay.
+  - "topic": 2-4 palabras que nombran el sujeto del dato.
+- "pregunta": una pregunta corta a comentarios.
 - "resumen": UNA línea que lista los datos, para la descripción.
 
-NO repitas estos temas ya usados: {avoid}
+REGLA DURA 1 (exactitud): NO exageres cantidades ni uses superlativos no verificables. PROHIBIDO
+inventar cifras impactantes ("millones de...", "miles de toneladas", "el más X del mundo") a menos que
+sea un hecho EXACTO y comprobable. Si no sabés el número preciso, NO pongas número: contá el dato sin
+la cifra. Preferí cantidades conservadoras y chequeables. Un verificador estricto RECHAZA el episodio
+ENTERO si UN solo dato está exagerado, es un mito o es dudoso — así que jugá a lo seguro en cada dato.
 
-Datos ciertos y comprobables; si no estás seguro de uno, poné otro. Devolvé SOLO el JSON."""
+REGLA DURA 2 (novedad): los datos MÁS famosos ya están usados. Evitá los clásicos obvios (pulpo de
+sangre azul, miel que no caduca, Torre Eiffel que crece, plátano radiactivo, etc.) y estos temas ya
+usados: {avoid}. Elegí datos MENOS conocidos, sorprendentes pero igual de ciertos. Dame bastantes
+(apuntá a {n}) para tener de dónde elegir.
+
+Devolvé SOLO el JSON del episodio nuevo."""
 
 _REQUIRED = ("pregunta", "resumen", "datos")
+
+
+def _fewshot(k: int = 2) -> str:
+    """Arma el bloque de ejemplos (few-shot) con los episodios hardcodeados reales (el estándar de
+    oro escrito a mano), en el MISMO formato de salida que el modelo debe producir."""
+    import series_data
+    ejemplos = []
+    for key in sorted(kk for kk in series_data.PARTS if kk <= 45)[:k]:
+        part = series_data.PARTS[key]
+        datos = [{"text": s["text"], "imgs": s.get("imgs", []), "topic": (s.get("imgs") or [""])[0]}
+                 for s in part.get("segments", []) if s.get("kind") == "fact"]
+        ejemplos.append(json.dumps(
+            {"pregunta": part.get("pregunta", "¿Qué dato sabés vos?"),
+             "resumen": part.get("resumen", ""), "datos": datos}, ensure_ascii=False))
+    return "\n\n".join(ejemplos)
 
 
 def parse_episode(raw: str) -> dict:
@@ -55,8 +85,9 @@ def validate_schema(ep: dict) -> None:
             raise ValueError(f"dato con dígitos sueltos: {d['text'][:60]!r}")
 
 
-def generate_episode(client, model, avoid_topics: list, n_datos: int = 6) -> dict:
-    prompt = _PROMPT.format(n=n_datos, avoid="; ".join(sorted(avoid_topics)[:60]) or "(ninguno)")
+def generate_episode(client, model, avoid_topics: list, n_datos: int = 10) -> dict:
+    prompt = _PROMPT.format(n=n_datos, examples=_fewshot(),
+                            avoid="; ".join(sorted(avoid_topics)[:60]) or "(ninguno)")
     ep = parse_episode(_chat(client, model, prompt))
     validate_schema(ep)
     return ep
