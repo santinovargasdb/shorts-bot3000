@@ -707,3 +707,20 @@ PARTS = {
 def title_for(part: int) -> str:
     """Título del episodio (interfaz común de los módulos de serie)."""
     return f"Datos para parecer inteligente pt. {part}"
+
+
+def _merge_generados() -> None:
+    """Mergea los episodios generados y aprobados (Pieza 2) sobre los hardcodeados, con keys
+    contiguas tras el último hardcodeado (46+). No pisa los 45 curados. Lo relee importlib.reload
+    (que usa el runway del auto-refill), así los nuevos aparecen apenas se aprueban."""
+    try:
+        from autoscripts import db as _adb
+        generados = _adb.approved_episodes("faceless")
+    except Exception:
+        return
+    base = max(PARTS)
+    for i, ep in enumerate(generados, start=1):
+        PARTS[base + i] = ep
+
+
+_merge_generados()
