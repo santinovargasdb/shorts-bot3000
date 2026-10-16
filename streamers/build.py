@@ -92,14 +92,47 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
 
 def build_backlog(channel_key: str, n: int = 5) -> int:
     from collections import Counter
+    from streamers import verify
     conn = db.connect(scfg.get(channel_key)["db"])
-    made = sum(1 for _ in range(n) if build_clip(channel_key, conn=conn))
+    made = 0
+    for _ in range(n):
+        if verify.QUOTA_HIT:          # cuota de Gemini agotada -> no malgastar renders en 'pending'
+            print(f"[{channel_key}] cuota de QC agotada -> freno el build (reanuda cuando vuelva)")
+            break
+        if build_clip(channel_key, conn=conn):
+            made += 1
     c = Counter(x["status"] for x in db.all_clips(conn))
     print(f"\n[{channel_key}] listo. El QC auto dejó: {c.get('approved', 0)} aprobados, "
           f"{c.get('rejected', 0)} rechazados, {c.get('pending', 0)} pendientes.")
     if c.get("pending"):
-        print(f"   (pendientes = sin GEMINI_API_KEY) revisá: python -m streamers.review {channel_key}")
+        print(f"   (pendientes = sin GEMINI_API_KEY o sin cuota) re-QC: python -m streamers.review {channel_key}")
     return made
+
+
+def resolve_pending(channel_key: str, *, conn=None, verbose: bool = True) -> int:
+    """Re-QC los clips 'pending' (YA renderizados) SIN re-renderizar: corre Gemini sobre el mp4
+    existente y los pasa a approved/rejected. Recupera renders que quedaron pending por falta de
+    cuota. Se frena si la cuota se vuelve a agotar (verify.QUOTA_HIT). Devuelve cuántos aprobó."""
+    from streamers import verify
+    own = conn or db.connect(scfg.get(channel_key)["db"])
+    resolved = 0
+    for clip in db.by_status(own, "pending"):
+        if verify.QUOTA_HIT:
+            break
+        vp = clip.get("video_path")
+        if not vp or not Path(vp).exists():
+            db.set_status(own, clip["seq"], "rejected")     # el mp4 ya no está -> descartar
+            continue
+        v = verify.verify_clip(Path(vp), verbose=verbose)
+        if v["ok"] is True:
+            db.set_status(own, clip["seq"], "approved")
+            resolved += 1
+        elif v["ok"] is False:
+            db.set_status(own, clip["seq"], "rejected")
+        # ok None (sin cuota / no disponible) -> queda pending; el flag corta en la próxima vuelta
+    if verbose and resolved:
+        print(f"[{channel_key}] re-QC de pendientes: +{resolved} aprobados (sin re-render)")
+    return resolved
 
 
 if __name__ == "__main__":

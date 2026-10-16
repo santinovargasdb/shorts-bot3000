@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import ceil
 
+from autobuild.errors import QuotaExhausted
+
 
 @dataclass
 class Result:
@@ -12,7 +14,7 @@ class Result:
     parts_before: int
     parts_after: int
     added: int
-    severity: str          # OK | WARN | CRITICAL | ERROR | SKIP
+    severity: str          # OK | WARN | CRITICAL | ERROR | SKIP | QUOTA
     note: str
 
 
@@ -42,6 +44,9 @@ def refill_channel(channel: str, cfg: dict, measure, refiller) -> Result:
             cur = new
     except NotImplementedError as e:
         return Result(channel, before, before, 0, "SKIP", str(e))
+    except QuotaExhausted as e:
+        cur = measure(channel)                       # re-medir: captura lo recuperado antes del corte
+        return Result(channel, before, cur, max(cur - before, 0), "QUOTA", str(e))
     except Exception as e:
         return Result(channel, before, cur, max(cur - before, 0), "ERROR",
                       f"{type(e).__name__}: {e}")
@@ -69,7 +74,7 @@ from autobuild.config import REFILL
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = ROOT / "autobuild" / ".lock"
 LOG = ROOT / "autobuild.log"
-_LOCK_TTL = 86400   # 24h: si el lock es más viejo, se considera huérfano
+_LOCK_TTL = 21600   # 6h: coincide con la cadencia 4x/día; un lock más viejo = huérfano (crash)
 
 
 def acquire_lock(force: bool = False) -> bool:

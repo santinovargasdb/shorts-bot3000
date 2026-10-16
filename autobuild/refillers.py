@@ -5,8 +5,18 @@ from __future__ import annotations
 
 
 def refill_clips(channel: str, n: int) -> None:
-    from streamers.build import build_backlog
-    build_backlog(channel, n)
+    # Consciente de cuota: (1) recupera 'pending' ya renderizados con re-QC barato (sin
+    # re-render); (2) si queda cuota, renderiza nuevos; (3) si la cuota de Gemini se agotó,
+    # levanta QuotaExhausted -> el supervisor lo marca QUOTA y reanuda cuando la cuota vuelva.
+    from streamers import verify
+    from streamers.build import build_backlog, resolve_pending
+    from autobuild.errors import QuotaExhausted
+    verify.reset_quota()
+    resolve_pending(channel)
+    if not verify.QUOTA_HIT:
+        build_backlog(channel, n)
+    if verify.QUOTA_HIT:
+        raise QuotaExhausted(f"{channel}: cuota de Gemini agotada")
 
 
 def refill_whatonearth(channel: str, n: int) -> None:

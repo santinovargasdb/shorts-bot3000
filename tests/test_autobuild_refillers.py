@@ -43,3 +43,45 @@ def test_refill_reddit_llama_cmd_rewrite(monkeypatch):
 def test_refill_script_levanta_not_implemented():
     with pytest.raises(NotImplementedError):
         rf.REFILLERS["script"]("faceless", 1)
+
+
+def test_refill_clips_resuelve_pendientes_antes_de_buildear(monkeypatch):
+    import streamers.verify as verify
+    import streamers.build as build
+    monkeypatch.setattr(verify, "QUOTA_HIT", False)
+    monkeypatch.setattr(verify, "reset_quota", lambda: setattr(verify, "QUOTA_HIT", False))
+    calls = []
+    monkeypatch.setattr(build, "resolve_pending", lambda ch, **k: calls.append(("resolve", ch)) or 0)
+    monkeypatch.setattr(build, "build_backlog", lambda ch, n: calls.append(("build", ch, n)))
+    rf.REFILLERS["clips"]("streamers_a", 5)
+    assert calls == [("resolve", "streamers_a"), ("build", "streamers_a", 5)]  # resolve ANTES de build
+
+
+def test_refill_clips_levanta_quota_exhausted_si_se_agota(monkeypatch):
+    import streamers.verify as verify
+    import streamers.build as build
+    from autobuild.errors import QuotaExhausted
+    monkeypatch.setattr(verify, "QUOTA_HIT", False)
+    monkeypatch.setattr(verify, "reset_quota", lambda: setattr(verify, "QUOTA_HIT", False))
+    monkeypatch.setattr(build, "resolve_pending", lambda ch, **k: 0)
+
+    def fake_build(ch, n):
+        verify.QUOTA_HIT = True            # la cuota se agota durante el build
+    monkeypatch.setattr(build, "build_backlog", fake_build)
+    with pytest.raises(QuotaExhausted):
+        rf.REFILLERS["clips"]("streamers_a", 5)
+
+
+def test_refill_clips_salta_build_si_resolve_ya_agoto_quota(monkeypatch):
+    import streamers.verify as verify
+    import streamers.build as build
+    from autobuild.errors import QuotaExhausted
+    monkeypatch.setattr(verify, "QUOTA_HIT", False)
+    monkeypatch.setattr(verify, "reset_quota", lambda: setattr(verify, "QUOTA_HIT", False))
+    monkeypatch.setattr(build, "resolve_pending",
+                        lambda ch, **k: setattr(verify, "QUOTA_HIT", True) or 0)
+    built = []
+    monkeypatch.setattr(build, "build_backlog", lambda ch, n: built.append(n))
+    with pytest.raises(QuotaExhausted):
+        rf.REFILLERS["clips"]("streamers_a", 5)
+    assert built == []                     # no intentó buildear si ya no había cuota

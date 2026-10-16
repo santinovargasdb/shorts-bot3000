@@ -7,13 +7,18 @@ import smtplib
 from datetime import datetime
 from email.message import EmailMessage
 
-PROBLEM = {"WARN", "CRITICAL", "ERROR"}
-_SEV_ICON = {"OK": "✅", "SKIP": "⏭️", "WARN": "🟠", "CRITICAL": "🔴", "ERROR": "🔴"}
-_SEV_ORDER = ["ERROR", "CRITICAL", "WARN", "SKIP", "OK"]
+# Solo ERROR dispara email (fallo real que necesita a un humano: key/token vencido, crash).
+# QUOTA (sin cuota, reanuda solo) y WARN/CRITICAL (colchón en llenado) se LOGUEAN, no se
+# emailean: con 4 corridas/día emailearlos sería spam, y se resuelven solos.
+EMAIL_ON = {"ERROR"}
+_NONHEALTHY = {"ERROR", "CRITICAL", "QUOTA", "WARN"}
+_SEV_ICON = {"OK": "✅", "SKIP": "⏭️", "QUOTA": "⏳", "WARN": "🟠", "CRITICAL": "🔴", "ERROR": "🔴"}
+_SEV_ORDER = ["ERROR", "CRITICAL", "QUOTA", "WARN", "SKIP", "OK"]
 
 
 def any_problem(results: list) -> bool:
-    return any(r.severity in PROBLEM for r in results)
+    """¿Hay que emailear? Solo ante ERROR real (lo demás se loguea)."""
+    return any(r.severity in EMAIL_ON for r in results)
 
 
 def _worst(results: list) -> str:
@@ -27,7 +32,7 @@ def _worst(results: list) -> str:
 def render_digest(results: list) -> tuple[str, str]:
     from autobuild.config import REFILL
     worst = _worst(results)
-    n_prob = sum(1 for r in results if r.severity in PROBLEM)
+    n_prob = sum(1 for r in results if r.severity in _NONHEALTHY)
     stamp = datetime.now().strftime("%d-%m %H:%M")
     subject = f"[ShortsBot] {_SEV_ICON.get(worst,'')} {worst} · {n_prob} con problema · {stamp}"
     lines = ["Canal         Runway (partes)   +Aprob   Estado",

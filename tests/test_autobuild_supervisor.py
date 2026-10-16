@@ -66,6 +66,16 @@ def test_not_implemented_es_SKIP():
     assert r.severity == "SKIP"
 
 
+def test_quota_exhausted_es_QUOTA_y_remide_lo_recuperado():
+    from autobuild.errors import QuotaExhausted
+    def boom(ch, n): raise QuotaExhausted("sin cuota de Gemini")
+    # before=2 (bajo objetivo) -> entra al loop -> refiller levanta QuotaExhausted ->
+    # el handler re-mide (5) para capturar lo recuperado por resolve_pending antes del corte.
+    seq = _measure_from([2, 5])
+    r = sup.refill_channel("streamers_a", CFG, measure=seq, refiller=boom)
+    assert r.severity == "QUOTA" and r.added == 3 and "sin cuota" in r.note
+
+
 import autobuild.refillers as rf
 
 

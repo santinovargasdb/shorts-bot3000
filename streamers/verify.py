@@ -23,6 +23,16 @@ MODEL = os.environ.get("GEMINI_VISION_MODEL", "gemini-3.5-flash")
 _FALLBACKS = ("gemini-3.5-flash-lite", "gemini-3.6-flash")   # si el principal da 503/overload
 _URL = "https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={k}"
 
+# Lo prende _gemini cuando agota los reintentos por 429 (cuota/rate de Gemini). El auto-refill
+# lo chequea para frenar la tanda (no malgastar renders) y reanudar cuando la cuota vuelva.
+QUOTA_HIT = False
+
+
+def reset_quota() -> None:
+    """Resetea el flag de cuota antes de una tanda de QC (lo llama el auto-refill)."""
+    global QUOTA_HIT
+    QUOTA_HIT = False
+
 # Chequeo del clip CRUDO (horizontal), ANTES de editar. Se arma según require_gameplay.
 _SRC_DEALBREAKERS = (
     "Es un clip CRUDO (horizontal) de Twitch de UN streamer, todavía SIN editar. Lo vamos a "
@@ -92,6 +102,7 @@ def _frames(video, n: int = 3) -> list[Path]:
 
 def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | None:
     """POST a Gemini con prompt + frames. Devuelve el dict JSON, o None (sin key / error)."""
+    global QUOTA_HIT
     try:
         from reddit_pipeline.env import load_env
         load_env()
@@ -109,6 +120,7 @@ def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | Non
     body = {"contents": [{"parts": parts}],
             "generationConfig": {"temperature": 0, "maxOutputTokens": 400,
                                  "responseMimeType": "application/json"}}
+    saw_quota = False
     for m in (MODEL, *[x for x in _FALLBACKS if x != MODEL]):
         for _attempt in range(3):
             try:
@@ -119,12 +131,20 @@ def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | Non
                     data = json.loads(resp.read())
                 return json.loads(data["candidates"][0]["content"]["parts"][0]["text"])
             except urllib.error.HTTPError as e:
-                if e.code in (503, 429, 500):           # sobrecargado -> reintentar
+                if e.code == 429:                        # cuota/rate de Gemini agotada
+                    saw_quota = True
+                    time.sleep(3)
+                    continue
+                if e.code in (503, 500):                 # sobrecargado -> reintentar
                     time.sleep(3)
                     continue
                 break                                    # otro error http -> siguiente modelo
             except Exception:
                 break
+    if saw_quota:                                        # agotó reintentos solo por 429 -> cuota
+        QUOTA_HIT = True
+        if verbose:
+            print("[qc] cuota de Gemini agotada (429) -> se reanuda cuando vuelva")
     return None
 
 

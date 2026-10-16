@@ -8,10 +8,18 @@ def _r(channel, before, after, added, severity, note=""):
                                  severity=severity, note=note)
 
 
-def test_any_problem_true_si_hay_warn_critical_o_error():
-    assert al.any_problem([_r("a", 1, 1, 0, "WARN")]) is True
+def test_any_problem_solo_email_en_error():
+    # Email SOLO ante ERROR real. QUOTA/WARN/CRITICAL se loguean, no spamean (4 corridas/día).
+    assert al.any_problem([_r("a", 0, 0, 0, "ERROR")]) is True
+    assert al.any_problem([_r("a", 1, 1, 0, "WARN"),
+                           _r("b", 2, 2, 0, "QUOTA")]) is False
     assert al.any_problem([_r("a", 28, 28, 0, "OK"),
                            _r("b", 0, 0, 0, "SKIP")]) is False
+
+
+def test_quota_aparece_en_el_digest():
+    subject, body = al.render_digest([_r("streamers_a", 2, 5, 3, "QUOTA", "cuota Gemini")])
+    assert "QUOTA" in subject and "streamers_a" in body and "cuota Gemini" in body
 
 
 def test_render_digest_incluye_cada_canal_y_peor_severidad():
