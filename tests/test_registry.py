@@ -4,14 +4,15 @@ import channels_registry as reg
 
 
 def test_canales_registrados():
-    assert set(reg.CHANNELS) == {"faceless", "historia", "misterios", "soyelmalo", "whatonearth"}
+    assert set(reg.CHANNELS) == {"faceless", "historia", "misterios", "soyelmalo", "whatonearth",
+                                 "streamers_a", "streamers_b", "streamers_c"}
 
 
 def test_contexto_whatonearth():
     ctx = reg.get_channel("whatonearth")
     assert ctx["display"] == "What On Earth Is This"
     assert ctx["series"] == "series_whatonearth"
-    assert ctx["platforms"] == ("ig", "tt")
+    assert ctx["platforms"] == ("yt", "ig", "tt")   # YT activado 2026-10-15 (Cloud propio "riskyshortvids")
     assert ctx["ig_creds"] == "secrets/whatonearth/instagram.json"
     assert ctx["tt_token"] == "secrets/whatonearth/tiktok_token.json"
 

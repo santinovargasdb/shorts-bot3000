@@ -16,7 +16,7 @@ def test_build_video_escribe_sidecar(tmp_path, monkeypatch):
              "clip_path": "d.mp4"}]
     monkeypatch.setattr(build, "collect_items", lambda n, work, category="object", **k: fake[:n])
     monkeypatch.setattr(build.render_whatonearth, "render",
-                        lambda items, out, work: Path(out).write_bytes(b"MP4") or Path(out))
+                        lambda items, out, work, music=None, **kw: Path(out).write_bytes(b"MP4") or Path(out))
     conn = db.connect(":memory:"); db.init(conn)
     seq = build.build_video(n=2, out_dir=tmp_path, conn=conn, category="object")
     assert seq == 1

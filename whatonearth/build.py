@@ -31,7 +31,8 @@ def make_description(items: list) -> str:
     attribs = []
     for it in items:
         if it.get("author"):
-            attribs.append(f"- {it['name']}: {it['author']} ({it.get('source_url','')})")
+            lic = f" — {it['license']}" if it.get("license") else ""
+            attribs.append(f"- {it['name']}: {it['author']} ({it.get('source_url','')}){lic}")
     attrib_block = ("\n".join(attribs) + "\n\n") if attribs else ""
     return f"{hook}\n\n{attrib_block}{_HASHTAGS}\n\n{_DISCLAIMER}"
 

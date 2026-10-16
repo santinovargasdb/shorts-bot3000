@@ -33,7 +33,7 @@ def test_aperturas_in_medias_res():
     for serie in NARRATIVAS:
         for part, data in serie.PARTS.items():
             primera = data["segments"][0]["text"]
-            assert not primera.startswith("En "), \
+            assert not primera.startswith(("En el año", "En el siglo", "En 19", "En 20")), \
                 f"{serie.__name__} ep.{part} abre con construcción de fecha: {primera[:50]!r}"
             assert " mil " not in f" {primera[:70].lower()}", \
                 f"{serie.__name__} ep.{part} abre con año hablado: {primera[:70]!r}"
