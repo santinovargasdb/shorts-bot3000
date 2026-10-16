@@ -64,3 +64,39 @@ def test_not_implemented_es_SKIP():
     def ni(ch, n): raise NotImplementedError("pendiente Pieza 2")
     r = sup.refill_channel("faceless", CFG, measure=lambda ch: 0, refiller=ni)
     assert r.severity == "SKIP"
+
+
+import autobuild.refillers as rf
+
+
+def test_lock_impide_doble_corrida(tmp_path, monkeypatch):
+    monkeypatch.setattr(sup, "LOCK", tmp_path / ".lock")
+    assert sup.acquire_lock() is True
+    assert sup.acquire_lock() is False          # ya tomado y fresco
+    sup.release_lock()
+    assert sup.acquire_lock() is True
+
+
+def test_force_ignora_el_lock(tmp_path, monkeypatch):
+    monkeypatch.setattr(sup, "LOCK", tmp_path / ".lock")
+    sup.acquire_lock()
+    assert sup.acquire_lock(force=True) is True
+
+
+def test_run_dry_run_no_llama_refillers(monkeypatch):
+    llamado = []
+    monkeypatch.setitem(rf.REFILLERS, "clips",
+                        lambda ch, n: llamado.append((ch, n)))
+    monkeypatch.setattr(sup.runway, "parts_ahead", lambda ch, *a, **k: 3)
+    results = sup.run(["streamers_a"], dry_run=True)
+    assert llamado == []                         # dry-run no genera
+    assert results == []                         # dry-run no produce Result
+
+
+def test_run_real_usa_refiller_del_gen(monkeypatch):
+    # streamers_a es gen="clips"; que llegue al objetivo en una tanda
+    seq = iter([3, 28])
+    monkeypatch.setattr(sup.runway, "parts_ahead", lambda ch, *a, **k: next(seq))
+    monkeypatch.setitem(rf.REFILLERS, "clips", lambda ch, n: None)
+    results = sup.run(["streamers_a"], dry_run=False)
+    assert len(results) == 1 and results[0].severity == "OK"

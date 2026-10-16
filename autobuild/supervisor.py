@@ -54,3 +54,102 @@ def refill_channel(channel: str, cfg: dict, measure, refiller) -> Result:
     else:
         sev, note = "WARN", f"no llegó al objetivo ({cur}/{target}); yield bajo esta corrida"
     return Result(channel, before, cur, added, sev, note)
+
+
+# --- CLI / orquestación (Task 6) -----------------------------------------
+import os
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+
+from autobuild import alert, refillers, runway
+from autobuild.config import REFILL
+
+ROOT = Path(__file__).resolve().parents[1]
+LOCK = ROOT / "autobuild" / ".lock"
+LOG = ROOT / "autobuild.log"
+_LOCK_TTL = 86400   # 24h: si el lock es más viejo, se considera huérfano
+
+
+def acquire_lock(force: bool = False) -> bool:
+    if LOCK.exists() and not force:
+        if time.time() - LOCK.stat().st_mtime < _LOCK_TTL:
+            return False
+    LOCK.write_text(str(os.getpid()), encoding="utf-8")
+    return True
+
+
+def release_lock() -> None:
+    try:
+        LOCK.unlink()
+    except FileNotFoundError:
+        pass
+
+
+def _log(msg: str) -> None:
+    line = f"[{datetime.now():%Y-%m-%d %H:%M}] {msg}"
+    print(line, flush=True)
+    with LOG.open("a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+
+def _plan_line(channel: str, cfg: dict) -> str:
+    ahead = runway.parts_ahead(channel)
+    target = int(cfg["target_days"] * cfg["posts_per_day"])
+    deficit = max(target - ahead, 0)
+    est = 0 if deficit == 0 else int(deficit / max(cfg["yield"], 0.01))
+    return (f"{channel:13} runway={ahead} partes ({ahead/cfg['posts_per_day']:.1f}d)  "
+            f"objetivo={target}  déficit={deficit}  intentos≈{est}  gen={cfg['gen']}")
+
+
+def run(channels: list[str], dry_run: bool = False) -> list[Result]:
+    results: list[Result] = []
+    for ch in channels:
+        cfg = REFILL[ch]
+        if dry_run:
+            _log("DRY " + _plan_line(ch, cfg))
+            continue
+        refiller = refillers.REFILLERS[cfg["gen"]]
+        r = refill_channel(ch, cfg, measure=lambda c: runway.parts_ahead(c),
+                           refiller=refiller)
+        _log(f"{r.channel:13} {r.parts_before}->{r.parts_after} (+{r.added})  "
+             f"{r.severity}: {r.note}")
+        results.append(r)
+    return results
+
+
+def main(argv: list[str]) -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+    from reddit_pipeline.env import load_env
+    load_env()
+
+    dry = "--dry-run" in argv
+    force = "--force" in argv
+    channels = list(REFILL)
+    if "--channel" in argv:
+        i = argv.index("--channel")
+        channels = [argv[i + 1]]
+
+    if not dry and not acquire_lock(force):
+        _log("otra corrida de autobuild está activa (lock fresco). Abortando. Usá --force.")
+        return 1
+    try:
+        _log(f"=== autobuild start (dry={dry}) canales={channels} ===")
+        results = run(channels, dry_run=dry)
+        if not dry and alert.any_problem(results):
+            subject, body = alert.render_digest(results)
+            alert.send_email(subject, body)
+            _log(f"alerta enviada: {subject}")
+        _log("=== autobuild done ===")
+    finally:
+        if not dry:
+            release_lock()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))
