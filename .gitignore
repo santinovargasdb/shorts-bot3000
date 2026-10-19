@@ -53,6 +53,9 @@ reauth_youtube_risky.bat
 # Backlog de videos pre-renderizados de whatonearth (se regenera)
 whatonearth/videos.sqlite
 
+# Episodios generados por LLM (faceless/historia/misterios; se regeneran con autoscripts.build)
+autoscripts/*.sqlite
+
 # Snoo de Reddit (marca registrada): fuente local del branding, no se sube
 branding/snoo_source.png
 .superpowers/

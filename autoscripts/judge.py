@@ -35,3 +35,21 @@ def parse_verdict(raw: str) -> dict:
 def judge_episode(client, model, datos: list) -> dict:
     listado = "\n".join(f"- {d['text']}" for d in datos)
     return parse_verdict(_chat(client, model, _PROMPT.format(datos=listado)))
+
+
+_PROMPT_STORY = """Sos un verificador ESTRICTO y escéptico. Te paso un relato que va a publicarse
+como verdad. {instr}
+
+Ante la MÍNIMA duda, ok=false (es peor publicar algo falso que descartar un episodio).
+
+Título: {titulo}
+Relato:
+{relato}
+
+Respondé SOLO JSON: {{"ok": true/false, "problema": "qué falla y por qué, o vacío"}}"""
+
+
+def judge_story(client, model, story: dict, instr: str) -> dict:
+    relato = "\n".join(f"- {s['text']}" for s in story.get("segments", []))
+    prompt = _PROMPT_STORY.format(instr=instr, titulo=story.get("titulo", ""), relato=relato)
+    return parse_verdict(_chat(client, model, prompt))

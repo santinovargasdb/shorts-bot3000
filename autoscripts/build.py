@@ -6,10 +6,12 @@ from __future__ import annotations
 import sys
 
 from reddit_pipeline.rewrite import build_client, model_name
-from autoscripts import db, generate, judge, topics
+from autoscripts import db, generate, judge, narrativa, topics
 from autobuild.errors import QuotaExhausted
 
 MIN_DATOS = 5
+
+_NARRATIVE = set(narrativa.MODULE)   # {"historia", "misterios"}: relato narrado, no lista de datos
 
 
 def assemble_segments(datos: list) -> list:
@@ -21,12 +23,57 @@ def assemble_segments(datos: list) -> list:
     return segs
 
 
+def assemble_story(st: dict) -> dict:
+    """Pasa un relato generado al formato EXACTO de series_historia/series_misterios: momentos como
+    segmentos 'fact', SIN tarjeta de título (el relato es continuo). Descarta 'topic' (solo dedup)."""
+    return {"pregunta": st["pregunta"], "titulo": st["titulo"], "resumen": st["resumen"],
+            "segments": [{"kind": "fact", "text": s["text"], "imgs": list(s["imgs"])}
+                         for s in st["segments"]]}
+
+
 def _is_quota(exc: Exception) -> bool:
     s = str(exc).lower()
     return getattr(exc, "status_code", None) == 429 or "429" in s or "rate limit" in s or "quota" in s
 
 
+def _build_narrative(channel: str, n: int) -> int:
+    import importlib
+    series_module = importlib.import_module(narrativa.MODULE[channel])
+    instr, judge_instr = narrativa.INSTR[channel], narrativa.JUDGE_INSTR[channel]
+    client, model = build_client(), model_name()
+    made = 0
+    for _ in range(n):
+        used = narrativa.used_subjects(channel, series_module)
+        try:
+            st = narrativa.generate_story(client, model, series_module, instr, sorted(used))
+            if narrativa.is_duplicate(st["topic"], used):
+                print(f"[{channel}] descartado: sujeto repetido ({st['topic']})")
+                continue
+            verdict = judge.judge_story(client, model, st, judge_instr)
+        except QuotaExhausted:
+            raise
+        except Exception as e:
+            if _is_quota(e):
+                raise QuotaExhausted(f"{channel}: cuota de Groq agotada")
+            print(f"[{channel}] intento falló: {type(e).__name__}: {e}")
+            continue
+        conn = db.connect(db.DB_PATH(channel))
+        episode, topic_keys = assemble_story(st), [st["topic"]]
+        if verdict["ok"]:
+            db.add_episode(conn, episode=episode, topic_keys=topic_keys, status="approved")
+            made += 1
+            print(f"[{channel}] APROBADO (juez OK)")
+        else:
+            db.add_episode(conn, episode=episode, topic_keys=topic_keys, status="rejected",
+                           qc_note=verdict["problema"])
+            print(f"[{channel}] RECHAZADO por el juez: {verdict['problema'][:80]}")
+        conn.close()
+    return made
+
+
 def build(channel: str, n: int = 3) -> int:
+    if channel in _NARRATIVE:
+        return _build_narrative(channel, n)
     client, model = build_client(), model_name()
     made = 0
     for _ in range(n):

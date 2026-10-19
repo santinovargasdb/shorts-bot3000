@@ -30,12 +30,13 @@ def refill_reddit(channel: str, n: int) -> None:
     cmd_rewrite(n)
 
 
-_SCRIPT_GENERATORS = {"faceless"}   # historia/misterios se suman cuando se implementen (Pieza 2.x)
+# faceless = lista de datos; historia/misterios = relato narrado. Todos por autoscripts.build.build.
+_SCRIPT_GENERATORS = {"faceless", "historia", "misterios"}
 
 
 def refill_script(channel: str, n: int) -> None:
     if channel not in _SCRIPT_GENERATORS:
-        raise NotImplementedError(f"generador de guiones de {channel} pendiente (Pieza 2)")
+        raise NotImplementedError(f"generador de guiones de {channel} pendiente (Pieza 2.x)")
     from autoscripts.build import build
     build(channel, n)               # puede levantar autobuild.errors.QuotaExhausted (Groq 429)
 

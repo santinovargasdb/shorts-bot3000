@@ -40,9 +40,10 @@ def test_refill_reddit_llama_cmd_rewrite(monkeypatch):
     assert calls == [3]
 
 
-def test_refill_script_levanta_not_implemented():
+def test_refill_script_canal_no_implementado_levanta_not_implemented():
+    # Un canal 'script' que todavía no tiene generador (p.ej. un futuro 'mente') sigue saltando.
     with pytest.raises(NotImplementedError):
-        rf.REFILLERS["script"]("historia", 1)
+        rf.REFILLERS["script"]("mente", 1)
 
 
 def test_refill_clips_resuelve_pendientes_antes_de_buildear(monkeypatch):
@@ -95,6 +96,17 @@ def test_refill_script_faceless_corre_autoscripts(monkeypatch):
     assert llamado == [("faceless", 3)]
 
 
-def test_refill_script_historia_sigue_sin_implementar():
-    with pytest.raises(NotImplementedError):
-        rf.REFILLERS["script"]("historia", 1)
+def test_refill_script_historia_corre_autoscripts(monkeypatch):
+    import autoscripts.build as ab
+    llamado = []
+    monkeypatch.setattr(ab, "build", lambda ch, n: llamado.append((ch, n)) or 1)
+    rf.REFILLERS["script"]("historia", 1)
+    assert llamado == [("historia", 1)]
+
+
+def test_refill_script_misterios_corre_autoscripts(monkeypatch):
+    import autoscripts.build as ab
+    llamado = []
+    monkeypatch.setattr(ab, "build", lambda ch, n: llamado.append((ch, n)) or 1)
+    rf.REFILLERS["script"]("misterios", 2)
+    assert llamado == [("misterios", 2)]

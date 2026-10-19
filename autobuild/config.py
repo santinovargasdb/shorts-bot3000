@@ -5,7 +5,8 @@ from __future__ import annotations
 PLATFORM_MAP = {"yt": "youtube", "ig": "instagram", "tt": "tiktok"}
 
 # gen: "clips" -> streamers.build.build_backlog | "whatonearth" -> whatonearth.build.build_video
-#      "reddit" -> reddit_pipeline cmd_rewrite | "script" -> placeholder (Pieza 2)
+#      "reddit" -> reddit_pipeline cmd_rewrite | "script" -> autoscripts.build.build
+#      (faceless = lista de datos; historia/misterios = relato narrado, mismo generador LLM)
 _CLIPS = {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
           "yield": 0.27, "max_attempts": 25, "batch": 5, "gen": "clips"}
 
@@ -17,8 +18,7 @@ REFILL: dict[str, dict] = {
                     "yield": 0.40, "max_attempts": 25, "batch": 3, "gen": "whatonearth"},
     "soyelmalo":   {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
                     "yield": 0.80, "max_attempts": 20, "batch": 3, "gen": "reddit"},
-    # Guiones a mano: placeholder hasta la Pieza 2 (generador LLM). Entran al loop
-    # pero su refiller levanta NotImplementedError -> se reportan como SKIP, no rompen.
+    # Guiones por LLM (Pieza 2 + 2.x): faceless genera datos; historia/misterios, relatos narrados.
     "faceless":  {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
                   "yield": 0.6, "max_attempts": 15, "batch": 3, "gen": "script"},
     "historia":  {"target_days": 14, "critical_days": 2, "posts_per_day": 2,

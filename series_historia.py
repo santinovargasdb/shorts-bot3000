@@ -765,3 +765,20 @@ HISTORIAS = {
 }
 
 PARTS = HISTORIAS
+
+
+def _merge_generados() -> None:
+    """Mergea los episodios narrativos generados y aprobados (Pieza 2.x) sobre los hardcodeados,
+    con keys contiguas tras el último curado a mano (41+). No pisa los curados. Lo relee
+    importlib.reload (que usa el runway del auto-refill), así los nuevos aparecen apenas se aprueban."""
+    try:
+        from autoscripts import db as _adb
+        generados = _adb.approved_episodes("historia")
+    except Exception:
+        return
+    base = max(PARTS)
+    for i, ep in enumerate(generados, start=1):
+        PARTS[base + i] = ep
+
+
+_merge_generados()
