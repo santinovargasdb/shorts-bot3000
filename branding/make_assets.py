@@ -20,8 +20,9 @@ BRANDS = {
         "handle": "@what.onearthisthat",
     },
     "streamers_a": {
+        # Rayo (no "play": rojo+play = calco del logo de YouTube) + acento amarillo = más energía.
         "big": "CLIPS", "name": "HISPANOS", "tag": "LOS MEJORES MOMENTOS",
-        "c1": (214, 36, 46), "c2": (26, 10, 12), "accent": (255, 255, 255), "symbol": "play",
+        "c1": (230, 30, 46), "c2": (40, 6, 12), "accent": (255, 211, 64), "symbol": "bolt",
         "handle": "@clipshispanos",
     },
     "streamers_b": {
@@ -84,15 +85,66 @@ def _symbol(d: ImageDraw.ImageDraw, kind: str, cx, cy, r, color, font_big):
         s = r * 0.6
         d.polygon([(cx - s * 0.45, cy - s * 0.82), (cx - s * 0.45, cy + s * 0.82),
                    (cx + s * 1.0, cy)], fill=color)
-    elif kind == "mic":                                  # micrófono simple
-        mw, mh = r * 0.5, r * 0.78
-        d.rounded_rectangle([cx - mw / 2, cy - mh, cx + mw / 2, cy + mh * 0.25],
-                            radius=mw / 2, fill=color)
-        d.arc([cx - mw, cy - mh * 0.2, cx + mw, cy + mh * 0.9], 20, 160, fill=color, width=max(5, r // 16))
-        d.line([(cx, cy + mh * 0.6), (cx, cy + mh)], fill=color, width=max(5, r // 16))
-        d.line([(cx - mw * 0.7, cy + mh), (cx + mw * 0.7, cy + mh)], fill=color, width=max(5, r // 16))
+    elif kind == "mic":                                  # micrófono de estudio (charla/IRL)
+        _mic(d, cx, cy, r * 0.72, color)
+    elif kind == "bolt":                                 # rayo (gameplay hype, no es play=YT)
+        _bolt(d, cx, cy, r * 0.62, color)
     else:                                                # "?!" (whatonearth)
         _text(d, (cx, cy), "?!", font_big, color, shadow=False)
+
+
+def _bolt(d, cx, cy, s, color):
+    """Rayo (lightning) estilizado centrado en (cx,cy), alto ~2s. Energía > triángulo de play."""
+    pts = [(cx - 0.15 * s, cy - 1.0 * s), (cx + 0.55 * s, cy - 1.0 * s),
+           (cx + 0.02 * s, cy - 0.08 * s), (cx + 0.42 * s, cy - 0.08 * s),
+           (cx - 0.35 * s, cy + 1.0 * s), (cx + 0.05 * s, cy + 0.12 * s),
+           (cx - 0.40 * s, cy + 0.12 * s)]
+    d.polygon(pts, fill=color)
+
+
+def _mic(d, cx, cy, s, color):
+    """Micrófono de estudio LIMPIO: cápsula vertical alargada (con grilla) + horquilla en U + pie.
+    Cápsula más alta que ancha para que lea como micrófono y no como una pelota/carita."""
+    lw = max(5, int(s * 0.14))
+    cw = s * 0.40                                        # media-anchura de la cápsula (angosta)
+    cap_top, cap_bot = cy - s * 1.05, cy + s * 0.18
+    d.rounded_rectangle([cx - cw, cap_top, cx + cw, cap_bot], radius=cw, fill=color)
+    # grilla: 3 líneas finas del color de fondo, para que lea "micrófono"
+    # (se dibujan con el color del borde = transparente-ish via el fondo; usamos líneas delgadas)
+    for frac in (0.30, 0.50, 0.70):
+        gy = cap_top + (cap_bot - cap_top) * frac
+        d.line([(cx - cw * 0.7, gy), (cx + cw * 0.7, gy)], fill=(0, 0, 0, 70), width=max(2, int(s * 0.05)))
+    yr = s * 0.72                                        # horquilla en U abrazando la base de la cápsula
+    d.arc([cx - yr, cy - s * 0.30, cx + yr, cy + s * 0.80], 20, 160, fill=color, width=lw)
+    d.line([(cx, cy + s * 0.62), (cx, cy + s * 1.12)], fill=color, width=lw)   # pie (vástago)
+    d.line([(cx - s * 0.55, cy + s * 1.12), (cx + s * 0.55, cy + s * 1.12)], fill=color, width=lw)  # base
+
+
+def _burst(img, cx, cy, r, color, n=16):
+    """Estallido de rayos radiales (pinwheel) DETRÁS del símbolo: suma emoción/energía.
+    Se compone con alpha sobre la imagen RGBA."""
+    import math
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    ld = ImageDraw.Draw(layer)
+    for i in range(n):
+        a0 = i * (2 * math.pi / n)
+        a1 = (i + 0.45) * (2 * math.pi / n)
+        ld.polygon([(cx, cy), (cx + r * math.cos(a0), cy + r * math.sin(a0)),
+                    (cx + r * math.cos(a1), cy + r * math.sin(a1))], fill=color)
+    img.alpha_composite(layer)
+
+
+def _glyph(d, kind, cx, cy, s, color):
+    """Dibuja SOLO el símbolo del canal (sin círculo de fondo), para la watermark-badge."""
+    if kind == "play":
+        d.polygon([(cx - s * 0.42, cy - s * 0.78), (cx - s * 0.42, cy + s * 0.78),
+                   (cx + s * 0.95, cy)], fill=color)
+    elif kind == "mic":
+        _mic(d, cx, cy, s * 0.82, color)
+    elif kind == "bolt":
+        _bolt(d, cx, cy, s * 0.82, color)
+    else:                                                # "?!" (whatonearth)
+        _text(d, (cx, cy), "?!", _font("Montserrat-BlackItalic.ttf", int(s * 1.4)), color, shadow=False)
 
 
 def _magnifier(d, cx, cy, r, color, lw):
@@ -146,6 +198,9 @@ def make_pfp(key: str, b: dict) -> Path:
     d = ImageDraw.Draw(img)
     cx = cy = w // 2
     white = (255, 255, 255, 255)
+    if b["symbol"] != "q":                               # estallido de energía detrás del símbolo
+        _burst(img, cx, cy, int(w * 0.36), (*b["accent"][:3], 70))
+        d = ImageDraw.Draw(img)
     if b["symbol"] == "q":                               # whatonearth -> globo + signos "?"
         gr = int(w * 0.235)
         globe, gc = _make_globe(gr)
@@ -161,14 +216,10 @@ def make_pfp(key: str, b: dict) -> Path:
         s = int(w * 0.2)
         d.polygon([(cx - s * 0.45, cy - s * 0.82), (cx - s * 0.45, cy + s * 0.82),
                    (cx + s * 1.0, cy)], fill=white)
-    elif b["symbol"] == "mic":                           # streamers IRL
-        mw, mh = int(w * 0.1), int(w * 0.16)
-        d.rounded_rectangle([cx - mw, cy - mh, cx + mw, cy + mh * 0.3], radius=mw, fill=white)
-        d.arc([cx - mw * 1.9, cy - mh * 0.3, cx + mw * 1.9, cy + mh * 1.5], 20, 160,
-              fill=white, width=int(w * 0.028))
-        d.line([(cx, cy + mh * 1.15), (cx, cy + mh * 1.6)], fill=white, width=int(w * 0.028))
-        d.line([(cx - mw * 1.4, cy + mh * 1.6), (cx + mw * 1.4, cy + mh * 1.6)],
-               fill=white, width=int(w * 0.028))
+    elif b["symbol"] == "mic":                           # streamers IRL (micrófono de estudio)
+        _mic(d, cx, cy, int(w * 0.17), white)
+    elif b["symbol"] == "bolt":                          # streamers gameplay (hype, no YT)
+        _bolt(d, cx, cy, int(w * 0.24), b["accent"] if b["accent"] != (255, 255, 255) else white)
     img = img.resize((1080, 1080), Image.LANCZOS)
     p = OUT / key / "pfp.png"
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -180,6 +231,9 @@ def make_icon(key: str, b: dict) -> Path:
     w = 1080 * S
     img = _vignette(_gradient(w, w, b["c1"], b["c2"]), 0.5).convert("RGBA")
     d = ImageDraw.Draw(img)
+    if b["symbol"] != "q":                               # estallido de energía detrás del símbolo
+        _burst(img, w // 2, int(w * 0.36), int(w * 0.27), (*b["accent"][:3], 70))
+        d = ImageDraw.Draw(img)
     # color del símbolo: el accent si no es blanco (invisible sobre el círculo), si no el de marca
     sym = b["accent"] if b["accent"] != (255, 255, 255) else b["c1"]
     _symbol(d, b["symbol"], w // 2, int(w * 0.36), int(w * 0.17), sym, _font("Montserrat-BlackItalic.ttf", int(w * 0.16)))
@@ -199,13 +253,21 @@ def make_icon(key: str, b: dict) -> Path:
 
 
 def make_watermark(key: str, b: dict) -> Path:
-    """Watermark transparente (handle) para overlay en los videos. Blanco semi + sombra."""
-    w, h = 900 * S, 200 * S
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    """Watermark COMPACTA = badge circular con el símbolo del canal (estilo de la watermark
+    'anterior' de soyelmalo), NO una banda larga de texto. Transparente fuera del círculo,
+    con estallido de energía y aro blanco. Cuadrada (1:1) para que no salga alargada."""
+    w = 480 * S
+    base = _vignette(_gradient(w, w, b["c1"], b["c2"]), 0.3).convert("RGBA")
+    cx = cy = w // 2
+    r = int(w * 0.47)
+    mask = Image.new("L", (w, w), 0)
+    ImageDraw.Draw(mask).ellipse([cx - r, cy - r, cx + r, cy + r], fill=255)
+    img = Image.composite(base, Image.new("RGBA", (w, w), (0, 0, 0, 0)), mask)
+    _burst(img, cx, cy, int(r * 0.9), (255, 255, 255, 60))     # energía
     d = ImageDraw.Draw(img)
-    _text(d, (w // 2, h // 2), b["handle"], _font("Montserrat-BlackItalic.ttf", int(h * 0.5)),
-          (255, 255, 255, 230), sw=5)
-    img = img.resize((900, 200), Image.LANCZOS)
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 255, 255, 235), width=int(w * 0.03))
+    _glyph(d, b["symbol"], cx, cy, int(r * 0.52), (255, 255, 255, 255))
+    img = img.resize((480, 480), Image.LANCZOS)
     p = OUT / key / "watermark.png"
     p.parent.mkdir(parents=True, exist_ok=True)
     img.save(p)
