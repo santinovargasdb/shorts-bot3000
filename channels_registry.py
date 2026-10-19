@@ -96,7 +96,7 @@ CHANNELS = {
         "yt_token": "secrets/streamers_b/token.json",
         "ig_creds": "secrets/streamers_b/instagram.json",
         "tt_token": "secrets/streamers_b/tiktok_token.json",
-        "platforms": (),                   # activar ("ig","tt") cuando existan las cuentas aisladas
+        "platforms": ("yt",),              # YT activo (2026-10-19); sumar "ig"/"tt" al crear esas cuentas
         "first_comment": "¿De qué streamer querés el próximo clip? \U0001F447",
         "sfx_style": "datos",
     },
