@@ -53,7 +53,10 @@ def _get_service(token_file: str | Path | None = None):
                     f"Falta {cs}. Seguí setup_youtube_auth.md."
                 )
             flow = InstalledAppFlow.from_client_secrets_file(str(cs), SCOPES)
-            creds = flow.run_local_server(port=0)
+            # prompt forzado: re-muestra el selector de CUENTA y de CANAL (de marca) aunque la
+            # cuenta ya tenga un grant previo. Sin esto Google saltea el selector y el token cae
+            # en el canal ya autorizado del mismo email (bug: token en el canal equivocado).
+            creds = flow.run_local_server(port=0, prompt="select_account consent")
         tok.parent.mkdir(parents=True, exist_ok=True)
         tok.write_text(creds.to_json(), encoding="utf-8")
     return build("youtube", "v3", credentials=creds)

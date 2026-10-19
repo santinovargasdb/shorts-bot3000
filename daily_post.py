@@ -155,13 +155,23 @@ def _tt_caption(video: Path) -> str:
     return f"{title}\n\n{hashtags}" if hashtags else title
 
 
+def _next_available_part(next_part: int, series) -> int | None:
+    """Primera parte DISPONIBLE >= next_part. Los backlogs de clips (streamers) tienen HUECOS en
+    los seq aprobados (los rechazados por el QC consumen número), así que no alcanza con next_part
+    exacto: hay que saltar al siguiente disponible. Para numeración contigua (faceless/historia/
+    misterios/soyelmalo) devuelve next_part sin cambios. None si no queda ninguna parte."""
+    disponibles = [k for k in series.PARTS if k >= next_part]
+    return min(disponibles) if disponibles else None
+
+
 def do_youtube(st: dict, ctx: dict, series) -> None:
     if ctx["yt_token"] is not None and not (ROOT / ctx["yt_token"]).exists():
         _log(ctx, "[YT] No configurado (sin token), lo salteo.")
         return
-    part = st["youtube"]["next_part"]
-    if part not in series.PARTS:
-        _log(ctx, f"[YT] No hay parte {part} en el backlog. Agregá más partes.")
+    want = st["youtube"]["next_part"]
+    part = _next_available_part(want, series)
+    if part is None:
+        _log(ctx, f"[YT] No hay parte {want} o posterior en el backlog. Agregá más partes.")
         return
     video = _ensure_video(part, ctx, series)
     from uploaders.youtube_upload import upload_from_folder
@@ -261,11 +271,12 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
         return
     _refresh_ig_token(st, ctx)
     creds = _ig_creds(ctx)   # releer por si el refresh cambió el token
-    part = st["instagram"]["next_part"]
+    want = st["instagram"]["next_part"]
     # IG postea INDEPENDIENTE de YouTube: un fallo/traba de YT (ej. token vencido)
     # no debe frenar Instagram. Cada plataforma avanza su propio contador.
-    if part not in series.PARTS:
-        _log(ctx, f"[IG] No hay parte {part} en el backlog. Agregá más partes.")
+    part = _next_available_part(want, series)
+    if part is None:
+        _log(ctx, f"[IG] No hay parte {want} o posterior en el backlog. Agregá más partes.")
         return
     video = _ensure_video(part, ctx, series)
     try:
@@ -330,10 +341,11 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
     if not tt_token.exists():
         _log(ctx, "[TT] No configurado (sin token), lo salteo.")
         return
-    part = st["tiktok"]["next_part"]
+    want = st["tiktok"]["next_part"]
     # TikTok postea INDEPENDIENTE de YouTube (igual que IG): un fallo de YT no lo frena.
-    if part not in series.PARTS:
-        _log(ctx, f"[TT] No hay parte {part} en el backlog. Agregá más partes.")
+    part = _next_available_part(want, series)
+    if part is None:
+        _log(ctx, f"[TT] No hay parte {want} o posterior en el backlog. Agregá más partes.")
         return
     video = _ensure_video(part, ctx, series)
     try:
