@@ -35,16 +35,19 @@ def connect(path) -> sqlite3.Connection:
         conn.execute("ALTER TABLE clips ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
     if "qc_note" not in cols:                       # migración: veredicto del QC con visión
         conn.execute("ALTER TABLE clips ADD COLUMN qc_note TEXT")
+    if "has_gameplay" not in cols:                  # migración: ¿el clip tiene gameplay? (layout)
+        conn.execute("ALTER TABLE clips ADD COLUMN has_gameplay INTEGER")
     conn.commit()
     return conn
 
 
 def add_clip(conn, *, title, description, video_path, streamer, clip_id,
-             views=0, status="pending", qc_note="") -> int:
+             views=0, status="pending", qc_note="", has_gameplay: bool | None = None) -> int:
     cur = conn.execute(
         "INSERT INTO clips (title, description, video_path, streamer, clip_id, views, status,"
-        " qc_note, created_utc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
-        (title, description, video_path, streamer, clip_id, int(views or 0), status, qc_note),
+        " qc_note, has_gameplay, created_utc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+        (title, description, video_path, streamer, clip_id, int(views or 0), status, qc_note,
+         None if has_gameplay is None else int(has_gameplay)),
     )
     conn.commit()
     return int(cur.lastrowid)
@@ -56,6 +59,8 @@ def _row(r) -> dict:
             "video_path": r["video_path"], "streamer": r["streamer"], "clip_id": r["clip_id"],
             "views": r["views"], "status": r["status"],
             "qc_note": r["qc_note"] if "qc_note" in keys else "",
+            "has_gameplay": (None if ("has_gameplay" not in keys or r["has_gameplay"] is None)
+                             else bool(r["has_gameplay"])),
             "created_utc": r["created_utc"]}
 
 
@@ -70,6 +75,11 @@ def by_status(conn, status: str) -> list:
 
 def set_status(conn, seq: int, status: str) -> None:
     conn.execute("UPDATE clips SET status = ? WHERE seq = ?", (status, seq))
+    conn.commit()
+
+
+def set_gameplay(conn, seq: int, has_gameplay: bool) -> None:
+    conn.execute("UPDATE clips SET has_gameplay = ? WHERE seq = ?", (1 if has_gameplay else 0, seq))
     conn.commit()
 
 
