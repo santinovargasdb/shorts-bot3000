@@ -31,12 +31,13 @@ MUSIC = {
 }
 
 
-def _satisfy_for_channel(channel, has_gameplay, picker):
-    """(satisfy_top, satisfy_bottom). Con gameplay: solo abajo (1). Sin gameplay: 2."""
+def _satisfy_for_channel(channel, use_gaming, picker):
+    """(satisfy_top, satisfy_bottom). `use_gaming` = va el layout gaming (cara+gameplay) → 1
+    satisfactorio ABAJO. Si no (sin cara, o IRL) → 3 franjas → 2 satisfactorios (arriba+abajo)."""
     if not channel.get("satisfying"):
         return (None, None)
     ch = channel.get("name", "")
-    if has_gameplay:
+    if use_gaming:
         got = picker(ch, 1)
         return (None, got[0] if got else None)
     got = picker(ch, 2)
@@ -215,7 +216,10 @@ def process_source(
             has_gp = channel.get("_has_gameplay")
             if has_gp is None:
                 has_gp = classify_gameplay(source) or False
-            sat_top, sat_bot = _satisfy_for_channel(channel, has_gp, pick_for)
+            # Layout gaming (cara/juego/satisfactorio abajo) SOLO si hay gameplay Y cara detectada.
+            # Sin cara (aunque sea gameplay) o IRL -> 3 franjas (satisfactorio/clip/satisfactorio).
+            use_gaming = bool(has_gp and face_box)
+            sat_top, sat_bot = _satisfy_for_channel(channel, use_gaming, pick_for)
         else:
             sat_top = sat_bot = None
         rendered = render_short(
