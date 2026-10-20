@@ -37,6 +37,60 @@ def _punch_filter(interval: float, amount: float, hold: float) -> str:
     return f"fps=30,zoompan=z='{z}':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':fps=30"
 
 
+def _layout_graph(
+    layout: str,
+    face_box,
+    width: int,
+    height: int,
+    punch: str,
+    grade: str,
+    subs: str,
+    sat_top_idx,
+    sat_bot_idx,
+) -> str:
+    """Devuelve el filtergraph de video para los layouts con satisfactorios.
+
+    - sat_top_idx y sat_bot_idx no None → layout 3 FRANJAS (640/640/640).
+    - solo sat_bot_idx + face_box → layout GAMING con satisfactorio abajo.
+    """
+    if sat_top_idx is not None and sat_bot_idx is not None:
+        # 3 FRANJAS: satisfy arriba (0-640), clip medio (640-1280), satisfy abajo (1280-1920)
+        band = "scale=1080:640:force_original_aspect_ratio=increase,crop=1080:640,setsar=1"
+        post = f"{grade}," if grade else ""
+        return ";".join([
+            "[0:v]split=2[cl][bc]",
+            f"[cl]{band}[clip]",
+            "[bc]scale=1080:1920,drawbox=0:0:1080:1920:color=black:t=fill,setsar=1[bg]",
+            f"[{sat_top_idx}:v]{band}[st]",
+            f"[{sat_bot_idx}:v]{band}[sb]",
+            "[bg][st]overlay=0:0[t1]",
+            "[t1][clip]overlay=0:640[t2]",
+            "[t2][sb]overlay=0:1280:shortest=1[comp]",
+            f"[comp]{post}{subs}[v]",
+        ])
+    else:
+        # GAMING + satisfactorio abajo: cara(620)/gameplay(608)/satisfy(684)
+        fx, fy, fw_, fh_ = [int(v) for v in face_box]
+        FACE_H, GAME_H, GAME_Y = 620, 608, 628
+        face = (f"crop={fw_}:{fh_}:{fx}:{fy},scale=1080:{FACE_H}:force_original_aspect_ratio=increase,"
+                f"crop=1080:{FACE_H},unsharp=5:5:0.8:5:5:0.0,setsar=1")
+        game = f"scale=1080:{GAME_H}:force_original_aspect_ratio=increase,crop=1080:{GAME_H},setsar=1"
+        if punch:
+            game += f",{punch}:s=1080x{GAME_H}"
+        sat = "scale=1080:684:force_original_aspect_ratio=increase,crop=1080:684,setsar=1"
+        post = f"{grade}," if grade else ""
+        return ";".join([
+            "[0:v]split=3[fa][gb][bc]",
+            f"[fa]{face}[face]", f"[gb]{game}[game]",
+            "[bc]scale=1080:1920,drawbox=0:0:1080:1920:color=black:t=fill,setsar=1[bg]",
+            f"[{sat_bot_idx}:v]{sat}[sat]",
+            "[bg][face]overlay=0:0[t1]",
+            f"[t1][game]overlay=0:{GAME_Y}[t2]",
+            "[t2][sat]overlay=0:1236:shortest=1[comp]",
+            f"[comp]{post}{subs}[v]",
+        ])
+
+
 def render_short(
     source: Path | str,
     start: float,
@@ -65,6 +119,8 @@ def render_short(
     wm_opacity: float = 0.55,
     wm_scale: float = 0.42,
     wm_margin: int = 45,
+    satisfy_top: Path | str | None = None,
+    satisfy_bottom: Path | str | None = None,
 ) -> Path:
     """Renderiza un short. `ass_file` y `out_file` deben estar en la misma
     carpeta de trabajo (se ejecuta ffmpeg con cwd ahí). `grade` = filtro de color
@@ -91,7 +147,30 @@ def render_short(
 
     punch = _punch_filter(punch_interval, punch_amount, punch_hold) if zoom_punch else ""
 
-    if layout == "gaming" and face_box:
+    # --- Satisfactorios: entran como inputs extra PRIMERO (índices 1 y/o 2) ---
+    _sat_inputs: list[str] = []
+    _use_sat = False
+    sat_top_idx = sat_bot_idx = None
+    _next = 1
+    st_ok = satisfy_top and Path(satisfy_top).exists()
+    sb_ok = satisfy_bottom and Path(satisfy_bottom).exists()
+    if st_ok and sb_ok:
+        sat_top_idx = _next
+        _sat_inputs += ["-stream_loop", "-1", "-i", str(Path(satisfy_top).resolve())]
+        _next += 1
+        sat_bot_idx = _next
+        _sat_inputs += ["-stream_loop", "-1", "-i", str(Path(satisfy_bottom).resolve())]
+        _next += 1
+        _use_sat = True
+    elif sb_ok and face_box:
+        sat_bot_idx = _next
+        _sat_inputs += ["-stream_loop", "-1", "-i", str(Path(satisfy_bottom).resolve())]
+        _next += 1
+        _use_sat = True
+
+    if _use_sat:
+        vfc = _layout_graph(layout, face_box, width, height, punch, grade, subs, sat_top_idx, sat_bot_idx)
+    elif layout == "gaming" and face_box:
         # Layout 2 PANELES (clips CON gameplay): cara arriba, gameplay al medio, negro abajo
         # (donde va la UI de TikTok). El viewer ve la reacción Y lo que pasa en pantalla.
         fx, fy, fw_, fh_ = [int(v) for v in face_box]
@@ -128,10 +207,11 @@ def render_short(
         vfc = f"[0:v]{chain},{subs}[v]"
 
     # --- Grafo de audio: diálogo del clip [0:a] + (música) + (whoosh en cada punch) ---
-    extra_inputs: list[str] = []
+    # Los satisfactorios (si los hay) ya ocupan los primeros índices; música/sfx/wm van después.
+    extra_inputs: list[str] = list(_sat_inputs)
     a_fc: list[str] = []            # sub-cadenas de audio
     a_labels: list[str] = ["[0:a]"]  # streams que entran al amix (el 1º fija la duración)
-    idx = 1
+    idx = _next
     if music and Path(music).exists():
         # -ss antes del -i: arranca la música en `music_start` (ej. el drop épico a los 0:30).
         extra_inputs += ["-stream_loop", "-1", "-ss", f"{music_start:.2f}", "-i", str(Path(music).resolve())]
