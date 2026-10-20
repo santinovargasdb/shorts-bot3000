@@ -31,6 +31,18 @@ MUSIC = {
 }
 
 
+def _satisfy_for_channel(channel, has_gameplay, picker):
+    """(satisfy_top, satisfy_bottom). Con gameplay: solo abajo (1). Sin gameplay: 2."""
+    if not channel.get("satisfying"):
+        return (None, None)
+    ch = channel.get("name", "")
+    if has_gameplay:
+        got = picker(ch, 1)
+        return (None, got[0] if got else None)
+    got = picker(ch, 2)
+    return (got[0] if len(got) > 0 else None, got[1] if len(got) > 1 else None)
+
+
 def _classify_mood(transcript: str) -> str:
     """'emotivo' | 'epico' | 'gracioso' según el transcript, vía LLM (Groq). Default epico."""
     try:
@@ -197,6 +209,15 @@ def process_source(
         tmp_out = f"{source.stem}_clip{i:02d}.mp4"
         if verbose:
             print(f"[{channel_name}] Render {i}/{len(clips)}  ({clip.start:.0f}s → {clip.end:.0f}s)...")
+        if channel.get("satisfying"):
+            from streamers.verify import classify_gameplay
+            from streamers.satisfying import pick_for
+            has_gp = channel.get("_has_gameplay")
+            if has_gp is None:
+                has_gp = classify_gameplay(source) or False
+            sat_top, sat_bot = _satisfy_for_channel(channel, has_gp, pick_for)
+        else:
+            sat_top = sat_bot = None
         rendered = render_short(
             source=source,
             start=clip.start,
@@ -219,6 +240,8 @@ def process_source(
             face_box=face_box,
             crf=int(channel.get("crf", 20)),
             watermark=channel.get("watermark"),
+            satisfy_top=sat_top,
+            satisfy_bottom=sat_bot,
         )
         final = out_dir / tmp_out
         shutil.move(str(rendered), str(final))

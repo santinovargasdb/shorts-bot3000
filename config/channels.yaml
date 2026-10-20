@@ -73,6 +73,7 @@ streamers:
   caption_margin_facecam: 660       # facecam-only: un poco más abajo que antes (no tapar la cara)
   crf: 18                           # calidad de encoding alta (18 < 20 = más nítido). La facecam
                                     # se escala con lanczos + unsharp para no verse blanda.
+  satisfying: true    # layout con videos satisfactorios (streamers/satisfying.py)
   legal_note: "Requiere permiso del streamer o edición transformadora."
 
 # -------------------------------------------------------------------------
