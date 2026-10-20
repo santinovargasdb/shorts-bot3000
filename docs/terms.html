@@ -1,33 +1,271 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="utf-8"><title>Términos de Servicio — En 60 Segundos</title>
+<head>
+<meta charset="utf-8">
+<title>Términos de Servicio — En 60 Segundos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Términos de Servicio de En 60 Segundos: uso de la app, responsabilidades del creador y cumplimiento de las plataformas.">
 <link rel="icon" type="image/png" href="icon.png">
-<style>body{font-family:system-ui,sans-serif;max-width:720px;margin:3rem auto;padding:0 1rem;color:#222;line-height:1.6}h1{font-size:1.5rem}</style>
+<style>
+  :root{--ink:#1c2430;--muted:#5a6675;--line:#e6e9ee;--accent:#0ea5a0;--bg:#f7f8fa}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;margin:0}
+  .wrap{max-width:780px;margin:0 auto;padding:0 1.2rem 4rem}
+  nav{max-width:780px;margin:0 auto;padding:1.1rem 1.2rem;display:flex;gap:1.1rem;align-items:center;font-size:.95rem}
+  nav a{color:var(--muted);text-decoration:none}nav a:hover{color:var(--accent)}
+  nav .brand{font-weight:700;color:var(--ink);margin-right:auto}
+  header{padding:1.6rem 0 1rem}
+  h1{font-size:1.7rem;letter-spacing:-.01em;margin:.2rem 0}
+  h2{font-size:1.15rem;margin:1.6rem 0 .5rem}
+  .upd{color:var(--muted);font-size:.95rem;margin:.2rem 0 0}
+  section{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.5rem;margin:1.1rem 0}
+  p{margin:.5rem 0}ul{margin:.5rem 0;padding-left:1.2rem}li{margin:.35rem 0}
+  a{color:var(--accent)}
+  .divider{text-align:center;color:var(--muted);margin:2.4rem 0 1rem;font-size:.9rem;letter-spacing:.08em;text-transform:uppercase}
+  .foot{text-align:center;color:var(--muted);font-size:.92rem;margin-top:1.6rem;border-top:1px solid var(--line);padding-top:1.4rem}
+</style>
 </head>
 <body>
-<h1>Términos de Servicio — En 60 Segundos</h1>
-<p><em>Última actualización: 13 de octubre de 2026</em></p>
-<ul>
-  <li><strong>En 60 Segundos</strong> es una app de escritorio para que los creadores de contenido
-  publiquen sus propios videos cortos originales en las cuentas de redes sociales que conectan
-  (TikTok, YouTube e Instagram).</li>
-  <li>La app solo publica en las cuentas que la autorizan mediante OAuth; nunca accede a la cuenta de otra persona.</li>
-  <li>El contenido publicado es responsabilidad del creador que es titular de la cuenta.</li>
-  <li>La app cumple con las políticas y términos de cada plataforma (TikTok, los Servicios de API de YouTube e Instagram).</li>
-</ul>
-<p>Contacto: nofaceshortvids@gmail.com</p>
+<nav>
+  <a class="brand" href="index.html">En 60 Segundos</a>
+  <a href="index.html">Inicio</a>
+  <a href="terms.html">Términos</a>
+  <a href="privacy.html">Privacidad</a>
+</nav>
+<div class="wrap">
+  <header>
+    <h1>Términos de Servicio</h1>
+    <p class="upd">Última actualización: 20 de octubre de 2026</p>
+  </header>
 
-<hr>
-<h1>Terms of Service — En 60 Segundos (English)</h1>
-<p><em>Last updated: October 13, 2026</em></p>
-<ul>
-  <li><strong>En 60 Segundos</strong> is a desktop app for content creators to publish their own
-  original short-form videos to the social accounts they connect (TikTok, YouTube and Instagram).</li>
-  <li>The app only publishes to the accounts that authorize it via OAuth; it never accesses anyone else's account.</li>
-  <li>The published content is the responsibility of the creator who owns the account.</li>
-  <li>The app complies with each platform's policies and terms, including TikTok's terms and the YouTube API Services Terms of Service (and Google Privacy Policy, https://policies.google.com/privacy).</li>
-</ul>
-<p>Contact: nofaceshortvids@gmail.com</p>
+  <section>
+    <h2>1. Aceptación de los términos</h2>
+    <p>Estos Términos de Servicio ("Términos") regulan el uso de <strong>En 60 Segundos</strong>
+    ("la App"). Al instalar la App, conectar una cuenta o usarla, el creador acepta estos Términos.
+    Si no está de acuerdo, no debe usar la App.</p>
+  </section>
+
+  <section>
+    <h2>2. Descripción del servicio</h2>
+    <p>En 60 Segundos es una aplicación de escritorio que ayuda a los creadores de contenido a
+    producir y publicar sus propios videos cortos originales en las cuentas de redes sociales que
+    ellos conectan (YouTube, TikTok e Instagram). La App arma cada video (voz, subtítulos, imágenes
+    con licencia y música libre) y lo publica de forma programada en las cuentas que el creador
+    autorizó mediante OAuth.</p>
+  </section>
+
+  <section>
+    <h2>3. Elegibilidad</h2>
+    <p>El creador declara ser mayor de edad en su jurisdicción y titular (o estar autorizado a operar)
+    de las cuentas que conecta. La App está pensada para uso personal del creador sobre sus propias
+    cuentas.</p>
+  </section>
+
+  <section>
+    <h2>4. Conexión y autorización de cuentas</h2>
+    <ul>
+      <li>El creador conecta sus cuentas mediante <strong>autorización OAuth</strong> (Login Kit en TikTok).</li>
+      <li>La App <strong>solo publica en la cuenta que la autorizó</strong>; nunca accede a la cuenta de otra persona.</li>
+      <li>El creador puede revocar el acceso en cualquier momento desde la configuración de seguridad de cada plataforma.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. Responsabilidades del creador</h2>
+    <ul>
+      <li>El contenido publicado es responsabilidad exclusiva del creador titular de la cuenta.</li>
+      <li>El creador se compromete a publicar únicamente contenido original o sobre el que tiene
+      derechos, y a no infringir derechos de autor, marcas ni derechos de terceros.</li>
+      <li>El creador debe cumplir las normas y lineamientos de comunidad de cada plataforma
+      (TikTok, YouTube, Instagram).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. Uso aceptable</h2>
+    <p>Está prohibido usar la App para: enviar spam o contenido engañoso; publicar en cuentas que no
+    pertenecen al creador o sin autorización; vulnerar las APIs o las políticas de las plataformas;
+    o publicar contenido ilegal, dañino o que infrinja derechos de terceros.</p>
+  </section>
+
+  <section>
+    <h2>7. Propiedad intelectual</h2>
+    <p>El creador conserva la titularidad del contenido que genera y publica. La App no reclama
+    derechos sobre dicho contenido. El creador es responsable de contar con las licencias o permisos
+    necesarios para cualquier material que incorpore a sus videos.</p>
+  </section>
+
+  <section>
+    <h2>8. Plataformas de terceros</h2>
+    <p>El uso de la App junto con TikTok, YouTube e Instagram está sujeto a los términos y políticas
+    de cada plataforma, incluidos los
+    <a href="https://www.tiktok.com/legal/terms-of-service">Términos de TikTok</a>, los
+    <a href="https://developers.google.com/youtube/terms/api-services-terms-of-service">Términos de
+    Servicio de los Servicios de API de YouTube</a> (y la
+    <a href="https://policies.google.com/privacy">Política de Privacidad de Google</a>) y los
+    <a href="https://help.instagram.com/581066165581870">Términos de Instagram</a>. En caso de
+    conflicto, prevalecen los términos de la plataforma respecto del uso de sus servicios.</p>
+  </section>
+
+  <section>
+    <h2>9. Garantías</h2>
+    <p>La App se ofrece "tal cual" y "según disponibilidad", sin garantías de ningún tipo, expresas
+    o implícitas. No garantizamos que la App esté libre de errores ni que las publicaciones se
+    completen siempre, ya que dependen de las APIs y de la disponibilidad de las plataformas.</p>
+  </section>
+
+  <section>
+    <h2>10. Limitación de responsabilidad</h2>
+    <p>En la máxima medida permitida por la ley, no seremos responsables por daños indirectos,
+    incidentales o consecuentes derivados del uso o la imposibilidad de uso de la App, incluida la
+    pérdida de contenido, de alcance o de acceso a cuentas de terceros.</p>
+  </section>
+
+  <section>
+    <h2>11. Indemnidad</h2>
+    <p>El creador acepta mantener indemne a En 60 Segundos frente a reclamos de terceros derivados
+    del contenido que publique o del incumplimiento de estos Términos o de las políticas de las
+    plataformas.</p>
+  </section>
+
+  <section>
+    <h2>12. Terminación</h2>
+    <p>El creador puede dejar de usar la App y revocar su acceso en cualquier momento. Podemos
+    suspender o discontinuar la App, total o parcialmente, cuando sea necesario por razones técnicas,
+    legales o de las plataformas.</p>
+  </section>
+
+  <section>
+    <h2>13. Cambios en los Términos</h2>
+    <p>Podemos actualizar estos Términos. Publicaremos la versión vigente en esta página con su fecha
+    de "Última actualización"; el uso continuado de la App implica la aceptación de los cambios.</p>
+  </section>
+
+  <section>
+    <h2>14. Ley aplicable y contacto</h2>
+    <p>Estos Términos se rigen por las leyes de la República Argentina.<br>
+    Contacto: <a href="mailto:nofaceshortvids@gmail.com">nofaceshortvids@gmail.com</a>.</p>
+  </section>
+
+  <div class="divider">— English version —</div>
+
+  <header>
+    <h1>Terms of Service</h1>
+    <p class="upd">Last updated: October 20, 2026</p>
+  </header>
+
+  <section>
+    <h2>1. Acceptance of terms</h2>
+    <p>These Terms of Service ("Terms") govern the use of <strong>En 60 Segundos</strong> ("the App").
+    By installing the App, connecting an account, or using it, the creator accepts these Terms. If the
+    creator does not agree, they must not use the App.</p>
+  </section>
+
+  <section>
+    <h2>2. Description of the service</h2>
+    <p>En 60 Segundos is a desktop application that helps content creators produce and publish their
+    own original short-form videos to the social accounts they connect (YouTube, TikTok and Instagram).
+    The App builds each video (voice-over, captions, licensed footage and royalty-free music) and
+    publishes it on a schedule to the accounts the creator authorized via OAuth.</p>
+  </section>
+
+  <section>
+    <h2>3. Eligibility</h2>
+    <p>The creator represents that they are of legal age in their jurisdiction and are the owner of (or
+    authorized to operate) the accounts they connect. The App is intended for the creator's personal
+    use on their own accounts.</p>
+  </section>
+
+  <section>
+    <h2>4. Account connection and authorization</h2>
+    <ul>
+      <li>The creator connects their accounts via <strong>OAuth authorization</strong> (Login Kit on TikTok).</li>
+      <li>The App <strong>only posts to the account that authorized it</strong>; it never accesses anyone else's account.</li>
+      <li>The creator may revoke access at any time from each platform's security settings.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. Creator responsibilities</h2>
+    <ul>
+      <li>The published content is the sole responsibility of the creator who owns the account.</li>
+      <li>The creator agrees to publish only original content, or content they have the rights to, and
+      not to infringe copyrights, trademarks, or third-party rights.</li>
+      <li>The creator must comply with each platform's rules and community guidelines (TikTok, YouTube,
+      Instagram).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. Acceptable use</h2>
+    <p>The App may not be used to: send spam or deceptive content; post to accounts the creator does not
+    own or is not authorized to use; abuse the platforms' APIs or policies; or publish illegal, harmful,
+    or infringing content.</p>
+  </section>
+
+  <section>
+    <h2>7. Intellectual property</h2>
+    <p>The creator retains ownership of the content they generate and publish. The App claims no rights
+    over that content. The creator is responsible for holding the licenses or permissions required for
+    any material they include in their videos.</p>
+  </section>
+
+  <section>
+    <h2>8. Third-party platforms</h2>
+    <p>Use of the App together with TikTok, YouTube, and Instagram is subject to each platform's terms
+    and policies, including the
+    <a href="https://www.tiktok.com/legal/terms-of-service">TikTok Terms</a>, the
+    <a href="https://developers.google.com/youtube/terms/api-services-terms-of-service">YouTube API
+    Services Terms of Service</a> (and the
+    <a href="https://policies.google.com/privacy">Google Privacy Policy</a>), and the
+    <a href="https://help.instagram.com/581066165581870">Instagram Terms</a>. In case of conflict, the
+    platform's terms prevail as to the use of its services.</p>
+  </section>
+
+  <section>
+    <h2>9. Warranties</h2>
+    <p>The App is provided "as is" and "as available", without warranties of any kind, express or
+    implied. We do not warrant that the App is error-free or that posts will always complete, as they
+    depend on the platforms' APIs and availability.</p>
+  </section>
+
+  <section>
+    <h2>10. Limitation of liability</h2>
+    <p>To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, or
+    consequential damages arising from the use or inability to use the App, including loss of content,
+    reach, or access to third-party accounts.</p>
+  </section>
+
+  <section>
+    <h2>11. Indemnification</h2>
+    <p>The creator agrees to hold En 60 Segundos harmless from third-party claims arising from the
+    content they publish or from breach of these Terms or of the platforms' policies.</p>
+  </section>
+
+  <section>
+    <h2>12. Termination</h2>
+    <p>The creator may stop using the App and revoke its access at any time. We may suspend or
+    discontinue the App, in whole or in part, when necessary for technical, legal, or platform-related
+    reasons.</p>
+  </section>
+
+  <section>
+    <h2>13. Changes to the Terms</h2>
+    <p>We may update these Terms. The current version will be posted on this page with its "Last
+    updated" date; continued use of the App constitutes acceptance of the changes.</p>
+  </section>
+
+  <section>
+    <h2>14. Governing law and contact</h2>
+    <p>These Terms are governed by the laws of Argentina.<br>
+    Contact: <a href="mailto:nofaceshortvids@gmail.com">nofaceshortvids@gmail.com</a>.</p>
+  </section>
+
+  <p class="foot">
+    <a href="index.html">Inicio / Home</a> ·
+    <a href="privacy.html">Privacidad / Privacy</a> ·
+    nofaceshortvids@gmail.com
+  </p>
+</div>
 </body>
 </html>

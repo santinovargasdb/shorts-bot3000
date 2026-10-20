@@ -3,6 +3,32 @@
 App en developers.tiktok.com (app de producción, no el sandbox).
 Ir a la app → completar los campos → Submit for review.
 
+## Por qué lo rechazaron (20-oct-2026) — 2ª devolución y qué cambiamos
+
+El reviewer rechazó por TRES puntos, todos del sitio (no de los scopes):
+
+1. **Website URL** — "must lead to an externally facing fully developed website
+   and should not be a landing page or login page." → Casi seguro visitó el
+   **Redirect URI** (`callback.html`, que es la pantalla de OAuth/login) tomándolo
+   como el sitio, o el campo **Website URL** de la app estaba vacío/apuntando ahí.
+   **FIX:** en la app (Basic Information) poner **Website URL = el homepage**
+   (`https://santinovargasdb.github.io/shorts-bot3000/`), NO el callback. Además
+   el homepage ahora es un sitio desarrollado (nav, funciones, cómo funciona,
+   plataformas, FAQ, contacto) y no una landing pelada.
+2. **Terms of Service insuficientes.** → `terms.html` reescrito COMPLETO: 14
+   secciones (aceptación, servicio, elegibilidad, autorización OAuth,
+   responsabilidades, uso aceptable, PI, plataformas de terceros, garantías,
+   limitación de responsabilidad, indemnidad, terminación, cambios, ley/contacto),
+   bilingüe ES+EN.
+3. **Privacy Policy insuficiente.** → `privacy.html` reescrito COMPLETO: 12
+   secciones (datos que trata, uso, dónde se guardan, terceros, retención,
+   derechos/revocar, YouTube API, menores, seguridad, cambios, contacto, ley),
+   bilingüe ES+EN.
+
+> ⚠️ El **Redirect URI** SÍ debe seguir siendo `callback.html` (es el callback de
+> OAuth, no el sitio). Lo que cambia es que el campo **Website URL** debe apuntar
+> al homepage. Son dos campos distintos: no confundirlos.
+
 ## Por qué lo rechazaron (13-oct-2026) y qué cambiamos
 
 El reviewer rechazó por dos motivos:
@@ -27,9 +53,10 @@ El reviewer rechazó por dos motivos:
 | App icon | `C:\Users\accsoc\Downloads\icono_tiktok_1024_fix.png` |
 | Category | Utilities (o Productivity si no aparece) |
 | Platform | Desktop |
+| **Website URL** | **https://santinovargasdb.github.io/shorts-bot3000/** (el homepage/index — NO el callback) |
 | Terms of Service URL | https://santinovargasdb.github.io/shorts-bot3000/terms.html |
 | Privacy Policy URL | https://santinovargasdb.github.io/shorts-bot3000/privacy.html |
-| Web/Redirect URI | https://santinovargasdb.github.io/shorts-bot3000/callback.html |
+| Web/Redirect URI | https://santinovargasdb.github.io/shorts-bot3000/callback.html (callback de OAuth, distinto del Website URL) |
 | Products | Login Kit + Content Posting API (con Direct Post) |
 | Demo video | `tiktok_review_demo.mp4` (la toma 7) |
 

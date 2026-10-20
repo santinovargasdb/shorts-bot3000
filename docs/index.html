@@ -2,107 +2,185 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>En 60 Segundos</title>
+<title>En 60 Segundos — Publicá tus videos cortos en automático</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="En 60 Segundos is a desktop app that helps content creators publish their own original short-form videos to their own connected social accounts (YouTube, TikTok, Instagram).">
+<meta name="description" content="En 60 Segundos is a desktop app that helps content creators produce and publish their own original short-form videos to their own connected social accounts (YouTube, TikTok, Instagram).">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <style>
-  :root{--ink:#1c2430;--muted:#5a6675;--line:#e6e9ee;--accent:#0ea5a0;--bg:#f7f8fa}
+  :root{--ink:#1c2430;--muted:#5a6675;--line:#e6e9ee;--accent:#0ea5a0;--accent-d:#0b847f;--bg:#f7f8fa}
   *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);
-       background:var(--bg);line-height:1.65;margin:0}
-  .wrap{max-width:760px;margin:0 auto;padding:0 1.2rem 4rem}
-  header{text-align:center;padding:3rem 1.2rem 2.4rem}
-  header img{width:104px;height:104px;border-radius:24px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
-  header h1{font-size:1.8rem;margin:1rem 0 .3rem;letter-spacing:-.01em}
-  header .tag{color:var(--muted);font-size:1.05rem;margin:0}
-  section{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.5rem;margin:1rem 0}
-  h2{font-size:1.15rem;margin:.1rem 0 .7rem}
-  p{margin:.5rem 0}
-  ul{margin:.5rem 0;padding-left:1.2rem}li{margin:.3rem 0}
-  .channels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin-top:.8rem}
-  .ch{border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;background:var(--bg)}
-  .ch b{display:block;color:var(--accent)}
+  html{scroll-behavior:smooth}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;margin:0}
   a{color:var(--accent)}
-  .foot{text-align:center;color:var(--muted);font-size:.92rem;margin-top:1.6rem;border-top:1px solid var(--line);padding-top:1.4rem}
-  .en{color:var(--muted);font-size:.95rem}
+  .bar{position:sticky;top:0;z-index:10;background:rgba(247,248,250,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav{max-width:960px;margin:0 auto;padding:.9rem 1.2rem;display:flex;gap:1.3rem;align-items:center;font-size:.95rem}
+  nav .brand{display:flex;align-items:center;gap:.55rem;font-weight:700;color:var(--ink);text-decoration:none;margin-right:auto}
+  nav .brand img{width:30px;height:30px;border-radius:8px}
+  nav a{color:var(--muted);text-decoration:none}nav a:hover{color:var(--accent)}
+  nav .cta{color:#fff;background:var(--accent);padding:.45rem .9rem;border-radius:9px}
+  nav .cta:hover{background:var(--accent-d)}
+  .hide-sm{display:inline}
+  .wrap{max-width:960px;margin:0 auto;padding:0 1.2rem}
+  .hero{text-align:center;padding:3.6rem 1.2rem 2.4rem}
+  .hero img{width:96px;height:96px;border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+  .hero h1{font-size:2.1rem;margin:1.1rem 0 .5rem;letter-spacing:-.02em;line-height:1.2}
+  .hero p{color:var(--muted);font-size:1.12rem;max-width:620px;margin:.3rem auto}
+  .hero .btns{margin-top:1.6rem;display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;padding:.7rem 1.3rem;border-radius:10px;text-decoration:none;font-weight:600}
+  .btn.primary{background:var(--accent);color:#fff}.btn.primary:hover{background:var(--accent-d)}
+  .btn.ghost{border:1px solid var(--line);color:var(--ink);background:#fff}.btn.ghost:hover{border-color:var(--accent)}
+  h2.sec{font-size:1.5rem;letter-spacing:-.01em;margin:0 0 .3rem}
+  .sub{color:var(--muted);margin:0 0 1.4rem}
+  .block{padding:2.6rem 0;border-top:1px solid var(--line)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem}
+  .card h3{margin:.1rem 0 .4rem;font-size:1.08rem}
+  .card p{margin:0;color:var(--muted);font-size:.97rem}
+  .card .ico{font-size:1.5rem}
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:.9rem}
+  ol.steps li{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem 1rem 3.2rem;position:relative}
+  ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:1rem;top:1rem;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.9rem}
+  ol.steps b{display:block;margin-bottom:.1rem}
+  ol.steps span{color:var(--muted);font-size:.96rem}
+  .platforms{display:flex;gap:.7rem;flex-wrap:wrap}
+  .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.5rem 1.1rem;font-weight:600;font-size:.95rem}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.2rem 1.2rem;margin-bottom:.7rem}
+  .faq summary{cursor:pointer;font-weight:600;padding:.9rem 0;list-style:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";float:right;color:var(--accent);font-weight:700}
+  .faq details[open] summary::after{content:"–"}
+  .faq p{margin:.2rem 0 1rem;color:var(--muted)}
+  .en{color:var(--muted);font-size:.96rem;background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.5rem}
+  footer{border-top:1px solid var(--line);margin-top:1rem}
+  .foot{max-width:960px;margin:0 auto;padding:2rem 1.2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.92rem}
+  .foot a{color:var(--muted);text-decoration:none}.foot a:hover{color:var(--accent)}
+  .foot .spacer{margin-left:auto}
+  @media(max-width:560px){.hide-sm{display:none}.hero h1{font-size:1.7rem}}
 </style>
 </head>
 <body>
+
+<div class="bar">
+  <nav>
+    <a class="brand" href="index.html"><img src="icon.png" alt="">En 60 Segundos</a>
+    <a class="hide-sm" href="#features">Funciones</a>
+    <a class="hide-sm" href="#how">Cómo funciona</a>
+    <a class="hide-sm" href="#faq">FAQ</a>
+    <a href="terms.html">Términos</a>
+    <a href="privacy.html">Privacidad</a>
+    <a class="cta" href="#contact">Contacto</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <img src="icon.png" alt="En 60 Segundos app icon">
+  <h1>Publicá tus videos cortos<br>en tus redes, en automático</h1>
+  <p>En 60 Segundos es una app de escritorio que te ayuda a producir y publicar tus propios
+  videos cortos originales en las cuentas que vos conectás: YouTube, TikTok e Instagram.</p>
+  <div class="btns">
+    <a class="btn primary" href="#how">Ver cómo funciona</a>
+    <a class="btn ghost" href="#features">Conocé las funciones</a>
+  </div>
+</header>
+
 <div class="wrap">
-  <header>
-    <img src="icon.png" alt="En 60 Segundos app icon">
-    <h1>En 60 Segundos</h1>
-    <p class="tag">App de escritorio para publicar tus videos cortos en tus redes</p>
-  </header>
 
-  <section>
-    <h2>Qué es En 60 Segundos</h2>
-    <p><strong>En 60 Segundos</strong> es una aplicación de escritorio que ayuda a los
-    creadores de contenido a producir y publicar sus propios videos cortos originales en
-    las cuentas de redes sociales que conectan (YouTube, TikTok e Instagram). El creador
-    conecta sus cuentas con una autorización OAuth y la app programa y publica sus videos
-    por él, para que mantenga una cadencia constante sin tener que subir cada video a mano.</p>
-  </section>
-
-  <section>
-    <h2>Cómo funciona</h2>
-    <ul>
-      <li>El creador conecta sus cuentas con <strong>autorización OAuth</strong> (Login Kit en TikTok).</li>
-      <li>La app arma cada video (voz, subtítulos, imágenes con licencia y música libre) y lo
-      publica de forma programada en las cuentas conectadas por el creador.</li>
-      <li>En TikTok, usa la Content Posting API y respeta siempre las opciones que elige el
-      creador: título, nivel de privacidad y ajustes de comentarios, dúo y stitch.</li>
-      <li>La app <strong>solo publica en la cuenta que la autorizó</strong>; nunca accede a la
-      cuenta de otra persona.</li>
-      <li>Los tokens de acceso se guardan <strong>localmente</strong> en el equipo del creador;
-      no hay servidores de terceros ni se recopilan datos de otros usuarios.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Contenido que publica</h2>
-    <div class="channels">
-      <div class="ch"><b>En 60 Segundos</b>Datos y curiosidades para parecer más inteligente.</div>
-      <div class="ch"><b>Historia en 60 Segundos</b>Historias reales que parecen inventadas.</div>
-      <div class="ch"><b>Misterios en 60 Segundos</b>Casos reales que nadie pudo explicar.</div>
+  <section class="block" id="features">
+    <h2 class="sec">Qué hace la app</h2>
+    <p class="sub">Todo lo que necesitás para mantener una cadencia constante sin subir cada video a mano.</p>
+    <div class="grid">
+      <div class="card"><div class="ico">🎬</div><h3>Arma el video por vos</h3>
+        <p>Voz en off, subtítulos, imágenes con licencia y música libre de derechos, listos para publicar.</p></div>
+      <div class="card"><div class="ico">🔗</div><h3>Conectás tus cuentas</h3>
+        <p>Autorización OAuth (Login Kit en TikTok). La app solo publica en la cuenta que la autoriza.</p></div>
+      <div class="card"><div class="ico">🗓️</div><h3>Publica programado</h3>
+        <p>Programás la cadencia y la app sube cada video al horario elegido, sin que estés encima.</p></div>
+      <div class="card"><div class="ico">🎛️</div><h3>Vos tenés el control</h3>
+        <p>En cada publicación respeta tus opciones: título, nivel de privacidad y ajustes de comentarios, dúo y stitch.</p></div>
+      <div class="card"><div class="ico">🔒</div><h3>Tus datos, locales</h3>
+        <p>Los tokens se guardan en tu equipo. No hay servidores de terceros ni datos de otros usuarios.</p></div>
+      <div class="card"><div class="ico">↩️</div><h3>Revocás cuando quieras</h3>
+        <p>Sacás el acceso en cualquier momento desde la configuración de seguridad de cada plataforma.</p></div>
     </div>
   </section>
 
-  <section>
-    <h2>Privacidad</h2>
-    <p>La app solo accede a las cuentas que la autorizan, no usa cookies ni rastreadores, y no
-    recopila, vende ni comparte datos personales de terceros. El creador puede revocar el acceso
-    en cualquier momento desde la configuración de seguridad de cada plataforma.</p>
-    <p>Más detalle en la <a href="privacy.html">Política de Privacidad</a> y los
-    <a href="terms.html">Términos de Servicio</a>.</p>
+  <section class="block" id="how">
+    <h2 class="sec">Cómo funciona</h2>
+    <p class="sub">De la idea a la publicación, en cuatro pasos.</p>
+    <ol class="steps">
+      <li><b>1. Conectá tu cuenta</b><span>Autorizás a la app con OAuth en la plataforma donde querés publicar. La app te muestra el nombre de la cuenta conectada para que confirmes que es la correcta.</span></li>
+      <li><b>2. La app arma el video</b><span>Genera la voz, los subtítulos y el armado visual con imágenes con licencia y música libre de derechos.</span></li>
+      <li><b>3. Elegís las opciones</b><span>Título, nivel de privacidad y ajustes de comentarios, dúo y stitch cuando la plataforma los ofrece.</span></li>
+      <li><b>4. Se publica solo</b><span>La app publica de forma programada en tu cuenta, al horario que definiste. Nada sale sin tu autorización.</span></li>
+    </ol>
   </section>
 
-  <section>
-    <h2>Contacto</h2>
-    <p>Consultas: <a href="mailto:nofaceshortvids@gmail.com">nofaceshortvids@gmail.com</a></p>
+  <section class="block" id="platforms">
+    <h2 class="sec">Plataformas que soporta</h2>
+    <p class="sub">Publicá en las cuentas que conectes, respetando los términos de cada red.</p>
+    <div class="platforms">
+      <span class="pill">▶ YouTube</span>
+      <span class="pill">♪ TikTok</span>
+      <span class="pill">◎ Instagram</span>
+    </div>
   </section>
 
-  <section>
-    <h2 class="en">English</h2>
-    <p class="en"><strong>En 60 Segundos</strong> is a desktop app that helps content creators
-    produce and publish their own original short-form videos to the social accounts they connect
-    (YouTube, TikTok and Instagram). The creator connects their accounts via OAuth authorization
-    (Login Kit on TikTok), and the app builds each video (voice-over, captions, licensed footage
-    and royalty-free music) and publishes it on a schedule to the creator's connected accounts. On
-    TikTok it uses the Content Posting API and always applies the creator's own choices (title,
-    privacy level, comment/duet/stitch settings). The app only ever posts to the account that
-    authorized it, stores access tokens locally on the creator's computer, and collects no data
-    from other users. See the <a href="privacy.html">Privacy Policy</a> and
-    <a href="terms.html">Terms of Service</a>.</p>
+  <section class="block" id="channels">
+    <h2 class="sec">Ejemplos de contenido</h2>
+    <p class="sub">Formatos de video corto que los creadores arman con la app.</p>
+    <div class="grid">
+      <div class="card"><h3>En 60 Segundos</h3><p>Datos y curiosidades para parecer más inteligente.</p></div>
+      <div class="card"><h3>Historia en 60 Segundos</h3><p>Historias reales que parecen inventadas.</p></div>
+      <div class="card"><h3>Misterios en 60 Segundos</h3><p>Casos reales que nadie pudo explicar.</p></div>
+    </div>
   </section>
 
-  <p class="foot">
-    <a href="terms.html">Términos de Servicio</a> ·
-    <a href="privacy.html">Política de Privacidad</a> ·
-    nofaceshortvids@gmail.com
-  </p>
+  <section class="block faq" id="faq">
+    <h2 class="sec">Preguntas frecuentes</h2>
+    <p class="sub">Lo que más nos consultan los creadores.</p>
+    <details><summary>¿La app puede publicar en cuentas que no son mías?</summary>
+      <p>No. La app solo publica en la cuenta que la autorizó mediante OAuth. Nunca accede a la cuenta de otra persona.</p></details>
+    <details><summary>¿Dónde se guardan mis credenciales?</summary>
+      <p>Los tokens de acceso se guardan localmente en tu equipo. No hay servidores de terceros ni una base de datos en la nube con datos de usuarios.</p></details>
+    <details><summary>¿Cómo revoco el acceso?</summary>
+      <p>Desde la configuración de seguridad de cada plataforma: en TikTok (Administrar permisos de apps), en Google/YouTube (myaccount.google.com/permissions) y en Instagram (Apps y sitios web).</p></details>
+    <details><summary>¿El contenido es original?</summary>
+      <p>Sí. La app arma videos originales con voz, subtítulos, imágenes con licencia y música libre de derechos. El creador es responsable del contenido que publica en su cuenta.</p></details>
+    <details><summary>¿Recopila datos míos o de terceros?</summary>
+      <p>No. No usa cookies ni rastreadores y no recopila, vende ni comparte datos personales de terceros. Más detalle en la <a href="privacy.html">Política de Privacidad</a>.</p></details>
+  </section>
+
+  <section class="block" id="contact">
+    <h2 class="sec">Contacto</h2>
+    <p class="sub">¿Dudas o consultas sobre la app?</p>
+    <p>Escribinos a <a href="mailto:nofaceshortvids@gmail.com">nofaceshortvids@gmail.com</a>.</p>
+    <p style="color:var(--muted);font-size:.95rem">Ver también la <a href="privacy.html">Política de Privacidad</a> y los <a href="terms.html">Términos de Servicio</a>.</p>
+  </section>
+
+  <section class="block">
+    <h2 class="sec">English summary</h2>
+    <p class="en"><strong>En 60 Segundos</strong> is a desktop app that helps content creators produce
+    and publish their own original short-form videos to the social accounts they connect (YouTube,
+    TikTok and Instagram). The creator connects their accounts via OAuth authorization (Login Kit on
+    TikTok), and the app builds each video (voice-over, captions, licensed footage and royalty-free
+    music) and publishes it on a schedule to the creator's connected accounts. On TikTok it uses the
+    Content Posting API and always applies the creator's own choices (title, privacy level,
+    comment/duet/stitch settings). The app only ever posts to the account that authorized it, stores
+    access tokens locally on the creator's computer, and collects no data from other users. See the
+    <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms of Service</a>.</p>
+  </section>
+
 </div>
+
+<footer>
+  <div class="foot">
+    <span>© 2026 En 60 Segundos</span>
+    <a href="terms.html">Términos de Servicio</a>
+    <a href="privacy.html">Política de Privacidad</a>
+    <a class="spacer" href="mailto:nofaceshortvids@gmail.com">nofaceshortvids@gmail.com</a>
+  </div>
+</footer>
+
 </body>
 </html>
