@@ -62,3 +62,8 @@ branding/snoo_source.png
 
 # Auto-refill supervisor (lock de corrida)
 autobuild/.lock
+.superpowers/
+
+# Pool de satisfactorios (media, se regenera con source_pool)
+streamers/satisfying/
+streamers/satisfying_state.json
