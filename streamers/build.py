@@ -55,7 +55,13 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
             print(f"[{channel_key}] sin clip nuevo que pegue en ningún streamer")
         return None
 
+    # Clasificar gameplay en el clip crudo una sola vez (para wiring de satisfactorios).
+    from streamers.verify import classify_gameplay
+    has_gp = classify_gameplay(Path(clip["local_path"]), verbose=verbose)
+
     ov = {"clips_per_source": 1, "name": channel_key}
+    if has_gp is not None:
+        ov["_has_gameplay"] = has_gp
     if cfg.get("layout_override"):                  # canal C (IRL): fuerza facecam-only
         ov["layout"] = cfg["layout_override"]
     wm = ROOT / "branding" / channel_key / "watermark.png"
@@ -83,9 +89,6 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
                        video_path=str(dst), streamer=clip["streamer"],
                        clip_id=clip["id"], views=clip.get("views", 0),
                        status=status, qc_note=v.get("problema", ""))
-    # Clasificar gameplay en el clip crudo y guardarlo (para wiring de satisfactorios).
-    from streamers.verify import classify_gameplay
-    has_gp = classify_gameplay(Path(clip["local_path"]), verbose=verbose)
     if has_gp is not None:
         db.set_gameplay(own, real, has_gp)
     if verbose:
