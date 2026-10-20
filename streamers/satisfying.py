@@ -44,53 +44,80 @@ def pick_for(channel: str, n: int, pool_dir: Path | None = None,
     return picked
 
 
-_QUERIES = ["satisfying", "slime", "paint mixing", "kinetic sand", "soap cutting",
-            "hydraulic press", "glass breaking", "foam", "glitter", "sand art",
-            "ice", "liquid color", "oddly satisfying", "cutting"]
+# Compilaciones "oddly satisfying" de YouTube (yt-dlp). Pixabay no tiene este contenido;
+# acá está el slime/kinetic sand/soap cutting de verdad. Riesgo de copyright: tier riesgoso.
+_YT_QUERIES = [
+    "ytsearch3:oddly satisfying slime kinetic sand compilation no talking",
+    "ytsearch3:satisfying soap cutting asmr compilation",
+    "ytsearch2:hydraulic press satisfying compilation",
+    "ytsearch2:satisfying glass fruit cutting compilation",
+    "ytsearch2:satisfying paint mixing compilation",
+    "ytsearch2:kinetic sand cutting satisfying compilation",
+]
 
 
-def source_pool(target: int = 30, pool_dir: Path | None = None, seconds: int = 35,
-                verbose: bool = True) -> int:
-    """Baja ~target videos satisfactorios HORIZONTALES (Pixabay, licencia libre) y los deja
-    como sat_NNNN.mp4 (1080 de ancho, sin audio, 30fps). Devuelve cuántos hay en total."""
+def _probe_dur(path) -> float:
     import subprocess
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "csv=p=0", str(path)], capture_output=True, text=True, timeout=30)
+        return float((r.stdout or "0").strip())
+    except Exception:
+        return 0.0
 
-    from whatonearth.sourcing import search_pixabay, _download
+
+def _is_landscape(path) -> bool:
+    import subprocess
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                            "stream=width,height", "-of", "csv=p=0", str(path)],
+                           capture_output=True, text=True, timeout=30)
+        w, h = (int(x) for x in r.stdout.strip().split(","))
+        return w > h
+    except Exception:
+        return True
+
+
+def source_pool(target: int = 30, pool_dir: Path | None = None, seg: int = 30,
+                verbose: bool = True) -> int:
+    """Baja compilaciones 'oddly satisfying' de YouTube (yt-dlp), HORIZONTALES 1080p, y las corta
+    en segmentos de ~seg s (sin audio, 1080 de ancho, 30fps) -> sat_NNNN.mp4. Salta ~30s entre
+    cortes para variar el contenido. Devuelve el total en el pool."""
+    import subprocess
 
     pool_dir = Path(pool_dir or POOL_DIR)
     pool_dir.mkdir(parents=True, exist_ok=True)
     n = len(list(pool_dir.glob("sat_*.mp4")))
-    seen: set[str] = set()
-    raw = pool_dir / "_raw.tmp.mp4"
-    for q in _QUERIES:
+    comp = pool_dir / "_comp.tmp.mp4"
+    for query in _YT_QUERIES:
         if n >= target:
             break
-        for h in search_pixabay(q):
-            if n >= target:
-                break
-            url = h.get("url")
-            if not url or url in seen:
-                continue
-            seen.add(url)
-            if h.get("width", 0) <= h.get("height", 0):      # solo HORIZONTAL
-                continue
-            try:
-                _download(url, raw)
-            except Exception:
-                continue
+        comp.unlink(missing_ok=True)
+        try:
+            subprocess.run(
+                ["yt-dlp", "-f", "bv*[height<=1080][ext=mp4]+ba/b[height<=1080]",
+                 "--merge-output-format", "mp4",
+                 "--match-filter", "duration>180 & duration<1500",   # horizontal se chequea abajo
+                 "--max-downloads", "1", "-o", str(comp), query],
+                capture_output=True, timeout=600)
+        except Exception:
+            continue
+        dur = _probe_dur(comp)
+        if not comp.exists() or dur < 120 or not _is_landscape(comp):
+            continue
+        t = 45.0
+        while t + seg < dur - 25 and n < target:
             out = pool_dir / f"sat_{n + 1:04d}.mp4"
-            r = subprocess.run(
-                ["ffmpeg", "-y", "-t", str(seconds), "-i", str(raw), "-vf", "scale=1080:-2",
-                 "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-r", "30",
-                 str(out)], capture_output=True)
+            subprocess.run(
+                ["ffmpeg", "-y", "-ss", f"{t:.0f}", "-t", str(seg), "-i", str(comp),
+                 "-vf", "scale=1080:-2", "-an", "-c:v", "libx264", "-preset", "veryfast",
+                 "-crf", "23", "-r", "30", str(out)], capture_output=True)
             if out.exists() and out.stat().st_size > 1000:
                 n += 1
                 if verbose:
-                    print(f"[sat] {n}/{target}  ({q}: {h.get('width')}x{h.get('height')})")
-            else:
-                if verbose and r.returncode != 0:
-                    print(f"[sat] falló cortar ({q}): {r.stderr[-120:].decode(errors='ignore')}")
-    raw.unlink(missing_ok=True)
+                    print(f"[sat] {n}/{target}  (corte en {int(t)}s)")
+            t += seg + 30
+    comp.unlink(missing_ok=True)
     return n
 
 
