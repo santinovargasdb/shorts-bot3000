@@ -58,13 +58,12 @@ streamers:
   music_mood: true
   # Recorta a la FACECAM del streamer (detección de cara) en vez del centro (gameplay).
   face_crop: true
-  # Zoom-punch: golpe breve de zoom cada N segundos (el "corte" de energía de los clips
-  # virales, emulado sobre una sola fuente). Ritmo ~2.5s = el que medí en las refs.
-  zoom_punch: true
+  # Zoom-punch + whoosh DESACTIVADOS (2026-10-20, pedido del usuario: el zoom/whoosh cada ~2.5s
+  # "quedaba para el orto"). Los clips se renderizan sin el golpe de zoom ni el whoosh; se mantiene
+  # la música (music_mood), el grade y el layout. (punch_interval/sfx_vol quedan por si se reactivan.)
+  zoom_punch: false
   punch_interval: 2.5
-  # Whoosh (sfx/whoosh.wav) que barre hacia cada zoom-punch. Sintetizado gratis; auditar y
-  # reemplazar el archivo si se quiere otro sonido. sfx_vol = bajo, de fondo (no tapar la voz).
-  sfx_cut: true
+  sfx_cut: false
   sfx_vol: 0.3
   # Layout auto por clip: si la cara es un box chico (gameplay detrás) -> 2 paneles
   # (cara/juego/negro); si llena el cuadro (IRL/charla) -> facecam-only (nicho inglés).
