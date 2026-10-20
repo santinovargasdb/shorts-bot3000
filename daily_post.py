@@ -80,10 +80,21 @@ def _save_state(state: dict, channel: str) -> None:
 
 def _ensure_video(part: int, ctx: dict, series) -> Path:
     """Devuelve el mp4 de la parte, generándolo si no existe."""
-    # Canales con video PRE-RENDERIZADO (ej. whatonearth) exponen video_path_for:
-    # daily_post postea ese mp4 tal cual, sin pasar por curiosidades.generate.
+    # Canales con video PRE-RENDERIZADO (streamers, whatonearth) exponen video_path_for:
+    # daily_post postea ese mp4 tal cual, sin pasar por curiosidades.generate. El render NO
+    # deja el .json de metadatos, así que lo escribimos acá con el título REAL de la serie
+    # (si no, upload_from_folder / _ig_caption / _tt_caption caían al nombre del archivo).
     if hasattr(series, "video_path_for"):
-        return Path(series.video_path_for(part))
+        video = Path(series.video_path_for(part))
+        meta = video.with_suffix(".json")
+        if not meta.exists() and hasattr(series, "title_for"):
+            info = {"title": series.title_for(part), "hashtags": list(getattr(series, "KEYWORDS", []))}
+            try:
+                info["description"] = series.descripcion(part, series.PARTS[part].get("resumen", ""))
+            except Exception:
+                info["description"] = ""
+            meta.write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
+        return video
     from src.curiosidades import generate
     from src.faceless import _slug
 
