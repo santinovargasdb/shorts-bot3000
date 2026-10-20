@@ -58,10 +58,11 @@ autoscripts/*.sqlite
 
 # Snoo de Reddit (marca registrada): fuente local del branding, no se sube
 branding/snoo_source.png
-.superpowers/
 
 # Auto-refill supervisor (lock de corrida)
 autobuild/.lock
+
+# Scratch de subagent-driven-development (ledger de progreso)
 .superpowers/
 
 # Pool de satisfactorios (media, se regenera con source_pool)
