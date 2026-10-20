@@ -174,3 +174,20 @@ def verify_source(video_path, want: str = "gameplay", verbose: bool = True) -> d
 def verify_clip(video_path, verbose: bool = True) -> dict:
     """Chequeo de NUESTRO short ya renderizado. ok True -> approved, False -> rejected."""
     return _check(video_path, _PROMPT, "final", verbose)
+
+
+_GAMEPLAY_PROMPT = (
+    "Mirá estos frames de un clip de un streamer. ¿Hay un VIDEOJUEGO en pantalla (el streamer "
+    "está jugando, se ve gameplay), o es SOLO el streamer hablando/IRL sin juego?\n"
+    'Respondé SOLO JSON: {"gameplay": true/false}')
+
+
+def classify_gameplay(video_path, verbose: bool = True) -> bool | None:
+    """True si hay gameplay en pantalla, False si es solo cara/charla, None si el QC no está."""
+    frames = _frames(video_path)
+    if not frames:
+        return None
+    v = _gemini(_GAMEPLAY_PROMPT, frames, verbose)
+    if v is None:
+        return None
+    return bool(v.get("gameplay"))
