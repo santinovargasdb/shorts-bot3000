@@ -221,6 +221,14 @@ def is_watchparty(path, min_faces: int = 4, samples: int = 12) -> bool:
         return False
 
 
+def watchparty_matters(want: str) -> bool:
+    """¿Importa descartar por cantidad de caras? En IRL NO: varias personas en UN solo stream
+    (face-off, colab, entrevista) es contenido BUENO y ahí salen más clips; el único filtro de
+    contenido es NSFW (lo hace el QC de fuente). Una grilla de streams separados igual la rechaza
+    el QC por 'mosaico'. En gameplay SÍ importa (una grilla no es un momento puntual de juego)."""
+    return want != "irl"
+
+
 def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
               want: str = "gameplay", platform: str = "twitch",
               verbose: bool = True) -> dict | None:
@@ -250,7 +258,7 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
                 print(f"[streamers]   descartado (audio plano {spike:.2f}): {_s(cand['title'])!r}")
             out.unlink(missing_ok=True)
             continue
-        if is_watchparty(out):                 # grilla multi-cam -> no es momento puntual
+        if watchparty_matters(want) and is_watchparty(out):   # IRL: multi-persona en 1 stream OK
             if verbose:
                 print(f"[streamers]   descartado (watch-party/multi-cam): {_s(cand['title'])!r}")
             out.unlink(missing_ok=True)
