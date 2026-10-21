@@ -51,7 +51,10 @@ _SRC_GAMEPLAY = (
 _SRC_IRL = (
     "- Es GAMEPLAY (hay un videojuego en pantalla, el streamer está jugando). Este canal es de "
     "IRL/CHARLA (streamer hablando a cámara); el gameplay va a OTRA cuenta, así que acá gameplay "
-    "= descartar.\n")
+    "= descartar.\n"
+    "IMPORTANTE para este canal: VARIAS personas en UNA sola cámara/sala (face-off, colaboración, "
+    "entrevista, podcast) es BUENO y NO se descarta como multi-streamer. Rechazá por multi-streamer "
+    "SOLO si es un mosaico/grilla de streams SEPARADOS (watch-party de varias cámaras distintas).\n")
 _SRC_END = ('Si pasa todo, ok=true.\n'
             'Respondé SOLO JSON: {"ok": true/false, "problema": "breve o vacío"}')
 

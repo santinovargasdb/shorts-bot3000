@@ -22,10 +22,17 @@ _SEP = "|@|"
 _UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
        "Chrome/125.0 Safari/537.36")
 LIST_LIMIT = 30          # clips a listar por streamer
-TRY_TOP = 6              # candidatos a bajar+validar antes de rendirse
-SPIKE_MIN = 1.25         # gate LENIENT: solo descarta audio muerto/plano. El juez de "momento
-                         # interesante" es el LLM del título + views (no el audio).
+TRY_TOP = 10             # candidatos a bajar+validar antes de rendirse (+intentos = +aprobados)
+SPIKE_MIN = 1.25         # gate LENIENT (gameplay): solo descarta audio muerto/plano. El juez de
+                         # "momento interesante" es el LLM del título + views (no el audio).
+SPIKE_IRL = 1.05         # IRL/charla: hablar tranquilo NO hace pico; acá solo matamos silencio real
+                         # (la viralidad la dan los views, y el clip ya es un momento curado).
 DUR_MIN, DUR_MAX = 8.0, 60.0
+
+
+def spike_floor(want: str) -> float:
+    """Umbral de pico de audio según el canal: gameplay exige hype (pico), IRL casi no (charla)."""
+    return SPIKE_IRL if want == "irl" else SPIKE_MIN
 
 
 def _run(cmd, timeout):
@@ -253,7 +260,7 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
         if not download_hd(cand, out):
             continue
         spike = audio_spike(out)
-        if spike < SPIKE_MIN:                  # audio muerto/plano -> siguiente
+        if spike < spike_floor(want):          # audio muerto/plano -> siguiente (umbral por canal)
             if verbose:
                 print(f"[streamers]   descartado (audio plano {spike:.2f}): {_s(cand['title'])!r}")
             out.unlink(missing_ok=True)
