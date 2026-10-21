@@ -42,7 +42,8 @@ _SRC_DEALBREAKERS = (
     "- SUBTÍTULOS/TEXTO QUEMADOS: el clip YA trae subtítulos o texto grande encima (ya está "
     "editado) -> si lo re-subtitulamos quedarían DOBLES.\n"
     "- MULTI-STREAMER: mosaico/grilla de varias caras de streamers (watch-party).\n"
-    "- CHAT de Twitch o ALERTAS de suscripción ocupando parte importante del cuadro.\n"
+    "- Un overlay/ventana/alerta que TAPA la cara del streamer o cubre casi toda la pantalla. "
+    "OJO: el CHAT de Twitch chico a un costado es ACEPTABLE (suma contexto) -> NO lo rechaces por eso.\n"
     "- Pantalla estática / sin nada pasando / solo un menú o texto.\n")
 _SRC_GAMEPLAY = (
     "- NO hay ningún VIDEOJUEGO en pantalla: es solo el streamer hablando/IRL. Este canal es de "
@@ -68,7 +69,8 @@ _PROMPT = (
     "original (otra tipografía/posición, ej. a mitad de pantalla).\n"
     "- WATCH-PARTY: el panel del gameplay es un MOSAICO de MUCHAS caras de streamers distintos "
     "(no un juego).\n"
-    "- CHAT de Twitch o ALERTAS de suscripción visibles dentro del cuadro.\n"
+    "- Una alerta/overlay que TAPA la cara del streamer o cubre casi toda la pantalla. OJO: el "
+    "CHAT de Twitch visible a un costado es ACEPTABLE -> NO rechaces por el chat.\n"
     "- Imagen MUY borrosa/pixelada, o la cara del streamer cortada/ausente.\n"
     "Si está limpio (nuestro formato, sin esos problemas), ok=true.\n"
     'Respondé SOLO JSON: {"ok": true/false, "problema": "breve o vacío"}'
@@ -100,6 +102,18 @@ def _frames(video, n: int = 3) -> list[Path]:
     return out
 
 
+def _coerce_qc(parsed) -> dict | None:
+    """Gemini a veces envuelve el objeto JSON en una lista ([{...}]); normalizá a dict (o None
+    si es basura). Evita que _check crashee con 'list' object has no attribute 'get'."""
+    if isinstance(parsed, dict):
+        return parsed
+    if isinstance(parsed, list):
+        for item in parsed:
+            if isinstance(item, dict):
+                return item
+    return None
+
+
 def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | None:
     """POST a Gemini con prompt + frames. Devuelve el dict JSON, o None (sin key / error)."""
     global QUOTA_HIT
@@ -129,7 +143,7 @@ def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | Non
                     headers={"Content-Type": "application/json"})
                 with urllib.request.urlopen(req, timeout=60) as resp:
                     data = json.loads(resp.read())
-                return json.loads(data["candidates"][0]["content"]["parts"][0]["text"])
+                return _coerce_qc(json.loads(data["candidates"][0]["content"]["parts"][0]["text"]))
             except urllib.error.HTTPError as e:
                 if e.code == 429:                        # cuota/rate de Gemini agotada
                     saw_quota = True
