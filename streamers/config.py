@@ -34,10 +34,13 @@ CHANNELS = {
         "platform": "kick",            # los AR grandes se mudaron a Kick (API JSON + m3u8, NO Twitch)
     },
     "streamers_c": {
-        "display": "Clips IRL Españoles",
-        # Españoles que hacen mucha charla/IRL (el QC con content=irl filtra sus momentos de charla).
-        "streamers": ["ibai", "auronplay", "elxokas", "illojuan", "thegrefg", "elrubius",
-                      "perxitaa", "knekro", "werlyb", "fargan"],
+        "display": "Clips IRL",
+        # IRL/charla en INGLÉS (el nicho limpio abunda ahí; refs tipo IShowSpeed). El español ya
+        # lo cubre Clips Hispanos. Mezcla Twitch y Kick -> plataforma POR-streamer. El QC con
+        # content=irl descarta el gameplay de estos (muchos también juegan).
+        # (dukedennis daba 0 clips en Twitch en 30d -> fuera; re-agregar con handle/plataforma ok)
+        "streamers": [("kaicenat", "twitch"), ("adinross", "kick"), ("fanum", "twitch"),
+                      ("jackdoherty", "kick"), ("xqc", "kick")],
         "db": ROOT / "streamers" / "backlog_c.sqlite",
         "period": "30d",
         "content": "irl",              # solo CHARLA/IRL (descarta gameplay)

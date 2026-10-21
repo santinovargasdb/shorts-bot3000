@@ -45,6 +45,14 @@ def content_mismatch(channel_content: str, has_gameplay: bool | None) -> bool:
     return False
 
 
+def _name_platform(entry, default_platform: str) -> tuple[str, str]:
+    """Un streamer se declara como 'nombre' (usa la plataforma por defecto del canal) o como
+    ('nombre', 'plataforma') para mezclar Twitch y Kick en un mismo canal (ej. IRL inglés)."""
+    if isinstance(entry, (tuple, list)):
+        return entry[0], entry[1]
+    return entry, default_platform
+
+
 def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | None:
     cfg = scfg.get(channel_key)
     own = conn or db.connect(cfg["db"])
@@ -56,11 +64,13 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     # Round-robin: arranca por el streamer que toca (según clips ya hechos) y recorre todos.
     k = len(existing) % len(streamers)
     order = streamers[k:] + streamers[:k]
+    default_plat = cfg.get("platform", "twitch")
     clip = None
-    for s in order:
-        clip = sourcing.best_clip(s, work, used_ids=used, period=cfg.get("period", "30d"),
+    for entry in order:
+        name, platform = _name_platform(entry, default_plat)
+        clip = sourcing.best_clip(name, work, used_ids=used, period=cfg.get("period", "30d"),
                                   want=cfg.get("content", "gameplay"),
-                                  platform=cfg.get("platform", "twitch"), verbose=verbose)
+                                  platform=platform, verbose=verbose)
         if clip:
             break
     if not clip:

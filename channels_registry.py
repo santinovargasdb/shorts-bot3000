@@ -101,15 +101,15 @@ CHANNELS = {
         "sfx_style": "datos",
     },
     "streamers_c": {
-        "display": "Clips IRL Españoles",
-        "series": "series_streamers_c",    # adaptador: lee streamers/backlog_c.sqlite (facecam-only)
+        "display": "Clips IRL",
+        "series": "series_streamers_c",    # adaptador: lee streamers/backlog_c.sqlite (facecam-only, IRL inglés)
         "engine_channel": "streamers",
         "music": "music/streamers",
         "yt_token": "secrets/streamers_c/token.json",
         "ig_creds": "secrets/streamers_c/instagram.json",
         "tt_token": "secrets/streamers_c/tiktok_token.json",
         "platforms": ("yt", "ig"),         # YT+IG activos (IG clipsirl.47, 2026-10-20); falta "tt"
-        "first_comment": "¿Qué streamer querés que subamos? \U0001F447",
+        "first_comment": "Which streamer should we clip next? \U0001F447",
         "sfx_style": "datos",
     },
 }

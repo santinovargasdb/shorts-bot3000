@@ -1,10 +1,11 @@
-"""Adaptador del canal C (streamers IRL españoles): lee el backlog streamers/backlog_c.sqlite.
-Clips de charla/IRL en formato facecam-only. daily_post postea solo los aprobados."""
+"""Adaptador del canal C (streamers IRL en INGLÉS): lee el backlog streamers/backlog_c.sqlite.
+Clips de charla/IRL (refs tipo IShowSpeed) en formato facecam-only. daily_post postea solo los
+aprobados. El español lo cubre Clips Hispanos."""
 from __future__ import annotations
 
 from streamers.series import load_parts
 
-KEYWORDS = ["clips", "twitch", "streamer", "irl", "charla", "viral", "fyp", "momentos"]
+KEYWORDS = ["clips", "irl", "streamer", "funny", "reaction", "viral", "fyp", "twitch"]
 PARTS: dict = load_parts("streamers_c")
 
 
