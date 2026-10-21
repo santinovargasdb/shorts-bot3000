@@ -32,6 +32,19 @@ def make_description(clip: dict) -> str:
     return f"{_clean(clip['title'])}\n\n{cred}\n\n{_HASHTAGS}\n\n{_DISCLAIMER}"
 
 
+def content_mismatch(channel_content: str, has_gameplay: bool | None) -> bool:
+    """True si el contenido del clip NO corresponde al canal: gameplay en un canal IRL, o
+    charla/IRL en un canal de gameplay. has_gameplay None (el QC no pudo clasificar) -> no
+    rechaza (que lo decida el QC de visión o la revisión manual)."""
+    if has_gameplay is None:
+        return False
+    if channel_content == "irl" and has_gameplay:
+        return True
+    if channel_content == "gameplay" and not has_gameplay:
+        return True
+    return False
+
+
 def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | None:
     cfg = scfg.get(channel_key)
     own = conn or db.connect(cfg["db"])
@@ -58,6 +71,20 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     # Clasificar gameplay en el clip crudo una sola vez (para wiring de satisfactorios).
     from streamers.verify import classify_gameplay
     has_gp = classify_gameplay(Path(clip["local_path"]), verbose=verbose)
+
+    # Guard de contenido: no gastar un render si el contenido no corresponde al canal
+    # (gameplay en IRL o charla en un canal de gameplay). Se registra rechazado para que el
+    # clip_id quede 'usado' y no se vuelva a sourcear.
+    if content_mismatch(cfg.get("content", "gameplay"), has_gp):
+        real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
+                           video_path="", streamer=clip["streamer"], clip_id=clip["id"],
+                           views=clip.get("views", 0), status="rejected",
+                           qc_note="contenido no coincide con el canal (gameplay vs IRL)",
+                           has_gameplay=has_gp)
+        if verbose:
+            print(f"[{channel_key}] RECHAZADO (contenido no coincide, has_gameplay={has_gp}) "
+                  f"seq {real} ({clip['streamer']})")
+        return real
 
     ov = {"clips_per_source": 1, "name": channel_key}
     if has_gp is not None:
@@ -123,10 +150,17 @@ def resolve_pending(channel_key: str, *, conn=None, verbose: bool = True) -> int
     cuota. Se frena si la cuota se vuelve a agotar (verify.QUOTA_HIT). Devuelve cuántos aprobó."""
     from streamers import verify
     own = conn or db.connect(scfg.get(channel_key)["db"])
+    content = scfg.get(channel_key).get("content", "gameplay")
     resolved = 0
     for clip in db.by_status(own, "pending"):
         if verify.QUOTA_HIT:
             break
+        # Guard de contenido: un pending gameplay en canal IRL (o viceversa) -> rechazar sin QC.
+        if content_mismatch(content, clip.get("has_gameplay")):
+            db.set_status(own, clip["seq"], "rejected")
+            if verbose:
+                print(f"[{channel_key}] seq {clip['seq']} rechazado (contenido no coincide con el canal)")
+            continue
         vp = clip.get("video_path")
         if not vp or not Path(vp).exists():
             db.set_status(own, clip["seq"], "rejected")     # el mp4 ya no está -> descartar
