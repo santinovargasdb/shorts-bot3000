@@ -69,6 +69,52 @@ def background_for(part: int) -> str:
     return BACKGROUNDS[(part - 1) % len(BACKGROUNDS)]
 
 
+# Patrones de "bienvenida": saludo / anuncio de tema hablado ANTES del dato.
+# El análisis de viralidad (docs/formula-faceless-viral.md §1, §9.1-3) mostró
+# que los videos que abrían con esto fueron los PEORES del canal: el short tiene
+# que arrancar EN el hook (el dato/afirmación contraintuitiva) en el frame 0.
+_BIENVENIDA_PREFIJOS = (
+    "hola", "buenas", "buenos dias", "buenas tardes", "buenas noches",
+    "que tal", "bienvenido", "bienvenida", "bienvenidos", "bienvenidas",
+    "hoy te traigo", "hoy les traigo", "hoy vamos", "en el video de hoy",
+    "en este video", "en el dia de hoy", "suscribite", "suscribete",
+    "antes de empezar", "arrancamos", "como estan", "como andan",
+)
+
+
+def _norm_bienvenida(text: str) -> str:
+    """Minúsculas sin acentos ni signos de apertura, para comparar prefijos."""
+    t = (text or "").strip().lower().lstrip("¿¡\"'(-–— ")
+    for a, b in (("á", "a"), ("é", "e"), ("í", "i"), ("ó", "o"), ("ú", "u"), ("ü", "u")):
+        t = t.replace(a, b)
+    return t
+
+
+def es_bienvenida(text: str) -> bool:
+    """¿La frase es un saludo/bienvenida/anuncio de tema (patrón de video muerto)
+    en vez de arrancar en el dato? Mira el ARRANQUE de la frase (no el medio: un
+    dato puede mencionar 'hoy' o 'video' más adelante sin ser una bienvenida)."""
+    t = _norm_bienvenida(text)
+    return any(t.startswith(p) for p in _BIENVENIDA_PREFIJOS)
+
+
+def assert_hook_first(segments: list) -> None:
+    """Garantiza que el guion ARRANCA en el hook: el primer segmento es un dato
+    hablado ('fact') y no una tarjeta de título ni una bienvenida. Levanta
+    ValueError si no (el pipeline aborta antes de renderizar un video muerto)."""
+    if not segments:
+        raise ValueError("guion sin segmentos")
+    first = segments[0]
+    if first.get("kind") != "fact":
+        raise ValueError(
+            f"el guion no abre en el hook: el primer segmento es "
+            f"{first.get('kind')!r}, debería ser un 'fact' (el dato)")
+    if es_bienvenida(first.get("text", "")):
+        raise ValueError(
+            f"el guion abre con una bienvenida/saludo en vez del dato: "
+            f"{first.get('text', '')[:60]!r}")
+
+
 def _T():
     return {"kind": "title", "text": TITULO_PANTALLA}
 
