@@ -12,7 +12,7 @@ re-apunta a otra historia aunque se reescriban más.
 """
 from __future__ import annotations
 
-from series_data import BACKGROUNDS
+from series_data import CLEAN_BACKGROUNDS
 
 import reddit_pipeline.db as _db
 from reddit_pipeline.constants import DB_PATH
@@ -97,8 +97,9 @@ def intro_card_for(part: int):
 
 def background_for(part: int) -> str:
     """Gameplay rotativo del pool compartido, desfasado para no clonar el mismo
-    fondo que los otros canales en la misma posición."""
-    return BACKGROUNDS[(part + 2) % len(BACKGROUNDS)]
+    fondo que los otros canales en la misma posición. Solo clips sin HUD
+    (los Subway quedan fuera: CLEAN_BACKGROUNDS)."""
+    return CLEAN_BACKGROUNDS[(part + 2) % len(CLEAN_BACKGROUNDS)]
 
 
 def descripcion(parte: int, resumen: str) -> str:

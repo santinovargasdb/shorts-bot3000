@@ -64,9 +64,25 @@ BACKGROUNDS = [
 ]
 
 
+# Clips con HUD del juego encima (botón de pausa, contador de monedas, puntaje):
+# tapan la pantalla y son el perfil que la fórmula (§1/§8) marca como "video
+# muerto / slop". Quedan FUERA de la rotación (no se borran: siguen en el
+# inventario BACKGROUNDS y en disco por si se recortan limpios más adelante).
+# Subway Surfers es el caso típico: su HUD es fijo y bien visible.
+HUD_BACKGROUNDS = [
+    "backgrounds/bg_subway.mp4",
+    "backgrounds/bg_subway_2.mp4",
+    "backgrounds/bg_subway_3.mp4",
+    "backgrounds/bg_subway_4.mp4",
+]
+
+# Pool que SÍ rota: el inventario completo menos los clips con HUD.
+CLEAN_BACKGROUNDS = [b for b in BACKGROUNDS if b not in HUD_BACKGROUNDS]
+
+
 def background_for(part: int) -> str:
-    """Fondo rotativo según el número de parte."""
-    return BACKGROUNDS[(part - 1) % len(BACKGROUNDS)]
+    """Fondo rotativo según el número de parte (solo clips sin HUD)."""
+    return CLEAN_BACKGROUNDS[(part - 1) % len(CLEAN_BACKGROUNDS)]
 
 
 # Patrones de "bienvenida": saludo / anuncio de tema hablado ANTES del dato.

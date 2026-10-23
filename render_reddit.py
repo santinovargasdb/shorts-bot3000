@@ -21,8 +21,8 @@ from src.curiosidades import generate
 DB = ROOT / "reddit_pipeline" / "stories.sqlite"
 CHANNEL = "soyelmalo"
 VOZ = {"M": "es-MX-JorgeNeural", "F": "es-MX-DaliaNeural"}
+# Sin Subway Surfers: su HUD (pausa/monedas/puntaje) tapa pantalla (fórmula §1/§8).
 BACKGROUNDS = [
-    "backgrounds/bg_subway.mp4",
     "backgrounds/bg_minecraft.mp4",
     "backgrounds/bg_gta.mp4",
     "backgrounds/bg_satisfying.mp4",
