@@ -22,7 +22,7 @@ from . import stock
 from .faceless import OUTPUT_DIR, _resolve_music, _slug
 from .multidato import _audio_dur, _music_credit
 from .subtitles import build_ass
-from .transcribe import transcribe_words
+from .transcribe import align_segments_to_words, transcribe_words
 from .tts import synthesize
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -104,7 +104,7 @@ def generate(
         a = _tighten(a_raw)          # pausas de puntos ~1s -> ~0.2s (fluidez)
         d = _audio_dur(a)
         audio_files.append(a)
-        info = {"kind": "fact", "start": t, "end": t + d}
+        info = {"kind": "fact", "start": t, "end": t + d, "text": seg["text"]}
         # 2 imágenes DISTINTAS por dato, ambas de la query principal (más
         # relevante). Se descartan por id para no repetir; las otras queries
         # son solo respaldo si la principal no tiene resultados.
@@ -143,7 +143,12 @@ def generate(
     lang = voice.split("-")[0] if "-" in voice else channel.get("language")
     if verbose:
         print(f"[curiosidades] Transcribiendo ({duration:.1f}s)...")
-    words = transcribe_words(narration, model_size=channel["whisper_model"], language=lang)
+    asr_words = transcribe_words(narration, model_size=channel["whisper_model"], language=lang)
+    # §3: el subtítulo quemado sale del TEXTO DEL GUION (canónico), no de la
+    # auto-transcripción (metía "HAY UN ESTRELLA", "FEL" por Torre Eiffel).
+    # Conservamos los tiempos de Whisper pero las palabras son las del guion.
+    words = align_segments_to_words(
+        [(s["text"], s["start"], s["end"]) for s in segs], asr_words)
     first = segs[0] if segs else None
     ass = work / "captions.ass"
     build_ass(words, ass, caption=channel["caption"], target_width=w, target_height=h,
