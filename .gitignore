@@ -74,6 +74,13 @@ CLAUDE.md
 streamers/satisfying/
 streamers/satisfying_state.json
 
+# Allowlist de streamers clip-friendly (tier riesgoso): los DATOS (qué streamers + evidencia) y
+# el spec/plan NO se publican. La LÓGICA (streamers/allowlist.py) SÍ es pública para que
+# config.py la pueda importar; sin el data file, la allowlist queda vacía (gate seguro).
+streamers/allowlist_data.py
+streamers/clip_allowlist_design.md
+streamers/clip_allowlist_plan.md
+
 # App de TikTok del tier riesgoso (ClipCue): sitio + submission, se pushea al repo APARTE
 # santinovargasdb/clipcue, NO al repo público no-face (aislamiento de tiers)
 risky_tiktok_app/
