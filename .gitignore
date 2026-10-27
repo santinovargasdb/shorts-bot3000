@@ -49,6 +49,8 @@ DESPLIEGUE_TIER_RIESGOSO.md
 
 # Re-auth YT del tier riesgoso (lleva el mail/cuentas aisladas, no linkear al repo público)
 reauth_youtube_risky.bat
+reauth_reminder.py
+run_reauth_reminder.bat
 
 # Backlog de videos pre-renderizados de whatonearth (se regenera)
 whatonearth/videos.sqlite
@@ -65,6 +67,9 @@ autobuild/.lock
 # Scratch de subagent-driven-development (ledger de progreso)
 .superpowers/
 
+# Contexto de proyecto para Claude Code (local; incluye detalle del tier riesgoso, no publicar)
+CLAUDE.md
+
 # Pool de satisfactorios (media, se regenera con source_pool)
 streamers/satisfying/
 streamers/satisfying_state.json
@@ -72,3 +77,16 @@ streamers/satisfying_state.json
 # App de TikTok del tier riesgoso (ClipCue): sitio + submission, se pushea al repo APARTE
 # santinovargasdb/clipcue, NO al repo público no-face (aislamiento de tiers)
 risky_tiktok_app/
+
+# Data de la matriz de viralidad + render: privada (estrategia/competencia) o regenerable.
+# NO al repo público (y evita commits accidentales de miles de archivos / videos pesados).
+transcripciones/
+output_regen/
+videos/
+fuentes/
+matriz/
+guiones/
+calendario/
+perfiles/
+perfil.json
+.matriz/
