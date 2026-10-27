@@ -65,7 +65,11 @@ Escribí UNO NUEVO. Devolvé SOLO un objeto JSON con claves exactas: "pregunta",
 - "segments": EXACTAMENTE {n} momentos del relato, en orden. Cada momento = objeto con:
   - "text": 1-2 frases habladas, naturales. NÚMEROS SIEMPRE EN PALABRAS en el texto hablado
     (ej. "mil novecientos setenta y cuatro", NUNCA "1974"). Nada de dígitos en el texto.
-  - "imgs": EXACTAMENTE 2 términos de búsqueda en inglés para imágenes de apoyo del momento.
+  - "imgs": EXACTAMENTE 2 términos de búsqueda en inglés. Las imágenes salen de WIKIPEDIA, así que
+    cada término debe nombrar un SUJETO con artículo propio: una persona ("Benito Juarez"), un lugar
+    ("Tenochtitlan"), o un hecho/cosa con nombre ("Execution of Emperor Maximilian", "Caravel"). NADA
+    de escenas genéricas ("old man in desert", "firing squad") — Wikipedia no las encuentra. Si el
+    momento no tiene un sujeto con nombre propio, usá el sujeto principal del relato (el "topic").
 
 REGLA DURA 1 (exactitud): NO inventes ni exageres. Un verificador estricto RECHAZA el episodio ENTERO
 si UN solo dato es falso, exagerado o dudoso. Jugá a lo seguro: contá solo lo comprobable.

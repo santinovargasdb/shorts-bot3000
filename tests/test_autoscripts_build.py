@@ -12,6 +12,16 @@ def test_assemble_segments_mete_la_tarjeta_despues_del_primer_dato():
     assert segs[2]["kind"] == "fact" and segs[2]["text"] == "d2"
 
 
+def test_assemble_segments_rechaza_primer_dato_bienvenida():
+    # §1: el guion generado por el LLM debe abrir en el hook; si el primer dato
+    # es un saludo/anuncio de tema, se aborta en vez de renderizar un video muerto.
+    import pytest
+    datos = [{"text": "Hola chicos, bienvenidos al canal.", "imgs": ["a", "b"], "topic": "t1"},
+             {"text": "d2", "imgs": ["c", "d"], "topic": "t2"}]
+    with pytest.raises(ValueError):
+        B.assemble_segments(datos)
+
+
 def _datos(n, prefix="t"):
     return [{"text": f"dato {prefix}{i} sin numeros.", "imgs": ["x", "y"], "topic": f"{prefix}{i}"}
             for i in range(n)]
@@ -77,6 +87,15 @@ def test_assemble_story_pasa_a_formato_serie():
     assert all(s["kind"] == "fact" for s in ep["segments"])    # momentos narrativos
     assert not any(s["kind"] == "title" for s in ep["segments"])  # SIN tarjeta de título (no es faceless)
     assert ep["segments"][0] == {"kind": "fact", "text": "Momento uno del relato.", "imgs": ["a", "b"]}
+
+
+def test_assemble_story_rechaza_apertura_bienvenida():
+    # §1: el relato generado también debe abrir en el hook, no con un saludo.
+    import pytest
+    bad = dict(_NARR, segments=[{"text": "Hola, en este video les cuento una historia.", "imgs": ["a", "b"]},
+                                {"text": "Momento dos.", "imgs": ["c", "d"]}])
+    with pytest.raises(ValueError):
+        B.assemble_story(bad)
 
 
 def _wire_narr(monkeypatch, *, story=None, judge_ok=True, used=None):

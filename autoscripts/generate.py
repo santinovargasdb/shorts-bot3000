@@ -19,7 +19,11 @@ Ahora escribí UNO NUEVO (otros temas). Devolvé SOLO un objeto JSON con claves 
 - "datos": lista de {n} datos curiosos, VERDADEROS y VERIFICABLES. Cada dato = objeto con:
   - "text": el dato CON CONTEXTO (el por qué/cómo), 2-3 frases, hablado y natural, como en los
     ejemplos. NÚMEROS SIEMPRE EN PALABRAS (ej. "tres corazones", no "3"). Nada de dígitos.
-  - "imgs": EXACTAMENTE 2 términos de búsqueda en inglés para Pixabay.
+  - "imgs": EXACTAMENTE 2 términos de búsqueda en inglés. Las imágenes salen de WIKIPEDIA, así que
+    cada término debe nombrar un SUJETO con artículo propio: un ser vivo ("Octopus", "Koala"), un
+    lugar ("Eiffel Tower"), una persona, o un objeto/fenómeno con nombre ("Lightning", "Saturn").
+    NADA de escenas genéricas ("octopus underwater", "stars night sky") — Wikipedia no las encuentra.
+    Si el dato no tiene un sujeto con nombre propio, usá el sujeto principal del dato (el "topic").
   - "topic": 2-4 palabras que nombran el sujeto del dato.
 - "pregunta": una pregunta corta a comentarios.
 - "resumen": UNA línea que lista los datos, para la descripción.

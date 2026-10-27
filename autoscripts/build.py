@@ -20,15 +20,19 @@ def assemble_segments(datos: list) -> list:
     segs.append({"kind": "title", "text": series_data.TITULO_PANTALLA})
     for d in datos[1:]:
         segs.append({"kind": "fact", "text": d["text"], "imgs": list(d["imgs"])})
+    series_data.assert_hook_first(segs)   # §1: el short abre EN el hook, sin saludo
     return segs
 
 
 def assemble_story(st: dict) -> dict:
     """Pasa un relato generado al formato EXACTO de series_historia/series_misterios: momentos como
     segmentos 'fact', SIN tarjeta de título (el relato es continuo). Descarta 'topic' (solo dedup)."""
+    import series_data
+    segments = [{"kind": "fact", "text": s["text"], "imgs": list(s["imgs"])}
+                for s in st["segments"]]
+    series_data.assert_hook_first(segments)   # §1: el relato abre EN el hook, sin saludo
     return {"pregunta": st["pregunta"], "titulo": st["titulo"], "resumen": st["resumen"],
-            "segments": [{"kind": "fact", "text": s["text"], "imgs": list(s["imgs"])}
-                         for s in st["segments"]]}
+            "segments": segments}
 
 
 def _is_quota(exc: Exception) -> bool:

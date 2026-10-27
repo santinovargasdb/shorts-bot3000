@@ -5,7 +5,7 @@ momentos del relato (cada uno con sus imágenes) -> remate con CTA.
 Números SIEMPRE en palabras (el TTS los lee mejor). 100-165 palabras.
 """
 
-from series_data import BACKGROUNDS
+from series_data import CLEAN_BACKGROUNDS
 
 KEYWORDS = [
     "shorts", "historia", "historias reales", "datos históricos", "sabias que",
@@ -33,8 +33,9 @@ def descripcion(parte: int, resumen: str) -> str:
 
 def background_for(part: int) -> str:
     """Mismo set de fondos rotativos que el canal 1 (desfasado una posición
-    para que el mismo número de episodio no repita fondo entre canales)."""
-    return BACKGROUNDS[part % len(BACKGROUNDS)]
+    para que el mismo número de episodio no repita fondo entre canales).
+    Solo clips sin HUD (los Subway quedan fuera: CLEAN_BACKGROUNDS)."""
+    return CLEAN_BACKGROUNDS[part % len(CLEAN_BACKGROUNDS)]
 
 
 def _m(text, *imgs):

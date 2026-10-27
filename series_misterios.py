@@ -6,7 +6,7 @@ Números SIEMPRE en palabras en texto hablado (dígitos solo en 'titulo').
 100-165 palabras. Casos reales y verificables; leyendas narradas como leyendas.
 """
 
-from series_data import BACKGROUNDS
+from series_data import CLEAN_BACKGROUNDS
 
 KEYWORDS = [
     "shorts", "misterios", "casos sin resolver", "misterio real", "enigmas",
@@ -34,8 +34,9 @@ def descripcion(parte: int, resumen: str) -> str:
 
 def background_for(part: int) -> str:
     """Mismo set de fondos rotativos que los otros canales, desfasado dos posiciones
-    para que el mismo número de episodio no repita fondo entre canales."""
-    return BACKGROUNDS[(part + 1) % len(BACKGROUNDS)]
+    para que el mismo número de episodio no repita fondo entre canales.
+    Solo clips sin HUD (los Subway quedan fuera: CLEAN_BACKGROUNDS)."""
+    return CLEAN_BACKGROUNDS[(part + 1) % len(CLEAN_BACKGROUNDS)]
 
 
 def _m(text, *imgs):

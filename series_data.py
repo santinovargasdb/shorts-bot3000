@@ -64,9 +64,71 @@ BACKGROUNDS = [
 ]
 
 
+# Clips con HUD del juego encima (botón de pausa, contador de monedas, puntaje):
+# tapan la pantalla y son el perfil que la fórmula (§1/§8) marca como "video
+# muerto / slop". Quedan FUERA de la rotación (no se borran: siguen en el
+# inventario BACKGROUNDS y en disco por si se recortan limpios más adelante).
+# Subway Surfers es el caso típico: su HUD es fijo y bien visible.
+HUD_BACKGROUNDS = [
+    "backgrounds/bg_subway.mp4",
+    "backgrounds/bg_subway_2.mp4",
+    "backgrounds/bg_subway_3.mp4",
+    "backgrounds/bg_subway_4.mp4",
+]
+
+# Pool que SÍ rota: el inventario completo menos los clips con HUD.
+CLEAN_BACKGROUNDS = [b for b in BACKGROUNDS if b not in HUD_BACKGROUNDS]
+
+
 def background_for(part: int) -> str:
-    """Fondo rotativo según el número de parte."""
-    return BACKGROUNDS[(part - 1) % len(BACKGROUNDS)]
+    """Fondo rotativo según el número de parte (solo clips sin HUD)."""
+    return CLEAN_BACKGROUNDS[(part - 1) % len(CLEAN_BACKGROUNDS)]
+
+
+# Patrones de "bienvenida": saludo / anuncio de tema hablado ANTES del dato.
+# El análisis de viralidad (docs/formula-faceless-viral.md §1, §9.1-3) mostró
+# que los videos que abrían con esto fueron los PEORES del canal: el short tiene
+# que arrancar EN el hook (el dato/afirmación contraintuitiva) en el frame 0.
+_BIENVENIDA_PREFIJOS = (
+    "hola", "buenas", "buenos dias", "buenas tardes", "buenas noches",
+    "que tal", "bienvenido", "bienvenida", "bienvenidos", "bienvenidas",
+    "hoy te traigo", "hoy les traigo", "hoy vamos", "en el video de hoy",
+    "en este video", "en el dia de hoy", "suscribite", "suscribete",
+    "antes de empezar", "arrancamos", "como estan", "como andan",
+)
+
+
+def _norm_bienvenida(text: str) -> str:
+    """Minúsculas sin acentos ni signos de apertura, para comparar prefijos."""
+    t = (text or "").strip().lower().lstrip("¿¡\"'(-–— ")
+    for a, b in (("á", "a"), ("é", "e"), ("í", "i"), ("ó", "o"), ("ú", "u"), ("ü", "u")):
+        t = t.replace(a, b)
+    return t
+
+
+def es_bienvenida(text: str) -> bool:
+    """¿La frase es un saludo/bienvenida/anuncio de tema (patrón de video muerto)
+    en vez de arrancar en el dato? Mira el ARRANQUE de la frase (no el medio: un
+    dato puede mencionar 'hoy' o 'video' más adelante sin ser una bienvenida)."""
+    t = _norm_bienvenida(text)
+    return any(t.startswith(p) for p in _BIENVENIDA_PREFIJOS)
+
+
+def assert_hook_first(segments: list) -> None:
+    """Garantiza que el guion ARRANCA en el hook: el primer segmento es un dato
+    hablado ('fact') y no una tarjeta de título ni una bienvenida. Levanta
+    ValueError si no (el pipeline aborta antes de renderizar un video muerto)."""
+    if not segments:
+        raise ValueError("guion sin segmentos")
+    first = segments[0]
+    if first.get("kind") != "fact":
+        raise ValueError(
+            f"el guion no abre en el hook: el primer segmento es "
+            f"{first.get('kind')!r}, debería ser un 'fact' (el dato)")
+    if es_bienvenida(first.get("text", "")):
+        raise ValueError(
+            f"el guion abre con una bienvenida/saludo en vez del dato: "
+            f"{first.get('text', '')[:60]!r}")
 
 
 def _T():
@@ -84,12 +146,12 @@ PARTS = {
                     "año, por qué la miel nunca caduca, por qué un rayo es más caliente que el Sol "
                     "y por qué Saturno flotaría en el agua"),
         "segments": [
-            _f("El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.", "octopus", "octopus underwater"),
+            _f("El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.", "Octopus", "Giant Pacific octopus"),
             _T(),
-            _f("En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.", "venus planet", "venus surface"),
-            _f("La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.", "honey", "honeycomb"),
-            _f("Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.", "lightning", "lightning storm"),
-            _f("Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua.", "saturn planet", "saturn rings"),
+            _f("En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.", "Venus", "Atmosphere of Venus"),
+            _f("La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.", "Honey", "Honeycomb"),
+            _f("Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.", "Lightning", "Thunderstorm"),
+            _f("Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua.", "Saturn", "Rings of Saturn"),
         ],
     },
     2: {
@@ -98,12 +160,12 @@ PARTS = {
                     "Torre Eiffel crece en verano, las abejas que reconocen caras y por qué el "
                     "plátano es radiactivo"),
         "segments": [
-            _f("Hay más estrellas en el universo que granos de arena en toda la Tierra. Son tantas que, si contaras una por segundo, tardarías más que la edad del universo en terminar.", "galaxy", "stars night sky"),
+            _f("Hay más estrellas en el universo que granos de arena en toda la Tierra. Son tantas que, si contaras una por segundo, tardarías más que la edad del universo en terminar.", "Galaxy", "Milky Way"),
             _T(),
-            _f("Los koalas tienen huellas dactilares casi idénticas a las nuestras. Son tan parecidas que, bajo un microscopio, hasta un experto podría confundirlas con huellas humanas.", "koala", "koala tree"),
-            _f("La Torre Eiffel crece en verano. El calor dilata el metal y la torre puede medir hasta quince centímetros más alta que en invierno, cuando el frío la encoge de nuevo.", "eiffel tower", "paris"),
-            _f("Las abejas pueden reconocer caras humanas. Combinan los rasgos como si armaran un rompecabezas, la misma técnica que usamos nosotros, aunque su cerebro es más chico que una semilla.", "bee", "honeybee flower"),
-            _f("El plátano es levemente radiactivo por su potasio. Es tan poco que necesitarías comer millones de golpe para que sea un problema.", "banana", "bananas"),
+            _f("Los koalas tienen huellas dactilares casi idénticas a las nuestras. Son tan parecidas que, bajo un microscopio, hasta un experto podría confundirlas con huellas humanas.", "Koala", "Fingerprint"),
+            _f("La Torre Eiffel crece en verano. El calor dilata el metal y la torre puede medir hasta quince centímetros más alta que en invierno, cuando el frío la encoge de nuevo.", "Eiffel Tower", "Paris"),
+            _f("Las abejas pueden reconocer caras humanas. Combinan los rasgos como si armaran un rompecabezas, la misma técnica que usamos nosotros, aunque su cerebro es más chico que una semilla.", "Bee", "Honey bee"),
+            _f("El plátano es levemente radiactivo por su potasio. Es tan poco que necesitarías comer millones de golpe para que sea un problema.", "Banana", "Potassium"),
         ],
     },
     3: {

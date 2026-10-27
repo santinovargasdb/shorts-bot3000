@@ -17,8 +17,9 @@ def test_pool_tiene_18_clips_y_existen():
 def test_sin_clip_repetido_dentro_del_ciclo():
     # Regresión del incidente 2026-10-04: pt.6-8 de faceless salieron con el
     # mismo clip que pt.1-3 (pool viejo de 5). Dentro de un ciclo completo
-    # ningún canal puede repetir un clip exacto.
-    n = len(series_data.BACKGROUNDS)
+    # ningún canal puede repetir un clip exacto. El ciclo rota sobre el pool
+    # SIN HUD (CLEAN_BACKGROUNDS), no sobre el inventario completo.
+    n = len(series_data.CLEAN_BACKGROUNDS)
     for serie in (series_data, series_historia, series_misterios):
         fondos = [serie.background_for(p) for p in range(1, n + 1)]
         assert len(set(fondos)) == n, f"{serie.__name__} repite clip dentro del ciclo"

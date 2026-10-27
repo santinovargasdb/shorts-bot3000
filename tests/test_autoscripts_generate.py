@@ -42,6 +42,16 @@ def test_generate_episode_usa_el_cliente(monkeypatch):
     assert ep["datos"][0]["topic"] == "pulpo sangre azul"
 
 
+def test_fewshot_sin_terminos_genericos_de_escena():
+    # Los ejemplos few-shot condicionan los imgs que genera el LLM. Tienen que nombrar SUJETOS de
+    # Wikipedia, no escenas genéricas de stock (que Wikipedia no resuelve: "octopus underwater" no
+    # es un artículo). Estos eran los términos de escena que arrastraban los ejemplos viejos.
+    fs = g._fewshot().lower()
+    for generico in ("octopus underwater", "venus surface", "lightning storm", "saturn rings",
+                     "stars night sky", "koala tree", "honeybee flower"):
+        assert generico not in fs, f"ejemplo few-shot todavía usa escena genérica: {generico!r}"
+
+
 def test_fewshot_incluye_ejemplos_reales(monkeypatch):
     import series_data
     monkeypatch.setattr(series_data, "PARTS", {
@@ -54,6 +64,15 @@ def test_fewshot_incluye_ejemplos_reales(monkeypatch):
 
 def test_prompt_tiene_regla_anti_exageracion():
     assert "exageres" in g._PROMPT.lower()
+
+
+def test_prompt_pide_sujetos_de_wikipedia():
+    # Las imágenes salen Wikimedia-first (src.stock.download_image). El prompt debe pedir que los
+    # términos nombren un SUJETO con artículo propio (como narrativa.py), no escenas genéricas de
+    # stock, y ya no debe decir que los términos son "para Pixabay".
+    p = g._PROMPT.lower()
+    assert "wikipedia" in p
+    assert "pixabay" not in p
 
 
 def test_generate_episode_mete_los_ejemplos_en_el_prompt(monkeypatch):

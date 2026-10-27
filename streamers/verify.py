@@ -125,8 +125,17 @@ def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | Non
         load_env()
     except Exception:
         pass
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key:
+    # Claves con rotación: primaria GEMINI_API_KEY; si agota cuota (429) cae a
+    # GEMINI_API_KEY_2 (otra cuenta/project = cuota diaria aparte). Admite varias claves
+    # separadas por coma en cualquiera de las dos variables.
+    raw = ",".join(filter(None, (os.environ.get("GEMINI_API_KEY", ""),
+                                  os.environ.get("GEMINI_API_KEY_2", ""))))
+    keys, _seen = [], set()
+    for k in (x.strip() for x in raw.split(",")):
+        if k and k not in _seen:
+            _seen.add(k)
+            keys.append(k)
+    if not keys:
         if verbose:
             print("[qc] sin GEMINI_API_KEY")
         return None
@@ -137,31 +146,36 @@ def _gemini(prompt: str, frames: list[Path], verbose: bool = True) -> dict | Non
     body = {"contents": [{"parts": parts}],
             "generationConfig": {"temperature": 0, "maxOutputTokens": 400,
                                  "responseMimeType": "application/json"}}
-    saw_quota = False
-    for m in (MODEL, *[x for x in _FALLBACKS if x != MODEL]):
-        for _attempt in range(3):
-            try:
-                req = urllib.request.Request(
-                    _URL.format(m=m, k=key), data=json.dumps(body).encode(),
-                    headers={"Content-Type": "application/json"})
-                with urllib.request.urlopen(req, timeout=60) as resp:
-                    data = json.loads(resp.read())
-                return _coerce_qc(json.loads(data["candidates"][0]["content"]["parts"][0]["text"]))
-            except urllib.error.HTTPError as e:
-                if e.code == 429:                        # cuota/rate de Gemini agotada
-                    saw_quota = True
-                    time.sleep(3)
-                    continue
-                if e.code in (503, 500):                 # sobrecargado -> reintentar
-                    time.sleep(3)
-                    continue
-                break                                    # otro error http -> siguiente modelo
-            except Exception:
-                break
-    if saw_quota:                                        # agotó reintentos solo por 429 -> cuota
+    for ki, key in enumerate(keys):
+        key_quota = False
+        for m in (MODEL, *[x for x in _FALLBACKS if x != MODEL]):
+            for _attempt in range(3):
+                try:
+                    req = urllib.request.Request(
+                        _URL.format(m=m, k=key), data=json.dumps(body).encode(),
+                        headers={"Content-Type": "application/json"})
+                    with urllib.request.urlopen(req, timeout=60) as resp:
+                        data = json.loads(resp.read())
+                    return _coerce_qc(json.loads(data["candidates"][0]["content"]["parts"][0]["text"]))
+                except urllib.error.HTTPError as e:
+                    if e.code == 429:                    # cuota/rate de ESTA clave agotada
+                        key_quota = True
+                        time.sleep(3)
+                        continue
+                    if e.code in (503, 500):             # sobrecargado -> reintentar
+                        time.sleep(3)
+                        continue
+                    break                                # otro error http -> siguiente modelo
+                except Exception:
+                    break
+        if not key_quota:
+            break                                        # falló por algo que NO es cuota -> otra clave no ayuda
+        if verbose and ki < len(keys) - 1:
+            print(f"[qc] clave Gemini #{ki + 1} sin cuota (429) -> pruebo la siguiente")
+    else:                                                # TODAS las claves quedaron sin cuota (429)
         QUOTA_HIT = True
         if verbose:
-            print("[qc] cuota de Gemini agotada (429) -> se reanuda cuando vuelva")
+            print("[qc] cuota de Gemini agotada en todas las claves (429) -> se reanuda cuando vuelva")
     return None
 
 
