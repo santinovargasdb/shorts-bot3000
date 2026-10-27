@@ -3,6 +3,26 @@
 App en developers.tiktok.com (app de producción, no el sandbox).
 Ir a la app → completar los campos → Submit for review.
 
+## Por qué lo rechazaron (27-oct-2026) — 3ª devolución y qué cambiamos
+
+Rebotó por el **riesgo residual** que ya estaba anotado: el nombre de la app
+("En 60 Segundos") no coincidía con la URL del sitio (`…/shorts-bot3000/`).
+
+> App name — "must be clearly displayed on the website and must match the website
+> title, website URL and desktop URL."
+
+**FIX (Opción B, bajo riesgo — NO se renombró el repo de código):** se creó un
+repo **solo-web** aparte, `santinovargasdb/en60segundos`, con copia del sitio
+(home + privacy + terms + links), servido en
+**https://santinovargasdb.github.io/en60segundos/**. Ahí apuntan Website / Terms /
+Privacy. El **Redirect URI se deja en `shorts-bot3000`** (ya verificado) → no hay
+que re-verificar propiedad de URL ni re-autorizar YouTube/TikTok/IG. Solo se mudan
+las URLs "de vitrina" que mira el reviewer, y ahora matchean el nombre.
+
+> Por qué NO se renombró el repo principal: `shorts-bot3000` hostea el código de
+> TODOS los canales (no solo En 60 Segundos) y su `docs/` sirve el callback OAuth
+> de los 3 canales; renombrarlo rompía los redirect URIs de Google/TikTok/Meta.
+
 ## Por qué lo rechazaron (20-oct-2026) — 2ª devolución y qué cambiamos
 
 El reviewer rechazó por TRES puntos, todos del sitio (no de los scopes):
