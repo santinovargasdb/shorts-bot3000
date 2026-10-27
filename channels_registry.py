@@ -53,9 +53,11 @@ CHANNELS = {
         "yt_token": "secrets/soyelmalo/token.json",
         "ig_creds": "secrets/soyelmalo/instagram.json",
         "tt_token": "secrets/soyelmalo/tiktok_token.json",
-        # YT en pausa por cuota (3 canales x2/día ya usan ~9.600/10.000). Agregar "yt"
-        # cuando se apruebe el aumento de cuota. IG/TT no esperan a YT si no está acá.
-        "platforms": ("ig", "tt"),
+        # YT reactivado 2026-10-27: la cuota ya NO limita. Desde dic-2025 videos.insert
+        # tiene bucket propio ("Video Uploads per day" = 100 subidas/día, aparte del pool
+        # de 10.000). Va por el proyecto Cloud del tier seguro. Requiere token válido en
+        # secrets/soyelmalo/token.json (reautorizar si venció). IG/TT postean independiente.
+        "platforms": ("yt", "ig", "tt"),
         "first_comment": "¿Vos qué hubieras hecho? 👇",
         "sfx_style": "datos",        # pop en el cambio de palabra (igual que render_reddit)
     },
