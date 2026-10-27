@@ -32,3 +32,20 @@ def test_preserva_orden():
                 "evidence": "", "vetted": "", "notes": ""},
     }
     assert approved_for("t", led) == [("bbb", "twitch"), ("aaa", "twitch")]
+
+
+from streamers import config as scfg
+from streamers.allowlist import CLIP_FRIENDLY
+
+_TIERS = ("streamers_a", "streamers_b", "streamers_c")
+
+def test_config_deriva_de_la_allowlist():
+    for tier in _TIERS:
+        assert scfg.CHANNELS[tier]["streamers"] == approved_for(tier)
+
+def test_config_no_tiene_handles_no_aprobados():
+    aprobados = {(h, e["platform"]) for h, e in CLIP_FRIENDLY.items()
+                 if e.get("status") == "approved"}
+    for tier in _TIERS:
+        for entry in scfg.CHANNELS[tier]["streamers"]:
+            assert tuple(entry) in aprobados
