@@ -146,12 +146,12 @@ PARTS = {
                     "año, por qué la miel nunca caduca, por qué un rayo es más caliente que el Sol "
                     "y por qué Saturno flotaría en el agua"),
         "segments": [
-            _f("El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.", "octopus", "octopus underwater"),
+            _f("El pulpo tiene tres corazones y su sangre es azul. Dos bombean a las branquias y el tercero al resto del cuerpo, y es azul porque usa cobre en vez de hierro.", "Octopus", "Giant Pacific octopus"),
             _T(),
-            _f("En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.", "venus planet", "venus surface"),
-            _f("La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.", "honey", "honeycomb"),
-            _f("Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.", "lightning", "lightning storm"),
-            _f("Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua.", "saturn planet", "saturn rings"),
+            _f("En Venus, un día dura más que un año. Gira tan lento que tarda doscientos cuarenta y tres días en girar sobre sí mismo, pero solo doscientos veinticinco en rodear al Sol.", "Venus", "Atmosphere of Venus"),
+            _f("La miel nunca se echa a perder. Encontraron miel de tres mil años en tumbas egipcias, todavía comestible. Casi no tiene agua y es muy ácida, así que ninguna bacteria sobrevive adentro.", "Honey", "Honeycomb"),
+            _f("Un rayo es cinco veces más caliente que la superficie del Sol: llega a treinta mil grados. Calienta el aire tan rápido que explota, y ese estallido es el trueno.", "Lightning", "Thunderstorm"),
+            _f("Saturno es tan liviano que flotaría en el agua. Está hecho casi solo de gas, así que es menos denso que el agua.", "Saturn", "Rings of Saturn"),
         ],
     },
     2: {
@@ -160,12 +160,12 @@ PARTS = {
                     "Torre Eiffel crece en verano, las abejas que reconocen caras y por qué el "
                     "plátano es radiactivo"),
         "segments": [
-            _f("Hay más estrellas en el universo que granos de arena en toda la Tierra. Son tantas que, si contaras una por segundo, tardarías más que la edad del universo en terminar.", "galaxy", "stars night sky"),
+            _f("Hay más estrellas en el universo que granos de arena en toda la Tierra. Son tantas que, si contaras una por segundo, tardarías más que la edad del universo en terminar.", "Galaxy", "Milky Way"),
             _T(),
-            _f("Los koalas tienen huellas dactilares casi idénticas a las nuestras. Son tan parecidas que, bajo un microscopio, hasta un experto podría confundirlas con huellas humanas.", "koala", "koala tree"),
-            _f("La Torre Eiffel crece en verano. El calor dilata el metal y la torre puede medir hasta quince centímetros más alta que en invierno, cuando el frío la encoge de nuevo.", "eiffel tower", "paris"),
-            _f("Las abejas pueden reconocer caras humanas. Combinan los rasgos como si armaran un rompecabezas, la misma técnica que usamos nosotros, aunque su cerebro es más chico que una semilla.", "bee", "honeybee flower"),
-            _f("El plátano es levemente radiactivo por su potasio. Es tan poco que necesitarías comer millones de golpe para que sea un problema.", "banana", "bananas"),
+            _f("Los koalas tienen huellas dactilares casi idénticas a las nuestras. Son tan parecidas que, bajo un microscopio, hasta un experto podría confundirlas con huellas humanas.", "Koala", "Fingerprint"),
+            _f("La Torre Eiffel crece en verano. El calor dilata el metal y la torre puede medir hasta quince centímetros más alta que en invierno, cuando el frío la encoge de nuevo.", "Eiffel Tower", "Paris"),
+            _f("Las abejas pueden reconocer caras humanas. Combinan los rasgos como si armaran un rompecabezas, la misma técnica que usamos nosotros, aunque su cerebro es más chico que una semilla.", "Bee", "Honey bee"),
+            _f("El plátano es levemente radiactivo por su potasio. Es tan poco que necesitarías comer millones de golpe para que sea un problema.", "Banana", "Potassium"),
         ],
     },
     3: {
