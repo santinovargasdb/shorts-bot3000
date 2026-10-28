@@ -1,129 +1,64 @@
-# 🎬 Motor de Shorts automáticos (YouTube + Instagram) — 100% gratis / local
+# 🎬 Motor de Shorts automáticos — 100% gratis / local
 
-Convierte un video fuente en varios **Shorts verticales (9:16) con subtítulos
-karaoke** listos para publicar. Un solo motor, **3 canales** configurables.
+Motor casero que arma **Shorts verticales (9:16) con subtítulos** y los publica
+solo en **YouTube e Instagram**. Un solo motor de render sirve a varios canales
+configurables, cada uno con su propio estilo y agenda.
 
-Stack 100% gratis y local: `yt-dlp` + `faster-whisper` (subtítulos IA) + `FFmpeg`
-+ APIs oficiales de YouTube/Instagram. Sin SaaS de pago por video.
+Stack **100% gratis y local**: `FFmpeg` para el render, `faster-whisper` para el
+timing de los subtítulos, `edge-tts` para la voz y las **APIs oficiales** de las
+plataformas para publicar. Sin servicios pagos por video.
 
----
-
-## ⚠️ Antes de nada: lo legal (esto decide si el canal sobrevive)
-
-Resubir clips **crudos** de streamers/series/películas hace que YouTube:
-- te **quite los ingresos** (Content ID reclama el video), o
-- te dé **strikes** (3 en 90 días = canal terminado), o
-- te **suspenda la monetización del canal entero** (política de "contenido reutilizado").
-
-YouTube **sí permite monetizar** clips/reacciones/compilaciones **si el espectador
-nota una diferencia clara** con el original (edición, subtítulos, comentario, contexto).
-Ese es exactamente el valor que agrega este motor (reencuadre + subtítulos + gancho).
-
-**Regla práctica por canal:**
-| Canal | Fuente | Riesgo |
-|---|---|---|
-| `streamers` | Streamers con permiso / que permiten clips | Bajo ✅ |
-| `peliculas_series` | Cine/TV | **Alto** — solo con edición muy transformadora ⚠️ |
-| `faceless` | Contenido propio (guion + voz + stock) | Nulo ✅ |
+> Usá siempre contenido propio o sobre el que tengas los derechos correspondientes.
 
 ---
 
 ## 🚀 Instalación
 
-Ya tenés Python, FFmpeg, yt-dlp y git. Solo faltan las libs de Python:
+Requiere Python, FFmpeg y git ya instalados. Después:
+
 ```bash
 pip install -r requirements.txt
 ```
 
+## 🧩 Cómo está organizado
+
+- `channels_registry.py` — registro de canales: cada canal declara su estilo, su
+  generador de contenido, su música y en qué plataformas publica.
+- `config/channels.yaml` — perfiles del motor de render por canal (reencuadre,
+  subtítulos, tipografía, posición).
+- `src/` — motor de render: pasa a 9:16, arma los subtítulos karaoke y quema todo.
+- `autobuild/` — rellena solo el backlog de cada canal hasta un objetivo fijo.
+- `daily_post.py` — publica la siguiente pieza de cada plataforma y lleva el estado.
+- `uploaders/` — subida a YouTube e Instagram vía API oficial.
+- `secrets/`, `input/`, `output/` — credenciales y archivos (ignorados por git).
+
 ## 🎥 Uso
 
 ```bash
-# Ver los canales configurados
-python run.py --list
+# Publicar la siguiente pieza de un canal
+python daily_post.py --channel <canal>
 
-# Generar shorts desde un archivo local
-python run.py --channel streamers --file "input/mi_video.mp4"
-
-# Generar descargando la fuente primero (usá contenido con permiso/derecho)
-python run.py --channel streamers --url "https://..."
-
-# Forzar idioma español y mejor modelo de subtítulos (más lento, más preciso)
-python run.py --channel streamers --file "input/mi_video.mp4" --model small
+# Rellenar el backlog (todos los canales, o uno con --channel <canal>)
+python -m autobuild.supervisor --force
 ```
 
-Los shorts salen en `output/<canal>/`, cada uno con un `.json` de metadatos
-(título, descripción y hashtags borrador) generado desde la transcripción.
+Cada pieza se arma con su `.json` de metadatos (título, descripción y hashtags)
+y sale lista para publicar.
 
-### Canal FACELESS (contenido original, sin clipar nada ajeno)
+## ⚙️ Configuración
 
-Genera un short desde un guion de texto: **voz IA (edge-tts) + fondo animado +
-subtítulos karaoke**. Cero costo, cero riesgo de copyright.
+Cada canal se ajusta **sin tocar código**: en `channels_registry.py` (plataformas,
+estilo, música) y en `config/channels.yaml` (reencuadre, subtítulos, modelo de
+transcripción). Agregar un canal nuevo es sumar una entrada ahí.
 
-```bash
-# Con fondo de gameplay + música de fondo baja:
-python faceless_run.py --file guiones/venus.txt --title "En Venus un día dura más que un año" \
-  --bg backgrounds/minecraft_parkour.mp4 --music music/lofi_chill.mp3
+## 📅 Automatización
 
-# Fondo satisfactorio (Pixabay) o gradiente si no hay nada:
-python faceless_run.py --file guiones/pulpos.txt --title "El pulpo tiene 3 corazones"
-```
-- **Fondos** en `backgrounds/` (gameplay/slime/satisfactorio). Bajá royalty-free con
-  `python -m src.stock "slime"` o gameplay con yt-dlp (ver `backgrounds/README.md`).
-- **Música** en `music/` (se mezcla a volumen bajo). Ver `music/README.md`.
-- Voces: `python -m src.tts`. Se eligen en `config/channels.yaml` (`tts_voice`).
-
-## ⬆️ Publicar
-
-```bash
-# YouTube (privado por defecto; ver setup_youtube_auth.md)
-python -m uploaders.youtube_upload "output/streamers/mi_video_clip01.mp4" public
-
-# Instagram Reels (necesita URL pública; ver setup_instagram_auth.md)
-python -m uploaders.instagram_upload "https://tu-host.com/clip01.mp4" "caption #shorts"
-```
-
----
-
-## 🎛️ Configuración (`config/channels.yaml`)
-
-Cada canal define su estilo sin tocar código:
-- `crop_mode`: `crop` (rellena, recorta laterales — ideal gameplay) o `blur`
-  (encaja con fondo borroso — ideal cine 16:9).
-- `clips_per_source`: cuántos shorts sacar de cada fuente.
-- `caption`: fuente, tamaño, colores del subtítulo karaoke, posición.
-- `hook_text`: texto fijo arriba (gancho), ej. `"😱 ESPERÁ AL FINAL"`.
-- `whisper_model`: `tiny`/`base`/`small`/`medium` (calidad vs velocidad de subtítulos).
-
-## 🧠 Cómo funciona (`src/`)
-
-1. `highlights.py` — detecta los momentos más intensos por **energía de audio**
-   (picos = risas/gritos/reacciones). Gratis, sin IA.
-2. `transcribe.py` — **faster-whisper** local saca palabras con tiempos.
-3. `subtitles.py` — genera subtítulos `.ass` estilo karaoke (palabra resaltada).
-4. `edit.py` — **FFmpeg**: recorta, pasa a 9:16 y quema los subtítulos.
-5. `pipeline.py` — orquesta todo y escribe metadatos por clip.
-
-## 📅 Automatización total (siguiente nivel)
-
-Para que corra solo a diario, programá `run.py` + los uploaders con el
-**Programador de tareas de Windows** (o un `.bat` diario). Recomendado:
-mantené un **paso de aprobación manual** antes de publicar para evitar strikes.
-
-## 📁 Estructura
-
-```
-config/channels.yaml     # perfiles de los 3 canales
-run.py                   # CLI principal
-src/                     # motor (highlights, transcribe, subtitles, edit, pipeline)
-uploaders/               # youtube_upload.py, instagram_upload.py
-input/  output/          # fuentes y shorts (ignorados por git)
-secrets/                 # credenciales OAuth (ignorado por git)
-setup_youtube_auth.md    # cómo activar la subida a YouTube
-setup_instagram_auth.md  # cómo activar la subida a Instagram
-```
+Corre solo con el **Programador de tareas de Windows**: una tarea por canal dispara
+el posteo en horarios fijos y otra corre el auto-refill del backlog. Un healthcheck
+diario avisa por mail si un canal deja de publicar.
 
 ## ✅ Estado
 
-Motor verificado funcionando: recorte 9:16, transcripción local y subtítulos
-karaoke quemados. Falta solo tu parte manual: crear las cuentas y hacer el
-OAuth una vez (guías incluidas).
+Motor funcionando de punta a punta: armado de piezas, render 9:16 con subtítulos y
+publicación programada. La única parte manual es crear las cuentas y hacer el OAuth
+una vez por canal.
