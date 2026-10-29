@@ -26,7 +26,10 @@ INSTR = {
         "REGLA CLAVE: si el caso es una leyenda o algo no confirmado, narralo COMO leyenda ('se cuenta', "
         "'según la leyenda', 'no hay registros oficiales que lo confirmen'); las explicaciones posibles van "
         "SIEMPRE como teorías ('se cree', 'la hipótesis más aceptada'), nunca como hechos probados. El caso "
-        "en sí tiene que ser real y verificable. Preferí casos MENOS conocidos."
+        "en sí tiene que ser real y verificable. Elegí casos lo bastante DOCUMENTADOS como para no tener que "
+        "inventar datos: ni los cuatro o cinco de siempre, ni tan oscuros que no tengas información confiable. "
+        "Si no estás seguro de una fecha, un nombre o una cifra, dejala afuera o contala como 'se cree'/'se "
+        "cuenta' en vez de arriesgar un dato que un verificador estricto pueda rechazar."
     ),
 }
 

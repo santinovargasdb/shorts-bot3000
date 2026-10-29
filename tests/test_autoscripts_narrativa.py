@@ -120,6 +120,14 @@ def test_validate_story_acepta_apertura_in_medias_res():
     N.validate_story(_STORY)   # no levanta
 
 
+def test_misterios_instr_prioriza_documentables_no_oscuros():
+    # El yield de misterios se trababa porque la consigna pedía "casos MENOS conocidos"
+    # (maximiza la alucinación del LLM). Ahora prioriza casos DOCUMENTABLES.
+    instr = N.INSTR["misterios"].lower()
+    assert "menos conocidos" not in instr
+    assert "document" in instr
+
+
 # ---------- few-shot ----------
 
 def test_fewshot_usa_los_episodios_reales_del_modulo():
