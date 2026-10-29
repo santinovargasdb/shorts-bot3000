@@ -19,6 +19,22 @@ def test_parse_topics_json_roto_devuelve_vacio():
     assert topics.parse_topics("no json here") == []
 
 
+def test_parse_topics_captura_fact_en():
+    raw = ('[{"name":"Glass frog","category":"animal","query":"glass frog",'
+           '"question_en":"What is this?","answer_en":"This is a glass frog.",'
+           '"fact_en":"They use their skin to camouflage."}]')
+    out = topics.parse_topics(raw)
+    assert out[0]["fact_en"] == "They use their skin to camouflage."
+
+
+def test_parse_topics_sin_fact_en_sigue_valido():
+    # fact_en es OPCIONAL: un ítem sin ese campo sigue siendo válido (ítems viejos / el LLM lo omite).
+    raw = ('[{"name":"Pangolin","category":"animal","query":"pangolin",'
+           '"question_en":"What is this?","answer_en":"This is a pangolin."}]')
+    out = topics.parse_topics(raw)
+    assert len(out) == 1 and "fact_en" not in out[0]
+
+
 def test_generate_topics_usa_cliente(monkeypatch):
     fake_json = ('[{"name":"Axolotl","category":"animal","query":"axolotl",'
                  '"question_en":"What is this?","answer_en":"This is an axolotl."}]')

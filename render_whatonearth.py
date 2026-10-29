@@ -14,7 +14,9 @@ VOICE_Q = "en_us_006"   # pregunta (Serious male)
 VOICE_A = "en_us_001"   # respuesta (Jessie)
 SPEED = 1.3             # acelera las voces (TikTok TTS viene lento)
 GAP = 1.3               # silencio de SUSPENSO entre pregunta y respuesta
-HOLD = 4.0              # segundos de clip DESPUÉS de la respuesta (dejar respirar cada ítem)
+HOLD = 4.0              # segundos de clip DESPUÉS de la respuesta, si NO hay dato (dejar respirar)
+GAP_FACT = 0.5          # gap corto entre la respuesta y el dato
+TAIL_FACT = 1.5         # cola DESPUÉS del dato (reemplaza el silencio largo del HOLD)
 MUSIC_VOL = 0.12        # volumen del bed de música (bajo, debajo de la voz)
 CLIP_H = 1000           # alto del clip en modo 'smart' (entre 608=fit y 1920=fill): zoom medio
 CLIP_Y = 120            # margen superior del clip: lo deja ARRIBA de la UI de TikTok (like/cuenta)
@@ -45,6 +47,42 @@ def _dur(p):
     if r.returncode != 0 or not out:
         raise RuntimeError(f"ffprobe no pudo leer duración de {p}: {r.stderr.strip()[:200]}")
     return float(out)
+
+
+def _audio_files(i: int, has_fact: bool) -> list[str]:
+    """Orden de los audios de UN ítem: pregunta -> gap de suspenso -> respuesta, y si hay dato,
+    un gap corto + el dato (que llena el silencio que antes quedaba después del nombre)."""
+    files = [f"q{i}.mp3", "gap.mp3", f"a{i}.mp3"]
+    if has_fact:
+        files += ["gapf.mp3", f"f{i}.mp3"]
+    return files
+
+
+def _vf(frame: str = "smart", satisfy: bool = False) -> str:
+    """Filtro de video por ítem. 'smart' = clip anclado arriba sobre fondo borroso; con
+    `satisfy` se agrega un 3er input [2:v] (clip satisfactorio) en la banda muerta de abajo."""
+    if frame == "smart":
+        base = ("[0:v]split=2[b][f];"
+                "[b]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
+                "boxblur=26:1,eq=brightness=-0.05[bg];"
+                f"[f]scale=1080:{CLIP_H}:force_original_aspect_ratio=increase,crop=1080:{CLIP_H}[fg];")
+        if satisfy:
+            sat_y = CLIP_Y + CLIP_H            # justo debajo del clip (1120)
+            band_h = 1920 - sat_y             # banda muerta hasta abajo (800)
+            return (base +
+                    f"[2:v]scale=1080:{band_h}:force_original_aspect_ratio=increase,"
+                    f"crop=1080:{band_h},setsar=1[sat];"
+                    f"[bg][fg]overlay=(W-w)/2:{CLIP_Y}[tmp];"
+                    f"[tmp][sat]overlay=0:{sat_y},setsar=1[v]")
+        return base + f"[bg][fg]overlay=(W-w)/2:{CLIP_Y},setsar=1[v]"
+    if frame == "fit":                         # clip ENTERO sobre fondo desenfocado (bandas difusas)
+        return ("[0:v]split=2[b][f];"
+                "[b]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
+                "boxblur=26:1,eq=brightness=-0.06[bg];"
+                "[f]scale=1080:1920:force_original_aspect_ratio=decrease[fg];"
+                "[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1[v]")
+    return ("[0:v]scale=1080:1920:force_original_aspect_ratio=increase,"   # fill: llena el 9:16
+            "crop=1080:1920,setsar=1[v]")
 
 
 def name_card(name: str, out_path) -> None:
@@ -88,50 +126,59 @@ def credit_card(author: str, out_path) -> None:
     img.save(out_path)
 
 
-def render(items: list, out_path, workdir, music=None, frame="smart") -> Path:
+def render(items: list, out_path, workdir, music=None, frame="smart", satisfy=False) -> Path:
     """frame='fill' = el clip llena el 9:16 (sin bandas, pero zoomea horizontales);
-    'fit' = clip entero sobre fondo desenfocado (sin zoom, con bandas difusas)."""
+    'fit' = clip entero sobre fondo desenfocado (sin zoom, con bandas difusas);
+    'smart' = clip anclado arriba sobre fondo borroso. satisfy=True rellena la banda muerta
+    de abajo (solo en 'smart') con clips del pool satisfactorio compartido."""
     work = Path(workdir)
     work.mkdir(parents=True, exist_ok=True)
     _run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono",
           "-t", f"{GAP}", "-q:a", "9", "gap.mp3"], work)
+    _run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono",
+          "-t", f"{GAP_FACT}", "-q:a", "9", "gapf.mp3"], work)
+    sats = []
+    if satisfy and frame == "smart":
+        try:
+            from streamers.satisfying import pick_for
+            sats = pick_for("whatonearth", len(items))   # si el pool está vacío -> [] -> fallback blur
+        except Exception:
+            sats = []
     segs = []
     for i, it in enumerate(items):
         # TTS crudo y luego acelerado (atempo); todo lo de abajo usa los acelerados.
         tts.synth(_clean_tts(it["question_en"]), VOICE_Q, work / f"q{i}_raw.mp3")
         tts.synth(_clean_tts(it["answer_en"]), VOICE_A, work / f"a{i}_raw.mp3")
-        for raw, fin in ((f"q{i}_raw.mp3", f"q{i}.mp3"), (f"a{i}_raw.mp3", f"a{i}.mp3")):
+        raws = [(f"q{i}_raw.mp3", f"q{i}.mp3"), (f"a{i}_raw.mp3", f"a{i}.mp3")]
+        fact = (it.get("fact_en") or "").strip()      # dato opcional que llena el silencio
+        has_fact = bool(fact)
+        if has_fact:
+            tts.synth(_clean_tts(fact), VOICE_A, work / f"f{i}_raw.mp3")
+            raws.append((f"f{i}_raw.mp3", f"f{i}.mp3"))
+        for raw, fin in raws:
             _run(["ffmpeg", "-y", "-i", raw, "-filter:a", f"atempo={SPEED}",
                   "-c:a", "libmp3lame", "-q:a", "4", fin], work)
+        files = _audio_files(i, has_fact)
         (work / f"al{i}.txt").write_text(
-            f"file 'q{i}.mp3'\nfile 'gap.mp3'\nfile 'a{i}.mp3'\n", encoding="utf-8")
+            "".join(f"file '{f}'\n" for f in files), encoding="utf-8")
         _run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", f"al{i}.txt",
               "-c:a", "aac", f"au{i}.m4a"], work)
         adur = _dur(work / f"au{i}.m4a")
-        seg_dur = adur + HOLD
+        seg_dur = adur + (TAIL_FACT if has_fact else HOLD)
         clip = Path(it["clip_path"]).resolve()
         # El ítem se nombra SOLO por voz (sin cartel en pantalla, a pedido del usuario).
-        if frame == "smart":   # MEDIO: zoom moderado + clip ANCLADO ARRIBA de la UI de TikTok
-            vf = ("[0:v]split=2[b][f];"
-                  "[b]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
-                  "boxblur=26:1,eq=brightness=-0.05[bg];"
-                  f"[f]scale=1080:{CLIP_H}:force_original_aspect_ratio=increase,crop=1080:{CLIP_H}[fg];"
-                  f"[bg][fg]overlay=(W-w)/2:{CLIP_Y},setsar=1[v]")
-        elif frame == "fit":   # clip ENTERO sobre fondo desenfocado (sin zoom; bandas difusas)
-            vf = ("[0:v]split=2[b][f];"
-                  "[b]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
-                  "boxblur=26:1,eq=brightness=-0.06[bg];"
-                  "[f]scale=1080:1920:force_original_aspect_ratio=decrease[fg];"
-                  "[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1[v]")
-        else:                  # fill: el clip LLENA el 9:16 (sin bandas, pero zoomea horizontales)
-            vf = ("[0:v]scale=1080:1920:force_original_aspect_ratio=increase,"
-                  "crop=1080:1920,setsar=1[v]")
-        _run(["ffmpeg", "-y", "-stream_loop", "-1", "-t", f"{seg_dur:.2f}", "-i", str(clip),
-              "-i", f"au{i}.m4a",
-              "-filter_complex", vf,
-              "-map", "[v]", "-map", "1:a", "-c:v", "libx264", "-preset", "medium",
-              "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-r", "30",
-              "-t", f"{seg_dur:.2f}", f"seg{i}.mp4"], work)
+        sat = sats[i % len(sats)] if sats else None
+        use_sat = sat is not None
+        vf = _vf(frame, satisfy=use_sat)
+        cmd = ["ffmpeg", "-y", "-stream_loop", "-1", "-t", f"{seg_dur:.2f}", "-i", str(clip),
+               "-i", f"au{i}.m4a"]
+        if use_sat:                                   # 3er input: clip satisfactorio (ignoramos su audio)
+            cmd += ["-stream_loop", "-1", "-t", f"{seg_dur:.2f}", "-i", str(Path(sat).resolve())]
+        cmd += ["-filter_complex", vf,
+                "-map", "[v]", "-map", "1:a", "-c:v", "libx264", "-preset", "medium",
+                "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-r", "30",
+                "-t", f"{seg_dur:.2f}", f"seg{i}.mp4"]
+        _run(cmd, work)
         segs.append(f"seg{i}.mp4")
     (work / "concat.txt").write_text("".join(f"file '{s}'\n" for s in segs), encoding="utf-8")
     out_path = Path(out_path)

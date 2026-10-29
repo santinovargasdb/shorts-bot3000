@@ -27,14 +27,21 @@ Return ONLY a JSON array. Each element:
   "category": "{category}",
   "query": "<2-4 word English stock-footage search term for REAL footage of it>",
   "question_en": "<{q_style}>",
-  "answer_en": "<the naming line — follow the RULES below>"}}
+  "answer_en": "<the naming line — follow the RULES below>",
+  "fact_en": "<the follow-up fact — follow the RULES below>"}}
 
 answer_en RULES (critical):
 - Shape: "This is <X>." and nothing more.
 - PROPER NOUNS (named places/things, e.g. 'Lake Natron', 'Mount Roraima'): NO article —
   "This is Lake Natron." NEVER "This is a Lake Natron."
 - COMMON NOUNS (e.g. 'aye-aye', 'glass frog'): correct a/an —
-  "This is an aye-aye." / "This is a glass frog."."""
+  "This is an aye-aye." / "This is a glass frog."
+
+fact_en RULES (critical):
+- ONE short sentence (max ~12 words) with a TRUE, surprising detail. Plays right after answer_en.
+- Do NOT repeat the name; start with the subject or a pronoun.
+  e.g. glass frog -> "They use their see-through skin to hide from predators."
+  e.g. Lake Natron -> "Its waters are so alkaline they turn animals to stone." """
 
 
 def parse_topics(raw: str) -> list:
@@ -50,7 +57,11 @@ def parse_topics(raw: str) -> list:
         if not isinstance(it, dict):
             continue
         if all(isinstance(it.get(k), str) and it.get(k).strip() for k in _REQUIRED):
-            out.append({k: it[k].strip() for k in _REQUIRED})
+            topic = {k: it[k].strip() for k in _REQUIRED}
+            fact = it.get("fact_en")                       # opcional: dato que llena el silencio
+            if isinstance(fact, str) and fact.strip():
+                topic["fact_en"] = fact.strip()
+            out.append(topic)
     return out
 
 
