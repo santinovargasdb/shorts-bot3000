@@ -11,11 +11,16 @@ def test_next_part_defaults_to_1_when_no_state(tmp_path):
 def test_next_part_is_max_over_active_platforms(tmp_path):
     state = tmp_path / "state.json"
     state.write_text(json.dumps({
+        "soyelmalo": {"youtube": {"next_part": 24}, "instagram": {"next_part": 23},
+                      "tiktok": {"next_part": 26}},
+        # faceless tiene TikTok PAUSADO (platforms=yt+ig): tt no cuenta aunque esté más adelantado
         "faceless": {"youtube": {"next_part": 24}, "instagram": {"next_part": 23},
-                     "tiktok": {"next_part": 26}}
+                     "tiktok": {"next_part": 99}},
     }), encoding="utf-8")
-    # faceless activa yt+ig+tt -> el más adelantado es tiktok=26
-    assert rw.next_part("faceless", state) == 26
+    # soyelmalo activa yt+ig+tt -> el más adelantado es tiktok=26
+    assert rw.next_part("soyelmalo", state) == 26
+    # faceless solo yt+ig -> tiktok=99 se ignora -> max(24, 23) = 24
+    assert rw.next_part("faceless", state) == 24
 
 
 def test_parts_ahead_counts_only_keys_at_or_after_next_part(tmp_path, monkeypatch):

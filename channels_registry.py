@@ -17,7 +17,10 @@ CHANNELS = {
         "yt_token": None,     # None = secrets/token.json (legacy, no tocar)
         "ig_creds": None,     # None = IG_USER_ID/IG_ACCESS_TOKEN del .env (legacy)
         "tt_token": None,     # None = secrets/tiktok_token.json (global, legacy)
-        "platforms": ("yt", "ig", "tt"),
+        # TikTok PAUSADO 2026-10-28 (sin "tt"): no publicamos los borradores a mano hasta que
+        # aprueben la automatización, y así TikTok deja de consumir el backlog por delante de
+        # YT/IG. Re-agregar "tt" cuando TikTok apruebe prod. Ver [[tiktok-auth-estado]].
+        "platforms": ("yt", "ig"),
         "first_comment": "Tirá un dato que sepas vos que nadie conozca 👇",
         "sfx_style": "datos",       # whoosh entre datos + pop en el swap de imagen
     },
@@ -29,7 +32,7 @@ CHANNELS = {
         "yt_token": "secrets/historia/token.json",
         "ig_creds": "secrets/historia/instagram.json",
         "tt_token": "secrets/historia/tiktok_token.json",
-        "platforms": ("yt", "ig", "tt"),   # tt se activa cuando exista el token (OAuth del canal)
+        "platforms": ("yt", "ig"),   # TikTok PAUSADO 2026-10-28 hasta aprobación de prod; ver [[tiktok-auth-estado]]
         "first_comment": "¿Vos qué hubieras hecho en su lugar? 👇",
         "sfx_style": "historia",     # boom en el giro del relato
     },
@@ -41,7 +44,7 @@ CHANNELS = {
         "yt_token": "secrets/misterios/token.json",
         "ig_creds": "secrets/misterios/instagram.json",
         "tt_token": "secrets/misterios/tiktok_token.json",
-        "platforms": ("yt", "ig", "tt"),   # tt se activa cuando exista el token (OAuth del canal)
+        "platforms": ("yt", "ig"),   # TikTok PAUSADO 2026-10-28 hasta aprobación de prod; ver [[tiktok-auth-estado]]
         "first_comment": "Dejá tu teoría abajo 👇 ¿qué creés que pasó de verdad?",
         "sfx_style": "misterios",    # riser hacia el remate + corte de música
     },
