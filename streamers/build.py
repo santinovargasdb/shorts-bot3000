@@ -45,6 +45,16 @@ def content_mismatch(channel_content: str, has_gameplay: bool | None) -> bool:
     return False
 
 
+def facecam_needs_face(channel_content: str, layout_override: str | None,
+                       face_found: bool) -> bool:
+    """True si es un canal facecam/IRL (content=='irl' o layout_override=='facecam') y el clip
+    NO tiene una cara estable. Esos clips (aventura outdoor, cámara lejos, logo tapando la cara)
+    no entran en el formato 'solo cara': el render cae a un fallback feo (clip apretado entre
+    franjas de slime). Mejor rechazarlos en el build que postear un video roto."""
+    is_facecam = channel_content == "irl" or layout_override == "facecam"
+    return is_facecam and not face_found
+
+
 def _name_platform(entry, default_platform: str) -> tuple[str, str]:
     """Un streamer se declara como 'nombre' (usa la plataforma por defecto del canal) o como
     ('nombre', 'plataforma') para mezclar Twitch y Kick en un mismo canal (ej. IRL inglés)."""
@@ -96,11 +106,30 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
                   f"seq {real} ({clip['streamer']})")
         return real
 
+    # Guard de cara: un canal facecam/IRL necesita una cara estable para el formato "solo cara".
+    # Sin cara (aventura outdoor, cámara lejos, logo tapando) el render cae a un fallback feo
+    # -> rechazar sin gastar el render (igual que el guard de contenido de arriba).
+    if cfg.get("content") == "irl" or cfg.get("layout_override") == "facecam":
+        from src.facecrop import detect_face
+        face_found = detect_face(Path(clip["local_path"])) is not None
+        if facecam_needs_face(cfg.get("content", "gameplay"), cfg.get("layout_override"), face_found):
+            real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
+                               video_path="", streamer=clip["streamer"], clip_id=clip["id"],
+                               views=clip.get("views", 0), status="rejected",
+                               qc_note="sin cara estable (IRL fuera del nicho facecam/just-chatting)",
+                               has_gameplay=has_gp)
+            if verbose:
+                print(f"[{channel_key}] RECHAZADO (sin cara estable para facecam) "
+                      f"seq {real} ({clip['streamer']})")
+            return real
+
     ov = {"clips_per_source": 1, "name": channel_key}
     if has_gp is not None:
         ov["_has_gameplay"] = has_gp
     if cfg.get("layout_override"):                  # canal C (IRL): fuerza facecam-only
         ov["layout"] = cfg["layout_override"]
+    if cfg.get("language"):                         # idioma de transcripción por canal (C=en, A/B=es)
+        ov["language"] = cfg["language"]
     wm = ROOT / "branding" / channel_key / "watermark.png"
     if wm.exists():                                 # watermark @handle del canal (branding/)
         ov["watermark"] = str(wm)

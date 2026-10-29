@@ -21,6 +21,7 @@ CHANNELS = {
         "db": ROOT / "streamers" / "backlog_a.sqlite",
         "period": "30d",
         "content": "gameplay",         # solo GAMEPLAY (el IRL va al canal C); layout auto 2-paneles
+        "language": "es",              # hispanos: transcribir/subtitular en español
     },
     "streamers_b": {
         "display": "Clips Argentinos",
@@ -30,6 +31,7 @@ CHANNELS = {
         "db": ROOT / "streamers" / "backlog_b.sqlite",
         "period": "all",               # Kick time 'all' = los bangers del streamer
         "content": "gameplay",
+        "language": "es",              # argentinos: transcribir/subtitular en español
         "platform": "kick",            # default si una entrada no trae platform; hoy el ledger las trae todas
     },
     "streamers_c": {
@@ -39,6 +41,7 @@ CHANNELS = {
         "db": ROOT / "streamers" / "backlog_c.sqlite",
         "period": "30d",
         "content": "irl",              # solo CHARLA/IRL (el QC con content=irl descarta el gameplay)
+        "language": "en",              # IRL en INGLÉS: transcribir en 'en' (si no, subtítulos en español mal)
         "layout_override": "facecam",  # formato facecam-only (cara sola), no 2-paneles
     },
 }

@@ -31,10 +31,12 @@ MUSIC = {
 }
 
 
-def _satisfy_for_channel(channel, use_gaming, picker):
+def _satisfy_for_channel(channel, use_gaming, picker, no_face=False):
     """(satisfy_top, satisfy_bottom). `use_gaming` = va el layout gaming (cara+gameplay) → 1
-    satisfactorio ABAJO. Si no (sin cara, o IRL) → 3 franjas → 2 satisfactorios (arriba+abajo)."""
-    if not channel.get("satisfying"):
+    satisfactorio ABAJO. Si no (sin cara, o IRL) → 3 franjas → 2 satisfactorios (arriba+abajo).
+    `no_face` = canal face_crop SIN cara estable → NINGÚN satisfactorio: el clip va a pantalla
+    completa (crop/blur) en vez del sándwich de slime con el clip apretado y chico en el medio."""
+    if not channel.get("satisfying") or no_face:
         return (None, None)
     ch = channel.get("name", "")
     if use_gaming:
@@ -219,7 +221,10 @@ def process_source(
             # Layout gaming (cara/juego/satisfactorio abajo) SOLO si hay gameplay Y cara detectada.
             # Sin cara (aunque sea gameplay) o IRL -> 3 franjas (satisfactorio/clip/satisfactorio).
             use_gaming = bool(has_gp and face_box)
-            sat_top, sat_bot = _satisfy_for_channel(channel, use_gaming, pick_for)
+            # Canal face_crop SIN cara estable (no crop_rect ni face_box): NO armar el sándwich de
+            # slime (el clip quedaba apretado y chico en el medio). Mejor a pantalla completa.
+            no_face = bool(channel.get("face_crop") and not crop_rect and not face_box)
+            sat_top, sat_bot = _satisfy_for_channel(channel, use_gaming, pick_for, no_face=no_face)
         else:
             sat_top = sat_bot = None
         rendered = render_short(
