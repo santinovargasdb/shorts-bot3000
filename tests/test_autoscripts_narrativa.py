@@ -98,6 +98,28 @@ def test_validate_story_rechaza_largo_fuera_de_rango():
         N.validate_story(bad)
 
 
+def test_validate_story_rechaza_apertura_con_anio_hablado():
+    # §2/§9.7 in-medias-res: nunca abrir con el año (caso real: el SS Waratah que se coló).
+    bad = json.loads(json.dumps(_STORY))
+    bad["segments"][0]["text"] = ("En julio de mil novecientos nueve, este enorme barco zarpó del "
+                                  "puerto y jamás se volvió a saber nada de su tripulación.")
+    with pytest.raises(ValueError):
+        N.validate_story(bad)
+
+
+def test_validate_story_rechaza_apertura_en_el_anio():
+    bad = json.loads(json.dumps(_STORY))
+    bad["segments"][0]["text"] = ("En el año en que todo cambió, un enorme barco zarpó del puerto "
+                                  "para nunca jamás regresar con toda su tripulación a bordo.")
+    with pytest.raises(ValueError):
+        N.validate_story(bad)
+
+
+def test_validate_story_acepta_apertura_in_medias_res():
+    # El gancho/anomalía primero (sin fecha) sigue pasando: es el fixture _STORY tal cual.
+    N.validate_story(_STORY)   # no levanta
+
+
 # ---------- few-shot ----------
 
 def test_fewshot_usa_los_episodios_reales_del_modulo():

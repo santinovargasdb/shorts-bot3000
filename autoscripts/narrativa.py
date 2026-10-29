@@ -122,6 +122,13 @@ def validate_story(st: dict) -> None:
             raise ValueError(f"momento con dígitos en el texto: {s['text'][:60]!r}")
     if "eguime" in segs[-1]["text"]:              # sin CTA hablada en el remate (fórmula §7/§9)
         raise ValueError("el remate tiene un llamado a la acción hablado")
+    # §2/§9.7 in-medias-res: NUNCA abrir con la fecha; la anomalía/gancho va primero. El judge
+    # factual no mira el formato, así que este guard determinista lo corta en generación (mismo
+    # criterio que tests/test_formula.py::test_aperturas_in_medias_res).
+    primera = segs[0]["text"]
+    if (primera.startswith(("En el año", "En el siglo", "En 19", "En 20"))
+            or " mil " in f" {primera[:70].lower()}"):
+        raise ValueError(f"abre con fecha/año (viola in-medias-res §2/§9.7): {primera[:50]!r}")
     palabras = sum(len(s["text"].split()) for s in segs)
     if not (MIN_WORDS <= palabras <= MAX_WORDS):
         raise ValueError(f"{palabras} palabras (fuera de {MIN_WORDS}-{MAX_WORDS})")
