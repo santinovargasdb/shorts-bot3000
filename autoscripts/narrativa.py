@@ -82,6 +82,10 @@ REGLA DURA 2 (remate): el ÚLTIMO momento NO lleva llamado a la acción hablado 
 
 REGLA DURA 3 (novedad): evitá estos sujetos ya usados: {avoid}. Elegí uno distinto.
 
+REGLA DURA 4 (arranque in-medias-res): abrí SIEMPRE en la anomalía o el gancho, NUNCA con la fecha
+o el año ("En mil...", "En el año...", "En el siglo..."). Si el año importa, va MÁS ADELANTE en el
+relato, jamás en la primera frase.
+
 El relato completo (sumando los momentos) debe tener entre cien y ciento sesenta y cinco palabras.
 Devolvé SOLO el JSON del episodio nuevo."""
 

@@ -128,6 +128,12 @@ def test_misterios_instr_prioriza_documentables_no_oscuros():
     assert "document" in instr
 
 
+def test_prompt_pide_arranque_sin_fecha():
+    # El modelo generaba aperturas con fecha (el guard de validate_story las rechaza, pero gasta
+    # intentos/tokens). El prompt ahora le pide explícitamente arrancar en la anomalía, no en la fecha.
+    assert "REGLA DURA 4" in N._PROMPT
+
+
 # ---------- few-shot ----------
 
 def test_fewshot_usa_los_episodios_reales_del_modulo():
