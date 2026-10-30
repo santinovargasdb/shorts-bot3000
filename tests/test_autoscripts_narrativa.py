@@ -189,6 +189,25 @@ def test_generate_story_sin_articulo_levanta(monkeypatch):
         N.generate_story(object(), "m", mod, "instr", [], hint="h", max_subject_tries=2)
 
 
+def test_generate_story_no_requema_sujeto_descartado(monkeypatch):
+    # Review finding: si el LLM repropone un sujeto ya descartado (sin articulo), NO hay que
+    # volver a buscarlo en Wikipedia ni quemar el intento; se acumula en los evitados.
+    import src.wiki_facts as W
+    propuestas = iter(["Repetido", "Repetido", "Bueno"])
+    monkeypatch.setattr(N, "propose_subject", lambda c, m, h, avoid: next(propuestas))
+    fetched = []
+    def fake_fetch(subj, **k):
+        fetched.append(subj)
+        return None if subj == "Repetido" else "FUENTE"
+    monkeypatch.setattr(W, "fetch_summary", fake_fetch)
+    monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
+    monkeypatch.setattr(N, "_chat", lambda c, m, p: json.dumps(_STORY, ensure_ascii=False))
+    mod = _fake_module({1: _STORY})
+    st, source = N.generate_story(object(), "m", mod, "instr", [], hint="h", max_subject_tries=3)
+    assert source == "FUENTE"
+    assert fetched.count("Repetido") == 1   # no se re-busco el sujeto ya descartado
+
+
 # ---------- propose_subject (grounding) ----------
 
 def test_subject_hint_existe_para_ambos():

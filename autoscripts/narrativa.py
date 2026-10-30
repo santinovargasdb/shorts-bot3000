@@ -221,15 +221,18 @@ def generate_story(client, model, series_module, instr: str, avoid_subjects: lis
     Devuelve (story, source). RuntimeError si no encuentra un sujeto con articulo tras varios intentos."""
     from src.wiki_facts import fetch_summary
     used = set(avoid_subjects)
+    avoid = list(avoid_subjects)
     for _ in range(max_subject_tries):
-        subject = propose_subject(client, model, hint, avoid_subjects)
+        subject = propose_subject(client, model, hint, avoid)
         if is_duplicate(subject, used):
             continue
+        used.add(norm(subject))            # no reproponer/re-buscar este sujeto en los siguientes intentos
+        avoid.append(subject)
         source = fetch_summary(subject)
         if not source:
             continue                       # sin articulo -> probar otro sujeto
         prompt = _PROMPT.format(examples=_fewshot(series_module), instr=instr, n=n_segs,
-                                avoid="; ".join(sorted(avoid_subjects)[:60]) or "(ninguno)",
+                                avoid="; ".join(sorted(avoid)[:60]) or "(ninguno)",
                                 source=source)
         st = parse_story(_chat(client, model, prompt))
         validate_story(st)
