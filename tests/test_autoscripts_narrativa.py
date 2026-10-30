@@ -160,24 +160,33 @@ def test_is_duplicate_detecta_sujeto_ya_usado():
     assert N.is_duplicate("La plaga del baile de Estrasburgo", used) is False
 
 
-# ---------- generate_story ----------
+# ---------- generate_story (grounded) ----------
 
-def test_generate_story_mete_fewshot_y_avoid_en_el_prompt(monkeypatch):
+def test_generate_story_grounded_usa_la_fuente(monkeypatch):
+    import src.wiki_facts as W
+    monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Mary Celeste")
+    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE_REAL_XYZ")
+    monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJEMPLO_NARRATIVO")
     visto = {}
-
     def fake_chat(c, m, prompt):
         visto["p"] = prompt
         return json.dumps(_STORY, ensure_ascii=False)
-
-    monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJEMPLO_NARRATIVO_XYZ")
     monkeypatch.setattr(N, "_chat", fake_chat)
     mod = _fake_module({1: _STORY})
-    st = N.generate_story(client=object(), model="m", series_module=mod,
-                          instr="instrucciones de historia", avoid_subjects=["mary celeste"])
+    st, source = N.generate_story(object(), "m", mod, "instrucciones", ["mary x"], hint="h")
+    assert source == "FUENTE_REAL_XYZ"
+    assert "FUENTE_REAL_XYZ" in visto["p"]          # la fuente entro al prompt del relato
+    assert "EJEMPLO_NARRATIVO" in visto["p"]        # sigue el few-shot (estilo)
     assert st["topic"] == "marinero dos naufragios"
-    assert "EJEMPLO_NARRATIVO_XYZ" in visto["p"]
-    assert "mary celeste" in visto["p"].lower()
-    assert "instrucciones de historia" in visto["p"]
+
+
+def test_generate_story_sin_articulo_levanta(monkeypatch):
+    import src.wiki_facts as W
+    monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Nada De Nada")
+    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: None)
+    mod = _fake_module({1: _STORY})
+    with pytest.raises(RuntimeError):
+        N.generate_story(object(), "m", mod, "instr", [], hint="h", max_subject_tries=2)
 
 
 # ---------- propose_subject (grounding) ----------

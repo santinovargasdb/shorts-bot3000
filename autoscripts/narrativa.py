@@ -86,6 +86,9 @@ estructura de relato, su precisión histórica y su naturalidad hablada):
 
 {instr}
 
+HECHOS REALES DEL CASO (de Wikipedia, es tu UNICA fuente de verdad; el sujeto ya esta decidido, es el de la fuente):
+\"\"\"{source}\"\"\"
+
 Escribí UNO NUEVO. Devolvé SOLO un objeto JSON con claves exactas: "pregunta", "titulo", "resumen",
 "topic", "segments".
 
@@ -113,6 +116,10 @@ REGLA DURA 3 (novedad): evitá estos sujetos ya usados: {avoid}. Elegí uno dist
 REGLA DURA 4 (arranque in-medias-res): abrí SIEMPRE en la anomalía o el gancho, NUNCA con la fecha
 o el año ("En mil...", "En el año...", "En el siglo..."). Si el año importa, va MÁS ADELANTE en el
 relato, jamás en la primera frase.
+
+REGLA DURA 5 (grounding): escribí el relato usando SOLO lo que dicen los HECHOS de arriba. NO agregues
+ninguna fecha, cifra, nombre o evento que no este en esa fuente. Si la fuente no da un dato, conta el
+relato sin el; jamas lo inventes.
 
 El relato completo (sumando los momentos) debe tener entre cien y ciento sesenta y cinco palabras.
 Devolvé SOLO el JSON del episodio nuevo."""
@@ -209,9 +216,22 @@ def is_duplicate(topic: str, used: set) -> bool:
 
 
 def generate_story(client, model, series_module, instr: str, avoid_subjects: list,
-                   n_segs: int = 5) -> dict:
-    prompt = _PROMPT.format(examples=_fewshot(series_module), instr=instr, n=n_segs,
-                            avoid="; ".join(sorted(avoid_subjects)[:60]) or "(ninguno)")
-    st = parse_story(_chat(client, model, prompt))
-    validate_story(st)
-    return st
+                   n_segs: int = 5, hint: str = "", max_subject_tries: int = 3) -> tuple[dict, str]:
+    """Grounded: propone un sujeto, trae sus hechos de Wikipedia y escribe el relato pegado a ellos.
+    Devuelve (story, source). RuntimeError si no encuentra un sujeto con articulo tras varios intentos."""
+    from src.wiki_facts import fetch_summary
+    used = set(avoid_subjects)
+    for _ in range(max_subject_tries):
+        subject = propose_subject(client, model, hint, avoid_subjects)
+        if is_duplicate(subject, used):
+            continue
+        source = fetch_summary(subject)
+        if not source:
+            continue                       # sin articulo -> probar otro sujeto
+        prompt = _PROMPT.format(examples=_fewshot(series_module), instr=instr, n=n_segs,
+                                avoid="; ".join(sorted(avoid_subjects)[:60]) or "(ninguno)",
+                                source=source)
+        st = parse_story(_chat(client, model, prompt))
+        validate_story(st)
+        return st, source
+    raise RuntimeError("no se encontro un sujeto con articulo de Wikipedia")
