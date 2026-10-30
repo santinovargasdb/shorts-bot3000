@@ -33,6 +33,34 @@ INSTR = {
     ),
 }
 
+# Pista corta del tipo de SUJETO a proponer para el grounding (paso 1: antes de traer los hechos).
+SUBJECT_HINT = {
+    "historia": "El sujeto es un hecho, personaje o episodio HISTORICO real y asombroso.",
+    "misterios": ("El sujeto es un MISTERIO o caso real: una desaparicion, un enigma sin resolver, "
+                  "un fenomeno inexplicable."),
+}
+
+_PROMPT_SUBJECT = """Sos el editor de un canal de shorts narrativos. {hint}
+
+Proponé UN solo sujeto REAL y bien documentado para el proximo episodio: un nombre propio que tenga
+articulo en Wikipedia (una persona, un hecho, un caso, un lugar). Ni los cuatro o cinco de siempre,
+ni algo tan oscuro que no haya info. NO repitas estos ya usados: {avoid}.
+
+Respondé SOLO el nombre del sujeto, en una sola linea, sin comillas ni explicacion."""
+
+
+def propose_subject(client, model, hint: str, avoid_subjects: list) -> str:
+    """Paso 1 del grounding: el LLM propone un sujeto (nombre propio) para buscar en Wikipedia."""
+    prompt = _PROMPT_SUBJECT.format(
+        hint=hint, avoid="; ".join(sorted(avoid_subjects)[:60]) or "(ninguno)")
+    raw = _chat(client, model, prompt)
+    for line in (raw or "").splitlines():
+        s = line.strip().strip('"\'').lstrip("-*0123456789. ").strip()
+        if s:
+            return s[:80]
+    raise ValueError("propose_subject: respuesta vacia")
+
+
 JUDGE_INSTR = {
     "historia": (
         "Es una historia presentada como HECHO HISTÓRICO real. Rechazá (ok=false) si algún dato es falso, "

@@ -178,3 +178,29 @@ def test_generate_story_mete_fewshot_y_avoid_en_el_prompt(monkeypatch):
     assert "EJEMPLO_NARRATIVO_XYZ" in visto["p"]
     assert "mary celeste" in visto["p"].lower()
     assert "instrucciones de historia" in visto["p"]
+
+
+# ---------- propose_subject (grounding) ----------
+
+def test_subject_hint_existe_para_ambos():
+    assert "historia" in N.SUBJECT_HINT and "misterios" in N.SUBJECT_HINT
+
+
+def test_propose_subject_toma_la_primera_linea(monkeypatch):
+    monkeypatch.setattr(N, "_chat", lambda c, m, p: '  "SS Waratah"  \n')
+    assert N.propose_subject(object(), "m", "hint", ["x"]) == "SS Waratah"
+
+
+def test_propose_subject_saca_bullets(monkeypatch):
+    monkeypatch.setattr(N, "_chat", lambda c, m, p: "- Hiroo Onoda")
+    assert N.propose_subject(object(), "m", "hint", []) == "Hiroo Onoda"
+
+
+def test_propose_subject_mete_hint_y_avoid_en_el_prompt(monkeypatch):
+    visto = {}
+    def fake(c, m, p):
+        visto["p"] = p
+        return "Tema X"
+    monkeypatch.setattr(N, "_chat", fake)
+    N.propose_subject(object(), "m", "HINT_ABC", ["mary celeste"])
+    assert "HINT_ABC" in visto["p"] and "mary celeste" in visto["p"].lower()
