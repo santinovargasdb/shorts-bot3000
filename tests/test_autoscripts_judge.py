@@ -50,3 +50,25 @@ def test_judge_story_rechaza_si_un_dato_es_falso(monkeypatch):
 def test_judge_story_aprueba_si_todo_ok(monkeypatch):
     monkeypatch.setattr(J, "_chat", lambda c, m, p: '{"ok": true, "problema": ""}')
     assert J.judge_story(object(), "m", _STORY, instr="x")["ok"] is True
+
+
+# ---------- judge_story grounded: la fuente entra en el prompt ----------
+
+def test_judge_story_mete_la_fuente(monkeypatch):
+    import autoscripts.judge as J
+    visto = {}
+    def fake(c, m, p):
+        visto["p"] = p
+        return '{"ok": true, "problema": ""}'
+    monkeypatch.setattr(J, "_chat", fake)
+    story = {"titulo": "T", "segments": [{"text": "algo"}]}
+    J.judge_story(object(), "m", story, "instr del juez", source="FUENTE_123")
+    assert "FUENTE_123" in visto["p"]
+
+
+def test_judge_story_sin_fuente_sigue_andando(monkeypatch):
+    import autoscripts.judge as J
+    monkeypatch.setattr(J, "_chat", lambda c, m, p: '{"ok": false, "problema": "mal"}')
+    story = {"titulo": "T", "segments": [{"text": "algo"}]}
+    v = J.judge_story(object(), "m", story, "instr")       # sin source (backward-compat)
+    assert v["ok"] is False and v["problema"] == "mal"

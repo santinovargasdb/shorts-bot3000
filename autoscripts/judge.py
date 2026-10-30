@@ -39,7 +39,7 @@ def judge_episode(client, model, datos: list) -> dict:
 
 _PROMPT_STORY = """Sos un verificador ESTRICTO y escéptico. Te paso un relato que va a publicarse
 como verdad. {instr}
-
+{source_block}
 Ante la MÍNIMA duda, ok=false (es peor publicar algo falso que descartar un episodio).
 
 Título: {titulo}
@@ -49,7 +49,16 @@ Relato:
 Respondé SOLO JSON: {{"ok": true/false, "problema": "qué falla y por qué, o vacío"}}"""
 
 
-def judge_story(client, model, story: dict, instr: str) -> dict:
+def judge_story(client, model, story: dict, instr: str, source: str = "") -> dict:
+    """Verifica el relato narrativo. Si viene `source` (texto de Wikipedia), el prompt le pide
+    al juez que coteje el relato contra esa fuente: rechaza lo que la contradiga o lo que agregue
+    datos que no estén en ella. Backward-compatible: si no viene source, funciona igual que antes."""
     relato = "\n".join(f"- {s['text']}" for s in story.get("segments", []))
-    prompt = _PROMPT_STORY.format(instr=instr, titulo=story.get("titulo", ""), relato=relato)
+    source_block = ""
+    if source:
+        source_block = ('\nVerificá el relato CONTRA esta fuente (los hechos reales del caso): rechazá '
+                        'lo que la contradiga o lo que agregue datos que no esten en ella.\n'
+                        f'"""{source}"""\n')
+    prompt = _PROMPT_STORY.format(instr=instr, source_block=source_block,
+                                  titulo=story.get("titulo", ""), relato=relato)
     return parse_verdict(_chat(client, model, prompt))
