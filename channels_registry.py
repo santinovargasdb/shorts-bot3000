@@ -59,8 +59,11 @@ CHANNELS = {
         # YT reactivado 2026-10-27: la cuota ya NO limita. Desde dic-2025 videos.insert
         # tiene bucket propio ("Video Uploads per day" = 100 subidas/día, aparte del pool
         # de 10.000). Va por el proyecto Cloud del tier seguro. Requiere token válido en
-        # secrets/soyelmalo/token.json (reautorizar si venció). IG/TT postean independiente.
-        "platforms": ("yt", "ig", "tt"),
+        # secrets/soyelmalo/token.json (reautorizar si venció). IG postea independiente.
+        # TikTok PAUSADO 2026-10-30 (sin "tt"): igual que faceless/historia/misterios, no
+        # publicamos los borradores a mano hasta que aprueben la automatización de TikTok.
+        # Ver [[tiktok-auth-estado]]. Re-agregar "tt" cuando aprueben prod.
+        "platforms": ("yt", "ig"),
         "first_comment": "¿Vos qué hubieras hecho? 👇",
         "sfx_style": "datos",        # pop en el cambio de palabra (igual que render_reddit)
     },

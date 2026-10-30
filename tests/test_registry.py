@@ -21,7 +21,7 @@ def test_contexto_soyelmalo():
     ctx = reg.get_channel("soyelmalo")
     assert ctx["display"] == "¿Soy el Malo?"
     assert ctx["series"] == "series_reddit"       # adaptador dinámico (lee stories.sqlite)
-    assert ctx["platforms"] == ("yt", "ig", "tt")  # YT reactivado 2026-10-27 (cuota ya no limita)
+    assert ctx["platforms"] == ("yt", "ig")   # TikTok pausado 2026-10-30 (sacado de platforms)
     assert ctx["yt_token"] == "secrets/soyelmalo/token.json"
     assert ctx["ig_creds"] == "secrets/soyelmalo/instagram.json"
     assert ctx["tt_token"] == "secrets/soyelmalo/tiktok_token.json"
