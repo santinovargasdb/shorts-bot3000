@@ -28,8 +28,11 @@ INSTR = {
         "SIEMPRE como teorías ('se cree', 'la hipótesis más aceptada'), nunca como hechos probados. El caso "
         "en sí tiene que ser real y verificable. Elegí casos lo bastante DOCUMENTADOS como para no tener que "
         "inventar datos: ni los cuatro o cinco de siempre, ni tan oscuros que no tengas información confiable. "
-        "Si no estás seguro de una fecha, un nombre o una cifra, dejala afuera o contala como 'se cree'/'se "
-        "cuenta' en vez de arriesgar un dato que un verificador estricto pueda rechazar."
+        "REGLA DE ORO (así pasás el verificador): narrá el misterio por lo que lo hace fascinante (la anomalía, "
+        "lo inexplicable, el vacío que dejó), NO por su ficha técnica. EVITÁ todo dato específico chequeable: "
+        "fechas exactas (ni el año), número de tripulantes o víctimas, medidas, modelos, nombres de secundarios, "
+        "o lugares demasiado puntuales. Si ubicás tiempo o lugar, que sea VAGO ('hace más de un siglo', 'en algún "
+        "punto del Atlántico'). Un relato sin datos chequeables no le deja NADA al verificador para rechazar."
     ),
 }
 
