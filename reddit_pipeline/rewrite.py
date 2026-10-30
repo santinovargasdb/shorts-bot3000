@@ -37,14 +37,72 @@ def word_count(text: str) -> int:
     return len((text or "").split())
 
 
+def _llm_keys() -> list[str]:
+    """Todas las claves del LLM en orden, sin repetir. Coma-separadas en LLM_API_KEY y/o
+    LLM_API_KEY_2 (cada cuenta de Groq tiene su PROPIO presupuesto diario de tokens; varias claves
+    de la MISMA cuenta comparten el mismo tope y no suman)."""
+    load_env()
+    raw: list[str] = []
+    for var in ("LLM_API_KEY", "LLM_API_KEY_2"):
+        raw += os.environ.get(var, "").split(",")
+    keys, seen = [], set()
+    for k in (x.strip() for x in raw):
+        if k and k not in seen:
+            seen.add(k)
+            keys.append(k)
+    return keys
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    s = str(exc).lower()
+    return (getattr(exc, "status_code", None) == 429
+            or "429" in s or "rate limit" in s or "rate_limit" in s or "quota" in s)
+
+
+class _RotatingCompletions:
+    """Rota entre las claves: usa la actual hasta que da 429 (cuota diaria agotada), ahí salta a la
+    siguiente y se queda ahí. Solo re-lanza el 429 cuando TODAS están sin cuota. Un error que NO es
+    de cuota se re-lanza sin rotar."""
+    def __init__(self, clients):
+        self._clients = clients
+        self._i = 0
+
+    def create(self, **kwargs):
+        last = None
+        for _ in range(len(self._clients)):
+            try:
+                return self._clients[self._i].chat.completions.create(**kwargs)
+            except Exception as e:
+                if not _is_rate_limit(e):
+                    raise
+                last = e
+                self._i = (self._i + 1) % len(self._clients)   # próxima clave (para ésta y las que sigan)
+        raise last
+
+
+class _RotatingChat:
+    def __init__(self, completions):
+        self.completions = completions
+
+
+class _RotatingClient:
+    """Imita el cliente OpenAI (client.chat.completions.create) pero rotando claves por debajo."""
+    def __init__(self, clients):
+        self.chat = _RotatingChat(_RotatingCompletions(clients))
+
+
 def build_client():
-    """Cliente LLM compatible-OpenAI (Groq por default; cambia LLM_BASE_URL/MODEL para otro)."""
+    """Cliente LLM compat-OpenAI (Groq por default; cambia LLM_BASE_URL/MODEL para otro). Si hay
+    varias claves (LLM_API_KEY / LLM_API_KEY_2, coma-separadas = cuentas distintas de Groq), ROTA:
+    cae a la siguiente cuando una agota su cuota diaria de tokens (429)."""
     load_env()
     from openai import OpenAI
-    return OpenAI(
-        api_key=os.environ["LLM_API_KEY"],
-        base_url=os.environ.get("LLM_BASE_URL", "https://api.groq.com/openai/v1"),
-    )
+    base_url = os.environ.get("LLM_BASE_URL", "https://api.groq.com/openai/v1")
+    keys = _llm_keys()
+    if not keys:
+        raise KeyError("LLM_API_KEY")          # mismo comportamiento que antes si no hay clave
+    clients = [OpenAI(api_key=k, base_url=base_url) for k in keys]
+    return clients[0] if len(clients) == 1 else _RotatingClient(clients)
 
 
 def model_name() -> str:
