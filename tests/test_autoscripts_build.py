@@ -103,10 +103,10 @@ def _wire_narr(monkeypatch, *, story=None, judge_ok=True, used=None):
     monkeypatch.setattr(B, "model_name", lambda: "m")
     monkeypatch.setattr(B.narrativa, "used_subjects", lambda ch, mod: (used if used is not None else set()))
     monkeypatch.setattr(B.narrativa, "generate_story",
-                        lambda client, model, series_module, instr, avoid_subjects, n_segs=5:
-                        (story if story is not None else _NARR))
+                        lambda client, model, series_module, instr, avoid_subjects, n_segs=5, hint="":
+                        ((story if story is not None else _NARR), "FUENTE_MOCK"))
     monkeypatch.setattr(B.judge, "judge_story",
-                        lambda client, model, st, instr: {"ok": judge_ok, "problema": "" if judge_ok else "falso"})
+                        lambda client, model, st, instr, source="": {"ok": judge_ok, "problema": "" if judge_ok else "falso"})
 
 
 def test_build_narrative_aprueba_y_guarda(tmp_path, monkeypatch):
@@ -147,3 +147,29 @@ def test_build_narrative_429_levanta_quota_exhausted(tmp_path, monkeypatch):
     import pytest
     with pytest.raises(QuotaExhausted):
         B.build("misterios", n=1)
+
+
+def test_build_narrative_pasa_la_fuente_al_juez(monkeypatch, tmp_path):
+    import autoscripts.build as B
+    story = {"pregunta": "¿x?", "titulo": "T", "resumen": "r", "topic": "Tema",
+             "segments": [{"text": "Momento uno.", "imgs": ["a", "b"]}]}
+    cap = {}
+    monkeypatch.setattr(B, "build_client", lambda: object())
+    monkeypatch.setattr(B, "model_name", lambda: "m")
+    monkeypatch.setattr(B.narrativa, "used_subjects", lambda ch, mod: set())
+    monkeypatch.setattr(B.narrativa, "is_duplicate", lambda t, u: False)
+    monkeypatch.setattr(B.narrativa, "generate_story",
+                        lambda *a, **k: (story, "FUENTE_Q"))
+    monkeypatch.setattr(B, "assemble_story", lambda st: {"pregunta": "¿x?", "titulo": "T",
+                        "resumen": "r", "segments": [{"kind": "fact", "text": "Momento uno.",
+                        "imgs": ["a", "b"]}]})
+    def fake_judge(c, m, st, instr, source=""):
+        cap["source"] = source
+        return {"ok": False, "problema": "test"}
+    monkeypatch.setattr(B.judge, "judge_story", fake_judge)
+    import types
+    monkeypatch.setattr(B.db, "connect", lambda p: types.SimpleNamespace(close=lambda: None))
+    monkeypatch.setattr(B.db, "DB_PATH", lambda ch: tmp_path / "x.sqlite")
+    monkeypatch.setattr(B.db, "add_episode", lambda *a, **k: 1)
+    B._build_narrative("misterios", 1)
+    assert cap["source"] == "FUENTE_Q"      # la fuente llegó al juez

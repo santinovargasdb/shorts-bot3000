@@ -44,16 +44,18 @@ def _build_narrative(channel: str, n: int) -> int:
     import importlib
     series_module = importlib.import_module(narrativa.MODULE[channel])
     instr, judge_instr = narrativa.INSTR[channel], narrativa.JUDGE_INSTR[channel]
+    hint = narrativa.SUBJECT_HINT[channel]
     client, model = build_client(), model_name()
     made = 0
     for _ in range(n):
         used = narrativa.used_subjects(channel, series_module)
         try:
-            st = narrativa.generate_story(client, model, series_module, instr, sorted(used))
+            st, source = narrativa.generate_story(
+                client, model, series_module, instr, sorted(used), hint=hint)
             if narrativa.is_duplicate(st["topic"], used):
                 print(f"[{channel}] descartado: sujeto repetido ({st['topic']})")
                 continue
-            verdict = judge.judge_story(client, model, st, judge_instr)
+            verdict = judge.judge_story(client, model, st, judge_instr, source=source)
         except QuotaExhausted:
             raise
         except Exception as e:
