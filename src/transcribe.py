@@ -46,21 +46,8 @@ def _get_model(model_size: str):
     return WhisperModel(model_size, device="cpu", compute_type="int8")
 
 
-def transcribe_words(
-    audio_or_video: Path | str,
-    model_size: str = "small",
-    language: str | None = None,
-) -> list[Word]:
-    """Transcribe y devuelve una lista plana de palabras con tiempos."""
-    model = _get_model(model_size)
-    audio = _decode_audio(audio_or_video)
-    segments, _info = model.transcribe(
-        audio,
-        language=language,
-        word_timestamps=True,
-        vad_filter=True,   # ignora silencios largos
-    )
-
+def _collect_words(segments) -> list[Word]:
+    """Aplana los segmentos de faster-whisper a palabras con tiempos (descarta las vacías)."""
     words: list[Word] = []
     for seg in segments:
         for w in (seg.words or []):
@@ -68,6 +55,30 @@ def transcribe_words(
             if text:
                 words.append(Word(start=w.start, end=w.end, text=text))
     return words
+
+
+def transcribe_words(
+    audio_or_video: Path | str,
+    model_size: str = "small",
+    language: str | None = None,
+) -> list[Word]:
+    """Transcribe y devuelve una lista plana de palabras con tiempos.
+
+    El VAD (Silero) de faster-whisper a veces explota con audio sin voz clara o muy corto
+    (IndexError de numpy "boolean index ... size 0"), y eso mataba el build del canal. Por eso se
+    reintenta SIN vad_filter: whisper transcribe todo el audio sin el pre-filtro de voz.
+    """
+    model = _get_model(model_size)
+    audio = _decode_audio(audio_or_video)
+    for vad in (True, False):
+        try:
+            segments, _info = model.transcribe(
+                audio, language=language, word_timestamps=True, vad_filter=vad)
+            return _collect_words(segments)
+        except Exception:
+            if vad:
+                continue      # el VAD explotó -> reintentar sin VAD
+            raise             # sin VAD tampoco -> propagar (el build lo rechaza, no muere)
 
 
 def align_script_to_words(script_text: str, asr_words: list[Word]) -> list[Word]:

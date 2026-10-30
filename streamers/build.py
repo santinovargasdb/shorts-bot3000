@@ -133,7 +133,19 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     wm = ROOT / "branding" / channel_key / "watermark.png"
     if wm.exists():                                 # watermark @handle del canal (branding/)
         ov["watermark"] = str(wm)
-    outs = process_source(clip["local_path"], "streamers", overrides=ov)
+    try:
+        outs = process_source(clip["local_path"], "streamers", overrides=ov)
+    except Exception as e:
+        # Un clip que revienta el render (transcripción/VAD, numpy, ffmpeg) NO debe matar el build
+        # del canal: se rechaza (clip_id queda usado) y se sigue, igual que el guard de contenido.
+        real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
+                           video_path="", streamer=clip["streamer"], clip_id=clip["id"],
+                           views=clip.get("views", 0), status="rejected",
+                           qc_note=f"error de render: {type(e).__name__}: {str(e)[:100]}",
+                           has_gameplay=has_gp)
+        if verbose:
+            print(f"[{channel_key}] RECHAZADO (error de render) seq {real} ({clip['streamer']}): {e}")
+        return real
     if not outs:
         if verbose:
             print(f"[{channel_key}] el render no produjo short")
