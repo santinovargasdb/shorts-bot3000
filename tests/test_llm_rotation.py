@@ -86,3 +86,22 @@ def test_llm_keys_lee_cuentas_numeradas(monkeypatch):
     monkeypatch.setenv("LLM_API_KEY_2", "k2")
     monkeypatch.setenv("LLM_API_KEY_3", "k3")
     assert R._llm_keys() == ["k1", "k2", "k3"]
+
+
+def test_chat_temperature_default_y_override():
+    # _chat usa temperature 0.8 por defecto, pero se puede bajar (ej. para el relato grounded).
+    cap = {}
+
+    class _Msg:
+        content = "ok"
+
+    class _Completions:
+        def create(self, **kw):
+            cap.clear(); cap.update(kw)
+            return type("R", (), {"choices": [type("C", (), {"message": _Msg()})()]})()
+
+    client = type("Cl", (), {"chat": type("Ch", (), {"completions": _Completions()})()})()
+    R._chat(client, "m", "p")
+    assert cap["temperature"] == 0.8
+    R._chat(client, "m", "p", temperature=0.4)
+    assert cap["temperature"] == 0.4

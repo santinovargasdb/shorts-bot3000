@@ -168,7 +168,7 @@ def test_generate_story_grounded_usa_la_fuente(monkeypatch):
     monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE_REAL_XYZ")
     monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJEMPLO_NARRATIVO")
     visto = {}
-    def fake_chat(c, m, prompt):
+    def fake_chat(c, m, prompt, **k):
         visto["p"] = prompt
         return json.dumps(_STORY, ensure_ascii=False)
     monkeypatch.setattr(N, "_chat", fake_chat)
@@ -201,11 +201,24 @@ def test_generate_story_no_requema_sujeto_descartado(monkeypatch):
         return None if subj == "Repetido" else "FUENTE"
     monkeypatch.setattr(W, "fetch_summary", fake_fetch)
     monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
-    monkeypatch.setattr(N, "_chat", lambda c, m, p: json.dumps(_STORY, ensure_ascii=False))
+    monkeypatch.setattr(N, "_chat", lambda c, m, p, **k: json.dumps(_STORY, ensure_ascii=False))
     mod = _fake_module({1: _STORY})
     st, source = N.generate_story(object(), "m", mod, "instr", [], hint="h", max_subject_tries=3)
     assert source == "FUENTE"
     assert fetched.count("Repetido") == 1   # no se re-busco el sujeto ya descartado
+
+
+def test_generate_story_reintenta_json_roto(monkeypatch):
+    # Review follow-up: el modelo a veces devuelve JSON roto -> reintentar el relato (misma fuente).
+    import src.wiki_facts as W
+    monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Bueno")
+    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE")
+    monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
+    respuestas = iter(["esto no es json valido", json.dumps(_STORY, ensure_ascii=False)])
+    monkeypatch.setattr(N, "_chat", lambda c, m, p, **k: next(respuestas))
+    mod = _fake_module({1: _STORY})
+    st, source = N.generate_story(object(), "m", mod, "instr", [], hint="h")
+    assert st["topic"] == "marinero dos naufragios"   # se recupero en el 2do intento del relato
 
 
 # ---------- propose_subject (grounding) ----------

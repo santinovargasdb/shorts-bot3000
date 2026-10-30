@@ -117,9 +117,11 @@ REGLA DURA 4 (arranque in-medias-res): abrí SIEMPRE en la anomalía o el gancho
 o el año ("En mil...", "En el año...", "En el siglo..."). Si el año importa, va MÁS ADELANTE en el
 relato, jamás en la primera frase.
 
-REGLA DURA 5 (grounding): escribí el relato usando SOLO lo que dicen los HECHOS de arriba. NO agregues
-ninguna fecha, cifra, nombre o evento que no este en esa fuente. Si la fuente no da un dato, conta el
-relato sin el; jamas lo inventes.
+REGLA DURA 5 (grounding, LA MÁS IMPORTANTE): el relato tiene que poder verificarse FRASE POR FRASE
+contra los HECHOS de arriba. NO agregues NADA que no esté explícito en esa fuente: ni cifras
+(cantidades, fechas, medidas), ni nombres, ni lugares, ni detalles técnicos, por más que creas
+saberlos. Si la fuente no lo dice, NO va. Ante la duda, preferí una frase general y cierta antes que
+una específica y arriesgada. No completes huecos con tu memoria: contá SOLO lo que la fuente respalda.
 
 El relato completo (sumando los momentos) debe tener entre cien y ciento sesenta y cinco palabras.
 Devolvé SOLO el JSON del episodio nuevo."""
@@ -216,7 +218,8 @@ def is_duplicate(topic: str, used: set) -> bool:
 
 
 def generate_story(client, model, series_module, instr: str, avoid_subjects: list,
-                   n_segs: int = 5, hint: str = "", max_subject_tries: int = 3) -> tuple[dict, str]:
+                   n_segs: int = 5, hint: str = "", max_subject_tries: int = 3,
+                   max_parse_tries: int = 2) -> tuple[dict, str]:
     """Grounded: propone un sujeto, trae sus hechos de Wikipedia y escribe el relato pegado a ellos.
     Devuelve (story, source). RuntimeError si no encuentra un sujeto con articulo tras varios intentos."""
     from src.wiki_facts import fetch_summary
@@ -234,7 +237,12 @@ def generate_story(client, model, series_module, instr: str, avoid_subjects: lis
         prompt = _PROMPT.format(examples=_fewshot(series_module), instr=instr, n=n_segs,
                                 avoid="; ".join(sorted(avoid)[:60]) or "(ninguno)",
                                 source=source)
-        st = parse_story(_chat(client, model, prompt))
-        validate_story(st)
-        return st, source
-    raise RuntimeError("no se encontro un sujeto con articulo de Wikipedia")
+        for _ in range(max_parse_tries):       # el modelo a veces devuelve JSON roto -> reintentar
+            try:
+                # temperature baja = se pega mas a la fuente y rompe menos el JSON
+                st = parse_story(_chat(client, model, prompt, temperature=0.4))
+                validate_story(st)
+                return st, source
+            except ValueError:
+                continue
+    raise RuntimeError("no se pudo generar un relato valido con fuente de Wikipedia")
