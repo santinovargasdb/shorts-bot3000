@@ -77,3 +77,12 @@ def test_llm_keys_junta_y_dedup(monkeypatch):
     monkeypatch.setenv("LLM_API_KEY", "k1, k2")
     monkeypatch.setenv("LLM_API_KEY_2", "k2, k3")     # k2 repetida -> se dedup
     assert R._llm_keys() == ["k1", "k2", "k3"]
+
+
+def test_llm_keys_lee_cuentas_numeradas(monkeypatch):
+    # el usuario puede sumar cuentas como vars separadas: LLM_API_KEY_2, LLM_API_KEY_3, ...
+    monkeypatch.setattr(R, "load_env", lambda: None)
+    monkeypatch.setenv("LLM_API_KEY", "k1")
+    monkeypatch.setenv("LLM_API_KEY_2", "k2")
+    monkeypatch.setenv("LLM_API_KEY_3", "k3")
+    assert R._llm_keys() == ["k1", "k2", "k3"]

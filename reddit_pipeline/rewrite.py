@@ -38,12 +38,12 @@ def word_count(text: str) -> int:
 
 
 def _llm_keys() -> list[str]:
-    """Todas las claves del LLM en orden, sin repetir. Coma-separadas en LLM_API_KEY y/o
-    LLM_API_KEY_2 (cada cuenta de Groq tiene su PROPIO presupuesto diario de tokens; varias claves
-    de la MISMA cuenta comparten el mismo tope y no suman)."""
+    """Todas las claves del LLM en orden, sin repetir. Van en LLM_API_KEY, LLM_API_KEY_2,
+    LLM_API_KEY_3, ... (una por var y/o varias coma-separadas en una). Cada cuenta de Groq tiene su
+    PROPIO presupuesto diario de tokens; varias claves de la MISMA cuenta comparten el tope y no suman."""
     load_env()
     raw: list[str] = []
-    for var in ("LLM_API_KEY", "LLM_API_KEY_2"):
+    for var in ["LLM_API_KEY"] + [f"LLM_API_KEY_{i}" for i in range(2, 21)]:
         raw += os.environ.get(var, "").split(",")
     keys, seen = [], set()
     for k in (x.strip() for x in raw):
