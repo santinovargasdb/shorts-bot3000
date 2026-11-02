@@ -86,7 +86,8 @@ estructura de relato, su precisión histórica y su naturalidad hablada):
 
 {instr}
 
-HECHOS REALES DEL CASO (de Wikipedia, es tu UNICA fuente de verdad; el sujeto ya esta decidido, es el de la fuente):
+ESCRIBÍ EL EPISODIO SOBRE ESTE SUJETO, y SOLO sobre él (no sobre otro caso parecido que conozcas): {subject}
+Estos son sus HECHOS REALES (de Wikipedia, tu ÚNICA fuente de verdad):
 \"\"\"{source}\"\"\"
 
 Escribí UNO NUEVO. Devolvé SOLO un objeto JSON con claves exactas: "pregunta", "titulo", "resumen",
@@ -111,7 +112,8 @@ si UN solo dato es falso, exagerado o dudoso. Jugá a lo seguro: contá solo lo 
 REGLA DURA 2 (remate): el ÚLTIMO momento NO lleva llamado a la acción hablado (nada de "Seguime",
 "suscribite", etc.); cierra con el relato mismo. El cierre a cámara es la "pregunta" en pantalla.
 
-REGLA DURA 3 (novedad): evitá estos sujetos ya usados: {avoid}. Elegí uno distinto.
+REGLA DURA 3 (sujeto fijo): el relato es SOBRE {subject} —el de la fuente—. NO inventes ni cambies a
+otro caso parecido. El "topic" que devuelvas tiene que ser ese sujeto.
 
 REGLA DURA 4 (arranque in-medias-res): abrí SIEMPRE en la anomalía o el gancho, NUNCA con la fecha
 o el año ("En mil...", "En el año...", "En el siglo..."). Si el año importa, va MÁS ADELANTE en el
@@ -235,8 +237,7 @@ def generate_story(client, model, series_module, instr: str, avoid_subjects: lis
         if not source:
             continue                       # sin articulo -> probar otro sujeto
         prompt = _PROMPT.format(examples=_fewshot(series_module), instr=instr, n=n_segs,
-                                avoid="; ".join(sorted(avoid)[:60]) or "(ninguno)",
-                                source=source)
+                                subject=subject, source=source)
         for _ in range(max_parse_tries):       # el modelo a veces devuelve JSON roto -> reintentar
             try:
                 # temperature baja = se pega mas a la fuente y rompe menos el JSON

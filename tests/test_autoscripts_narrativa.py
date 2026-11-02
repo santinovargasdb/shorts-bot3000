@@ -221,6 +221,24 @@ def test_generate_story_reintenta_json_roto(monkeypatch):
     assert st["topic"] == "marinero dos naufragios"   # se recupero en el 2do intento del relato
 
 
+def test_generate_story_ancla_el_sujeto_en_el_prompt(monkeypatch):
+    # Bug del grounding: el modelo escribia sobre OTRO caso que la fuente porque REGLA DURA 3 le
+    # decia "elegi uno distinto". Ahora el sujeto esta fijo (el de la fuente) y entra en el prompt.
+    import src.wiki_facts as W
+    monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Madeleine McCann")
+    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE")
+    monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
+    visto = {}
+    def fake_chat(c, m, p, **k):
+        visto["p"] = p
+        return json.dumps(_STORY, ensure_ascii=False)
+    monkeypatch.setattr(N, "_chat", fake_chat)
+    mod = _fake_module({1: _STORY})
+    N.generate_story(object(), "m", mod, "instr", [], hint="h")
+    assert "Madeleine McCann" in visto["p"]          # el sujeto esta anclado en el prompt del relato
+    assert "Elegí uno distinto" not in visto["p"]    # ya no le dice que elija otro caso
+
+
 # ---------- propose_subject (grounding) ----------
 
 def test_subject_hint_existe_para_ambos():
