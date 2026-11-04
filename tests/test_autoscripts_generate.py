@@ -37,7 +37,7 @@ def test_validate_schema_rechaza_imgs_incompletas():
 
 def test_generate_episode_usa_el_cliente(monkeypatch):
     import json
-    monkeypatch.setattr(g, "_chat", lambda client, model, prompt: json.dumps(_OK, ensure_ascii=False))
+    monkeypatch.setattr(g, "_chat", lambda client, model, prompt, **k: json.dumps(_OK, ensure_ascii=False))
     ep = g.generate_episode(client=object(), model="m", avoid_topics=["algo"])
     assert ep["datos"][0]["topic"] == "pulpo sangre azul"
 
@@ -79,10 +79,40 @@ def test_generate_episode_mete_los_ejemplos_en_el_prompt(monkeypatch):
     import json
     visto = {}
 
-    def fake_chat(c, m, prompt):
+    def fake_chat(c, m, prompt, **k):
         visto["p"] = prompt
         return json.dumps(_OK, ensure_ascii=False)
     monkeypatch.setattr(g, "_fewshot", lambda k=2: "EJEMPLO_REAL_XYZ")
     monkeypatch.setattr(g, "_chat", fake_chat)
     g.generate_episode(client=object(), model="m", avoid_topics=[])
     assert "EJEMPLO_REAL_XYZ" in visto["p"]        # el few-shot llega al prompt
+
+
+def test_grounding_arma_fuentes_con_los_sujetos(monkeypatch):
+    import json
+    import src.wiki_facts as W
+    monkeypatch.setattr(g, "_chat", lambda c, m, p, **k: json.dumps(
+        {"tema": "animales del desierto", "sujetos": [f"S{i}" for i in range(6)]}))
+    monkeypatch.setattr(W, "fetch_summary", lambda s, lang="en", max_chars=1200: f"texto de {s}")
+    bloque = g._grounding(object(), "m", "animales", "(ninguno)", "(ninguno)", {})
+    assert "animales del desierto" in bloque and 'FUENTE: """texto de S0"""' in bloque
+
+
+def test_grounding_vacio_si_hay_pocas_fuentes(monkeypatch):
+    import json
+    import src.wiki_facts as W
+    monkeypatch.setattr(g, "_chat", lambda c, m, p, **k: json.dumps({"tema": "x", "sujetos": ["A", "B"]}))
+    monkeypatch.setattr(W, "fetch_summary", lambda s, **k: "t")
+    assert g._grounding(object(), "m", "f", "", "", {}) == ""   # < 5 fuentes -> modo de antes
+
+
+def test_generate_episode_mete_las_fuentes_en_el_prompt(monkeypatch):
+    import json
+    visto = []
+    monkeypatch.setattr(g, "_grounding", lambda *a, **k: "BLOQUE_FUENTES_XYZ")
+    def fake_chat(c, m, prompt, **k):
+        visto.append(prompt)
+        return json.dumps(_OK, ensure_ascii=False)
+    monkeypatch.setattr(g, "_chat", fake_chat)
+    g.generate_episode(client=object(), model="m", avoid_topics=[])
+    assert "BLOQUE_FUENTES_XYZ" in visto[-1]

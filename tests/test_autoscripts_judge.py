@@ -72,3 +72,30 @@ def test_judge_story_sin_fuente_sigue_andando(monkeypatch):
     story = {"titulo": "T", "segments": [{"text": "algo"}]}
     v = J.judge_story(object(), "m", story, "instr")       # sin source (backward-compat)
     assert v["ok"] is False and v["problema"] == "mal"
+
+
+def test_judge_datos_devuelve_indices_base_cero(monkeypatch):
+    import autoscripts.judge as J
+    monkeypatch.setattr(J, "_chat", lambda c, m, p: '{"falsos": [2], "problema": "el 2 es falso"}')
+    out = J.judge_datos(object(), "m", [{"text": "a"}, {"text": "b"}, {"text": "c"}])
+    assert out["falsos"] == {1}
+
+
+def test_judge_datos_ambiguo_descarta_todo(monkeypatch):
+    import autoscripts.judge as J
+    monkeypatch.setattr(J, "_chat", lambda c, m, p: '{"falsos": ["el segundo"], "problema": "?"}')
+    out = J.judge_datos(object(), "m", [{"text": "a"}, {"text": "b"}])
+    assert out["falsos"] == {0, 1}
+
+
+def test_prompt_each_numera_y_pide_falsos():
+    import autoscripts.judge as J
+    p = J._PROMPT_EACH.format(datos="1. x")
+    assert '"falsos"' in p and "Mercurio" in p
+
+
+def test_judge_datos_descarta_tambien_los_aburridos(monkeypatch):
+    import autoscripts.judge as J
+    monkeypatch.setattr(J, "_chat", lambda c, m, p: '{"falsos": [1], "aburridos": [3], "problema": "x"}')
+    out = J.judge_datos(object(), "m", [{"text": "a"}, {"text": "b"}, {"text": "c"}])
+    assert out["falsos"] == {0, 2}

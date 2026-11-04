@@ -20,7 +20,7 @@ REFILL: dict[str, dict] = {
                     "yield": 0.80, "max_attempts": 20, "batch": 3, "gen": "reddit"},
     # Guiones por LLM (Pieza 2 + 2.x): faceless genera datos; historia/misterios, relatos narrados.
     "faceless":  {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
-                  "yield": 0.6, "max_attempts": 15, "batch": 3, "gen": "script"},
+                  "yield": 0.25, "max_attempts": 15, "batch": 3, "gen": "script"},
     "historia":  {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
                   "yield": 1.0, "max_attempts": 5, "batch": 1, "gen": "script"},
     "misterios": {"target_days": 14, "critical_days": 2, "posts_per_day": 2,

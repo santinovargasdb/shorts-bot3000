@@ -7,11 +7,16 @@ se muestren dos fotos por dato. El título hablado/en pantalla es igual en toda 
 
 TITULO_PANTALLA = "Datos para parecer más inteligente."
 
-# Palabras clave / tags para el buscador de YouTube (sin #).
+# Golpe de ritmo cada 3er dato en el render (src.curiosidades.generate(ritmo=...)).
+RITMO = True
+
+# Palabras clave / tags para el buscador de YouTube (sin #). Elegidas con vidIQ (nov-2026): volumen
+# alto + las que crecen con poca competencia (cuerpo humano / espacio / científicas, +120-130%).
 KEYWORDS = [
-    "shorts", "curiosidades", "datos curiosos", "sabias que", "cultura general",
-    "datos interesantes", "datos para parecer inteligente", "cosas que no sabias",
-    "aprender rapido", "curiosidades del mundo", "datos random", "viral",
+    "shorts", "datos curiosos", "curiosidades", "curiosidades del mundo", "datos interesantes",
+    "datos que no sabias", "cosas que no sabias", "cosas curiosas", "curiosidades del cuerpo humano",
+    "curiosidades del espacio", "curiosidades cientificas", "datos curiosos de animales",
+    "sabias que", "cultura general", "datos para parecer inteligente",
 ]
 
 
@@ -766,9 +771,26 @@ PARTS = {
 }
 
 
-def title_for(part: int) -> str:
-    """Título del episodio (interfaz común de los módulos de serie)."""
+def teaser_for(part: int) -> str:
+    """Cierre hablado: adelanto del tema de la PRÓXIMA parte. Es el incentivo a suscribirse sin pedirlo
+    ("suscribite/seguime" hablado = anti-patrón §9.12-13). '' si la siguiente no tiene título-gancho."""
+    titulo = (PARTS.get(part + 1) or {}).get("titulo", "").strip().rstrip(".")
+    if not titulo:
+        return ""
+    return f"Y en la próxima parte: {titulo[:1].lower() + titulo[1:]}."
+
+
+def file_title_for(part: int) -> str:
+    """Nombre ESTABLE del mp4 (no cambia aunque el episodio tenga título-gancho): así no se
+    re-renderizan ni se pisan los videos ya hechos."""
     return f"Datos para parecer inteligente pt. {part}"
+
+
+def title_for(part: int) -> str:
+    """Título publicado (interfaz común de los módulos de serie). Si el episodio trae título-gancho
+    va ese: 'pt. N' no le dice nada al que scrollea ni al buscador (medido con vidIQ, nov-2026)."""
+    titulo = (PARTS.get(part) or {}).get("titulo")
+    return f"{titulo} 🧠" if titulo else file_title_for(part)
 
 
 def _merge_generados() -> None:

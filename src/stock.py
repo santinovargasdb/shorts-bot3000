@@ -204,16 +204,21 @@ def _download_url(url: str, dest: Path, headers=None) -> Path | None:
 
 
 def download_image(query: str, dest: Path, index: int = 0,
-                   exclude_ids=None) -> tuple[Path, str] | None:
+                   exclude_ids=None, allow_pixabay: bool = True) -> tuple[Path, str] | None:
     """Descarga UNA imagen para `query`: PRIMERO Wikipedia (sujeto real; Pixabay es stock
     genérico y falla con temas históricos), con fallback a Pixabay. Devuelve (ruta, id)
-    o None. `exclude_ids`: ids a evitar (no repetir imágenes dentro de un mismo dato)."""
+    o None. `exclude_ids`: ids a evitar (no repetir imágenes dentro de un mismo dato).
+    `allow_pixabay=False`: solo Wikipedia. Para la 2ª imagen de un dato: Wikipedia da UNA imagen
+    por artículo, así que al excluir la 1ª caía a Pixabay por palabra clave y traía cualquier cosa
+    ("honey badger" -> un frasco de miel, "coconut crab" -> un mono)."""
     exclude = {str(x) for x in (exclude_ids or set())}
     wiki_url = _wiki_search_image_url(query)
     if wiki_url and f"wiki:{wiki_url}" not in exclude:
         _wiki_pace()
         if _download_url(wiki_url, dest, headers=_WIKI_UA) and _is_raster_image(dest):
             return Path(dest), f"wiki:{wiki_url}"
+    if not allow_pixabay:
+        return None
     return _download_image_pixabay(query, dest, index, exclude_ids)
 
 

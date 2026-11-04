@@ -130,11 +130,13 @@ def parse_rewrite(raw: str) -> dict:
     return data
 
 
-def _chat(client, model: str, prompt: str, temperature: float = 0.8) -> str:
+def _chat(client, model: str, prompt: str, temperature: float = 0.8, **extra) -> str:
+    """`extra` pasa parámetros opcionales al create (ej. max_tokens, reasoning_effort)."""
     resp = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=temperature,
+        **extra,
     )
     return resp.choices[0].message.content
 

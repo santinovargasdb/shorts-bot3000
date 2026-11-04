@@ -80,6 +80,11 @@ def used_topics_db(channel: str) -> set:
         out = set()
         for r in by_status(conn, "approved"):
             out.update(r["topic_keys"])
+            # El sujeto de imagen (inglés, de Wikipedia) es más estable que el topic en español
+            # que inventa el LLM: sin esto se colaban repetidos (flamencos x3, medusa inmortal x2).
+            for s in r["episode"].get("segments", []):
+                if s.get("kind") == "fact" and s.get("imgs"):
+                    out.update(s["imgs"][:2])   # el 2º también: "Socotra" iba de 2ª imagen y se repitió
         return out
     finally:
         conn.close()

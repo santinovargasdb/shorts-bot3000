@@ -41,6 +41,16 @@ def _tighten(audio: Path) -> Path:
     return out
 
 
+def _pad_start(audio: Path, seconds: float) -> Path:
+    """Antepone un silencio corto: el 'golpe' de ritmo antes de un dato."""
+    out = audio.with_name(audio.stem + "_p.m4a")
+    ms = int(seconds * 1000)
+    subprocess.run(["ffmpeg", "-y", "-i", str(audio), "-af", f"adelay={ms}|{ms}",
+                    "-c:a", "aac", "-b:a", "160k", str(out)],
+                   capture_output=True, text=True, check=True)
+    return out
+
+
 def _card(img: Path, out: Path, size: int = 620) -> Path:
     """Imagen -> cuadro centrado (sin marco), recortado a tamaño."""
     s = size
@@ -65,6 +75,7 @@ def generate(
     rate: str | None = None,
     intro_card: str | Path | None = None,
     intro_card_seconds: float = 3.0,   # estándar del nicho: el card se muestra 2-3s
+    ritmo: bool = False,
     verbose: bool = True,
 ) -> Path:
     """segments: lista ordenada de
@@ -74,7 +85,11 @@ def generate(
        sfx_style: 'datos' (whoosh entre datos + pop en el swap de imagen),
                   'misterios' (riser con cima en el último segmento + corte de música),
                   'historia' (boom en el giro = inicio del último segmento).
-       question: pregunta binaria del remate, fija en pantalla los últimos segundos."""
+       question: pregunta binaria del remate, fija en pantalla los últimos segundos.
+       ritmo: golpe de ritmo cada 3er dato (pausa corta + la tarjeta entra con zoom punch +
+              flash + boom en vez del whoosh). Análisis vidIQ nov-2026: con todos los datos
+              iguales el espectador predice los próximos 5s y se va."""
+    PUNCH_EVERY, PUNCH_PAUSE = 3, 0.30
     channel = cfg.load_channel(channel_name)
     w, h = int(channel["target_width"]), int(channel["target_height"])
     voice = voice or channel.get("tts_voice", "es-MX-DaliaNeural")
@@ -93,6 +108,7 @@ def generate(
     segs: list[dict] = []
     title_text = ""
     t = 0.0
+    n_fact = 0
     for i, seg in enumerate(segments):
         if seg["kind"] == "title":
             title_text = seg["text"]
@@ -102,9 +118,13 @@ def generate(
         a_raw = work / f"a_{i:02d}.mp3"
         synthesize(seg["text"], a_raw, voice=voice, rate=rate)
         a = _tighten(a_raw)          # pausas de puntos ~1s -> ~0.2s (fluidez)
+        punch = ritmo and n_fact % PUNCH_EVERY == PUNCH_EVERY - 1
+        if punch:
+            a = _pad_start(a, PUNCH_PAUSE)
+        n_fact += 1
         d = _audio_dur(a)
         audio_files.append(a)
-        info = {"kind": "fact", "start": t, "end": t + d, "text": seg["text"]}
+        info = {"kind": "fact", "start": t, "end": t + d, "text": seg["text"], "punch": punch}
         # 2 imágenes DISTINTAS por dato, ambas de la query principal (más
         # relevante). Se descartan por id para no repetir; las otras queries
         # son solo respaldo si la principal no tiene resultados.
@@ -114,7 +134,10 @@ def generate(
             res = None
             for q in queries:
                 try:
-                    res = stock.download_image(q, work / f"img_{i:02d}_{j}.jpg", exclude_ids=used_ids)
+                    # La 2ª imagen solo de Wikipedia (probando cada término): el fallback a Pixabay
+                    # por palabra clave traía imágenes equivocadas. Sin 2ª buena -> 1 sola imagen.
+                    res = stock.download_image(q, work / f"img_{i:02d}_{j}.jpg", exclude_ids=used_ids,
+                                               allow_pixabay=(j == 0))
                 except Exception as e:
                     print(f"  ⚠️  imagen '{q}': {e}")
                 if res:
@@ -178,7 +201,7 @@ def generate(
             cortes = [s["start"] + j * seg_dur / n for j in range(n)] + [s["end"]]
         for j, card in enumerate(cards):
             events.append({"card": card, "start": cortes[j], "end": cortes[j + 1],
-                           "first": j == 0})
+                           "first": j == 0, "punch": bool(s.get("punch")) and j == 0})
     # Índice determinístico por episodio: si `music` es una carpeta de nicho,
     # rota entre sus pistas (semilla propia para no tocar el stream de `rng`).
     track = _resolve_music(music, random.Random(slug + "|music").randrange(10_000))
@@ -216,6 +239,9 @@ def generate(
             dip = (max(0.0, ultimo - 0.45), max(0.0, ultimo - 0.05))
         elif sfx_style == "historia" and len(segs) > 1:
             extras.setdefault(sfx_dir / "boom.wav", []).append((ultimo, 0.35))
+        for ev in events:   # golpe de ritmo: el dato 'punch' entra con boom (no con el whoosh)
+            if ev.get("punch"):
+                extras.setdefault(sfx_dir / "boom.wav", []).append((ev["start"], 0.30))
     # Sonido viral al aparecer la tarjeta de Reddit (swoosh en t=0).
     if intro_card:
         extras.setdefault(sfx_dir / "whoosh.wav", []).append((0.0, 0.3))
@@ -233,15 +259,22 @@ def generate(
     # Video: fondo + overlays con animación corta de entrada/salida (deslizar+fundir)
     AD, OFF = 0.18, 70   # duración de la animación (s) y desplazamiento (px)
     Y_TOP = 210          # imagen arriba-centrada: no tapa el gameplay del centro
+    # Golpe de ritmo: flash corto de todo el cuadro al entrar el dato 'punch'.
+    flash = "".join(f",eq=brightness=0.35:enable='between(t,{ev['start']:.3f},{ev['start'] + 0.12:.3f})'"
+                    for ev in events if ev.get("punch"))
     vparts = [f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
-              f"setsar=1,eq=brightness=-0.12:saturation=1.1[bg]"]
+              f"setsar=1,eq=brightness=-0.12:saturation=1.1{flash}[bg]"]
     # Preparar cada tarjeta: Ken Burns sutil (zoom 1.0->1.08 durante su ventana,
-    # §4: cambio visual continuo) + alpha + fundido de entrada/salida
+    # §4: cambio visual continuo) + alpha + fundido de entrada/salida. La tarjeta 'punch'
+    # entra con zoom fuerte (1.3) que cae a 1.0 en 0.3s y sigue el Ken Burns normal.
     for k, ev in enumerate(events):
         s, e2 = ev["start"], ev["end"] - AD
         dur_ev = max(0.3, ev["end"] - ev["start"])
+        kb = f"1+0.08*max(0,min(1,(on/30.0-{s:.3f})/{dur_ev:.3f}))"
+        if ev.get("punch"):
+            kb = f"if(lt(on/30.0-{s:.3f},0.3),1.3-max(0,on/30.0-{s:.3f}),{kb})"
         vparts.append(
-            f"[{k + 1}:v]zoompan=z='1+0.08*max(0,min(1,(on/30.0-{s:.3f})/{dur_ev:.3f}))':"
+            f"[{k + 1}:v]zoompan=z='{kb}':"
             f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:fps=30:s=620x620,"
             f"format=yuva420p,fade=t=in:st={s:.3f}:d={AD}:alpha=1,"
             f"fade=t=out:st={e2:.3f}:d={AD}:alpha=1[c{k}]")
@@ -268,6 +301,7 @@ def generate(
     # Audio: voz + música baja + whoosh en las transiciones + SFX del estilo.
     # En 'datos' el whoosh marca solo el cambio de dato (la 2ª imagen lleva pop).
     whoosh_evs = [ev for ev in events if ev["first"]] if sfx_style == "datos" else events
+    whoosh_evs = [ev for ev in whoosh_evs if not ev.get("punch")]   # el punch lleva boom
     Fw = len(whoosh_evs)
     aparts = [f"[{narr_i}:a]volume=1.0[voz]"]
     mix = ["[voz]"]

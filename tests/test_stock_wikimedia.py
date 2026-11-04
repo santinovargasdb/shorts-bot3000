@@ -169,3 +169,14 @@ def test_wiki_search_cachea_la_misma_query(monkeypatch):
     u2 = stock._wiki_search_image_url("benito juarez")  # misma query tras limpiar
     assert u1 == u2 == "https://up/juarez.jpg"
     assert len(calls) == 1  # la 2da sale de la caché, no re-pide
+
+
+def test_download_image_sin_pixabay_no_cae_a_stock(monkeypatch, tmp_path):
+    # 2ª imagen de un dato: si Wikipedia no tiene otra, NO cae a Pixabay por palabra clave
+    # (caso real: "honey badger" -> frasco de miel, "coconut crab" -> mono)
+    monkeypatch.setattr(stock, "_wiki_search_image_url", lambda q: "https://upload.wikimedia.org/x.jpg")
+    llamado = []
+    monkeypatch.setattr(stock, "_download_image_pixabay", lambda *a, **k: llamado.append(1) or ("p", "1"))
+    res = stock.download_image("honey badger", tmp_path / "img.jpg",
+                               exclude_ids={"wiki:https://upload.wikimedia.org/x.jpg"}, allow_pixabay=False)
+    assert res is None and not llamado

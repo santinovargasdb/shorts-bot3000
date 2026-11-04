@@ -103,14 +103,25 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
         raise FileNotFoundError(ctx["music"])
 
     title = series.title_for(part)
-    video = ROOT / "output" / ctx["engine_channel"] / f"{_slug(title)}.mp4"
+    # El archivo se nombra con un título ESTABLE si la serie lo provee (faceless: el título
+    # publicado ahora es el gancho del episodio, pero el mp4 sigue siendo ..._pt_N).
+    file_title = getattr(series, "file_title_for", series.title_for)(part)
+    video = ROOT / "output" / ctx["engine_channel"] / f"{_slug(file_title)}.mp4"
     if not video.exists():
         _log(ctx, f"Generando parte {part}...")
-        generate(series.PARTS[part]["segments"],
+        segments = series.PARTS[part]["segments"]
+        # Cierre: adelanto de la próxima parte (el motivo para suscribirse) pegado al último dato.
+        teaser = series.teaser_for(part) if hasattr(series, "teaser_for") else ""
+        if teaser:
+            import copy
+            segments = copy.deepcopy(segments)
+            ultimo = next(s for s in reversed(segments) if s["kind"] == "fact")
+            ultimo["text"] = f"{ultimo['text']} {teaser}"
+        generate(segments,
                  channel_name=ctx["engine_channel"],
                  background=series.background_for(part),
                  music=ctx["music"],
-                 title_meta=title,
+                 title_meta=file_title,
                  description=series.descripcion(part, series.PARTS[part]["resumen"]),
                  hashtags=series.KEYWORDS,
                  sfx_style=ctx.get("sfx_style", "datos"),
@@ -123,7 +134,17 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
                  # Tarjeta de post de Reddit en la apertura (solo canales que la proveen).
                  intro_card=(series.intro_card_for(part)
                              if hasattr(series, "intro_card_for") else None),
+                 # Golpe de ritmo cada 3er dato: solo las series que lo declaran (faceless).
+                 ritmo=getattr(series, "RITMO", False),
                  verbose=False)
+    # El render guarda title_meta (el título del archivo) en el .json; el que se publica es
+    # title_for. Se re-sincroniza siempre, así un título-gancho nuevo llega aunque el mp4 ya exista.
+    meta = video.with_suffix(".json")
+    if title != file_title and meta.exists():
+        info = json.loads(meta.read_text(encoding="utf-8"))
+        if info.get("title") != title[:100]:
+            info["title"] = title[:100]
+            meta.write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
     return video
 
 
