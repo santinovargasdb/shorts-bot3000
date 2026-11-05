@@ -11,9 +11,10 @@ def test_refill_table_shape():
     for channel, cfg in REFILL.items():
         assert required <= set(cfg), f"{channel} le faltan claves"
         assert cfg["gen"] in {"clips", "whatonearth", "reddit", "script"}
-    # Los 3 streamers + whatonearth + soyelmalo + los 3 de guiones (placeholder)
-    assert {"streamers_a", "streamers_b", "streamers_c", "whatonearth",
+    # 2 streamers (streamers_b pausado) + whatonearth + soyelmalo + los 3 de guiones (placeholder)
+    assert {"streamers_a", "streamers_c", "whatonearth",
             "soyelmalo", "faceless", "historia", "misterios"} <= set(REFILL)
+    assert "streamers_b" not in REFILL
 
 
 def test_refill_clips_llama_build_backlog(monkeypatch):

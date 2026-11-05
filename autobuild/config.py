@@ -12,7 +12,8 @@ _CLIPS = {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
 
 REFILL: dict[str, dict] = {
     "streamers_a": dict(_CLIPS),
-    "streamers_b": dict(_CLIPS),
+    # streamers_b fuera del refill (5-nov): sus streamers hacen IRL/charla, rinde ~0 y gasta 3-4h + cuota
+    # Gemini por corrida. Volver a sumarlo cuando tenga streamers con gameplay.
     "streamers_c": dict(_CLIPS),
     "whatonearth": {"target_days": 14, "critical_days": 2, "posts_per_day": 2,
                     "yield": 0.40, "max_attempts": 25, "batch": 3, "gen": "whatonearth"},
