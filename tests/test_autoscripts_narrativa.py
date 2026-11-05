@@ -166,6 +166,26 @@ def test_is_duplicate_no_distingue_mayusculas():
     assert N.is_duplicate("tunguska EVENT", {"Tunguska  Event"}) is True
 
 
+def test_is_duplicate_cruza_tema_en_ingles_con_titulo_en_espanol():
+    # Bug real: "Isdal Woman" repitio "La mujer de Isdal" (parte 27) y lo mismo con Hinterkaifeck y Dyatlov.
+    assert N.is_duplicate("Isdal Woman", {"la mujer de isdal: la muerta con ocho identidades"}) is True
+    assert N.is_duplicate("Hinterkaifeck murders", {"hinterkaifeck: los asesinatos que nadie resolvió"}) is True
+    assert N.is_duplicate("Dyatlov Pass incident", {"el paso dyatlov: nueve excursionistas"}) is True
+    assert N.is_duplicate("Dyatlov Pass incident", {"el paso diátlov: nueve excursionistas"}) is False
+
+
+def test_is_duplicate_ignora_acentos_en_el_nombre():
+    assert N.is_duplicate("Incidente del paso Diátlov", {"el caso diatlov"}) is True
+
+
+def test_is_duplicate_no_bloquea_por_palabras_genericas_ni_nombres_de_pila():
+    assert N.is_duplicate("Great Fire of London", {"great smog: la niebla mortal"}) is False
+    assert N.is_duplicate("Great Fire of London", {"Great Smog of London"}) is False
+    assert N.is_duplicate("Zodiac Killer", {"el killer de la autopista"}) is False
+    assert N.is_duplicate("Keddie murders", {"hinterkaifeck murders"}) is False
+    assert N.is_duplicate("Amelia Earhart", {"amelia dyer: la niñera asesina"}) is False
+
+
 def test_is_duplicate_ignora_usados_vacios():
     assert N.is_duplicate("Mary Celeste", {"", "   "}) is False
 

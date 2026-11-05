@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 
 from reddit_pipeline.rewrite import _chat  # cliente compat-OpenAI (reuso, igual que generate.py)
 
@@ -78,6 +79,11 @@ _REQUIRED = ("pregunta", "titulo", "resumen", "topic", "segments")
 
 MIN_WORDS, MAX_WORDS = 100, 165
 MIN_SEGS, MAX_SEGS = 4, 7
+# Palabras con mayúscula que no identifican a un sujeto (no sirven para detectar un repetido).
+_GENERICAS = {"great", "battle", "event", "incident", "woman", "murders", "island", "children", "disappearance",
+              "mystery", "earthquake", "explosion", "massacre", "expedition", "plague", "flood", "guerra", "batalla",
+              "desaparicion", "terremoto", "masacre", "expedicion", "incidente", "misterio", "plaga", "london",
+              "county", "killer", "party", "girls", "revolt", "triangle"}
 
 _PROMPT = """Sos guionista del canal de shorts narrativos (ESPAÑOL NEUTRO). Escribís con la MISMA
 calidad y estilo que estos episodios REALES del canal (son tu estándar de oro: igualá su tono, su
@@ -213,12 +219,30 @@ def used_subjects(channel: str, series_module) -> set:
     return hardcoded_subjects(series_module) | db.story_topics_db(channel)
 
 
+def _palabras(s: str) -> list:
+    sin_acentos = "".join(ch for ch in unicodedata.normalize("NFKD", s or "") if not unicodedata.combining(ch))
+    return re.findall(r"[^\W\d_]+", sin_acentos)
+
+
+def _nombre_propio(topic: str) -> str:
+    """La última palabra con mayúscula que identifica al sujeto ("Dyatlov" en "Dyatlov Pass incident",
+    "Earhart" en "Amelia Earhart"), en minúscula. Vacío si no hay ninguna."""
+    nombres = [p.lower() for p in _palabras(topic)
+               if p[0].isupper() and len(p) >= 5 and p.lower() not in _GENERICAS]
+    return nombres[-1] if nombres else ""
+
+
 def is_duplicate(topic: str, used: set) -> bool:
     t = norm(topic)
     if not t:
         return True
     usados = {norm(u) for u in used} - {""}
-    return any(t in u or u in t for u in usados)
+    if any(t in u or u in t for u in usados):
+        return True
+    # El tema suele venir en inglés y los títulos curados en español: "Isdal Woman" no calza con "La
+    # mujer de Isdal" como frase, pero sí por su nombre propio.
+    nombre = _nombre_propio(topic)
+    return bool(nombre) and any(nombre in _palabras(u) for u in usados)
 
 
 def generate_story(client, model, series_module, instr: str, avoid_subjects: list,
