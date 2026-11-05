@@ -160,6 +160,28 @@ def test_is_duplicate_detecta_sujeto_ya_usado():
     assert N.is_duplicate("La plaga del baile de Estrasburgo", used) is False
 
 
+def test_is_duplicate_no_distingue_mayusculas():
+    # Bug real: Tunguska se aprobo 3 veces porque comparaba "tunguska event" con "Tunguska event".
+    assert N.is_duplicate("Tunguska event", {"Tunguska event"}) is True
+    assert N.is_duplicate("tunguska EVENT", {"Tunguska  Event"}) is True
+
+
+def test_is_duplicate_ignora_usados_vacios():
+    assert N.is_duplicate("Mary Celeste", {"", "   "}) is False
+
+
+def test_used_subjects_cuenta_rechazados_sin_terminos_de_imagen(tmp_path, monkeypatch):
+    from autoscripts import db
+    monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / f"{ch}.sqlite")
+    conn = db.connect(db.DB_PATH("misterios"))
+    ep = {"segments": [{"kind": "fact", "text": "t", "imgs": ["London", "Paris"]}]}
+    db.add_episode(conn, episode=ep, topic_keys=["USS Cyclops"], status="rejected", source="FUENTE")
+    conn.close()
+    used = N.used_subjects("misterios", _fake_module({1: {"titulo": "Otro", "segments": []}}))
+    assert N.is_duplicate("USS Cyclops", used) is True
+    assert N.is_duplicate("Great Fire of London", used) is False
+
+
 # ---------- generate_story (grounded) ----------
 
 def test_generate_story_grounded_usa_la_fuente(monkeypatch):
@@ -263,6 +285,17 @@ def test_propose_subject_mete_hint_y_avoid_en_el_prompt(monkeypatch):
     monkeypatch.setattr(N, "_chat", fake)
     N.propose_subject(object(), "m", "HINT_ABC", ["mary celeste"])
     assert "HINT_ABC" in visto["p"] and "mary celeste" in visto["p"].lower()
+
+
+def test_propose_subject_manda_todos_los_usados(monkeypatch):
+    # Bug real: solo iban los primeros 60 en orden alfabetico; Tunguska (puesto 98) nunca llegaba.
+    visto = {}
+    def fake(c, m, p):
+        visto["p"] = p
+        return "Tema X"
+    monkeypatch.setattr(N, "_chat", fake)
+    N.propose_subject(object(), "m", "h", [f"tema{i:03}" for i in range(200)])
+    assert "tema199" in visto["p"]
 
 
 def test_propose_subject_pide_el_titulo_del_articulo(monkeypatch):

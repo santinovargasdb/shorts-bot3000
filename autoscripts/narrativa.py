@@ -53,7 +53,7 @@ sin comillas ni explicacion."""
 def propose_subject(client, model, hint: str, avoid_subjects: list) -> str:
     """Paso 1 del grounding: el LLM propone un sujeto (nombre propio) para buscar en Wikipedia."""
     prompt = _PROMPT_SUBJECT.format(
-        hint=hint, avoid="; ".join(sorted(avoid_subjects)[:60]) or "(ninguno)")
+        hint=hint, avoid="; ".join(sorted(avoid_subjects)) or "(ninguno)")
     raw = _chat(client, model, prompt)
     for line in (raw or "").splitlines():
         s = line.strip().strip('"\'').lstrip("-*0123456789. ").strip()
@@ -210,14 +210,15 @@ def hardcoded_subjects(series_module) -> set:
 
 def used_subjects(channel: str, series_module) -> set:
     from autoscripts import db
-    return hardcoded_subjects(series_module) | db.used_topics_db(channel)
+    return hardcoded_subjects(series_module) | db.story_topics_db(channel)
 
 
 def is_duplicate(topic: str, used: set) -> bool:
     t = norm(topic)
     if not t:
         return True
-    return any(t in u or u in t for u in used)
+    usados = {norm(u) for u in used} - {""}
+    return any(t in u or u in t for u in usados)
 
 
 def generate_story(client, model, series_module, instr: str, avoid_subjects: list,

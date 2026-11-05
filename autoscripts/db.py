@@ -74,6 +74,22 @@ def approved_episodes(channel: str) -> list:
         conn.close()
 
 
+def story_topics_db(channel: str) -> set:
+    """Sujetos ya intentados de un canal de relatos: los aprobados y los rechazados CON fuente guardada
+    (un rechazado se reintentaba sin fin: USS Cyclops x26). Los rechazados sin fuente son del buscador
+    viejo y tienen otro intento. Sin términos de imagen: "London" bloquearía todo sujeto sobre Londres."""
+    path = DB_PATH(channel)
+    if not path.exists():
+        return set()
+    conn = connect(path)
+    try:
+        rows = conn.execute("SELECT topic_keys FROM episodes WHERE status = 'approved' "
+                            "OR (status = 'rejected' AND COALESCE(source, '') <> '')")
+        return {t for r in rows for t in json.loads(r["topic_keys"])}
+    finally:
+        conn.close()
+
+
 def used_topics_db(channel: str) -> set:
     path = DB_PATH(channel)
     if not path.exists():

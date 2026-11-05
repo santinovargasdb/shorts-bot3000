@@ -27,6 +27,31 @@ def test_approved_episodes_sin_db_devuelve_vacio(tmp_path, monkeypatch):
     monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / "nope.sqlite")
     assert db.approved_episodes("faceless") == []
     assert db.used_topics_db("faceless") == set()
+    assert db.story_topics_db("faceless") == set()
+
+
+def test_story_topics_incluye_rechazados_sin_terminos_de_imagen(tmp_path, monkeypatch):
+    # USS Cyclops se reintento 26 veces porque los rechazados no contaban como usados. Los terminos
+    # de imagen no van: "London" bloquearia cualquier sujeto que mencione Londres.
+    path = tmp_path / "misterios.sqlite"
+    monkeypatch.setattr(db, "DB_PATH", lambda ch: path)
+    conn = db.connect(path)
+    ep = {"segments": [{"kind": "fact", "text": "t", "imgs": ["London", "Paris"]}]}
+    db.add_episode(conn, episode=ep, topic_keys=["Isdal Woman"], status="approved")
+    db.add_episode(conn, episode=ep, topic_keys=["USS Cyclops"], status="rejected", source="FUENTE")
+    conn.close()
+    assert db.story_topics_db("misterios") == {"Isdal Woman", "USS Cyclops"}
+
+
+def test_story_topics_no_bloquea_rechazados_sin_fuente(tmp_path, monkeypatch):
+    # Sin fuente guardada = rechazado con el buscador viejo (articulo errado o juez de memoria):
+    # no fue un juicio justo, merece un intento mas. Ese intento ya guarda fuente y si falla bloquea.
+    path = tmp_path / "historia.sqlite"
+    monkeypatch.setattr(db, "DB_PATH", lambda ch: path)
+    conn = db.connect(path)
+    db.add_episode(conn, episode={"x": 1}, topic_keys=["Great Fire of London"], status="rejected")
+    conn.close()
+    assert db.story_topics_db("historia") == set()
 
 
 def test_add_episode_guarda_la_fuente(tmp_path):
