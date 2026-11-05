@@ -3,6 +3,8 @@ ciertos. Sesgo: ante la duda, rechazar. Reemplaza el QA humano del canal."""
 from __future__ import annotations
 
 import json
+import re
+import unicodedata
 
 from reddit_pipeline.rewrite import _chat
 
@@ -94,7 +96,7 @@ def judge_datos(client, model, datos: list, sources: list | None = None) -> dict
 
 _PROMPT_STORY = """Sos un verificador ESTRICTO y escéptico. Te paso un relato que va a publicarse
 como verdad. {instr}
-{source_block}
+
 Ante la MÍNIMA duda, ok=false (es peor publicar algo falso que descartar un episodio).
 
 Título: {titulo}
@@ -103,17 +105,81 @@ Relato:
 
 Respondé SOLO JSON: {{"ok": true/false, "problema": "qué falla y por qué, o vacío"}}"""
 
+_PROMPT_STORY_FUENTE = """Sos un verificador ESTRICTO. Te paso un relato que va a publicarse como verdad
+y su FUENTE (los hechos reales del caso; puede estar en otro idioma). {instr}
+
+La fuente MANDA sobre lo que recuerdes: un dato que está en ella es válido aunque no lo conozcas o
+recuerdes otra cosa. NO objetes nada de memoria. Listá SOLO estos problemas:
+- "contradice": el relato dice lo OPUESTO a la fuente. En "fuente" copiá la cita TEXTUAL de la fuente.
+- "sin_respaldo": el relato da un dato concreto (nombre, fecha, cifra o hecho) que NO está en la fuente.
+  En "dato" poné ese nombre o cifra (las cifras en dígitos).
+- "leyenda": el relato cuenta como hecho comprobado una leyenda, un rumor, una teoría o algo que la
+  fuente no da por confirmado. Una leyenda narrada como leyenda ("se cuenta", "se cree") está bien.
+El tono del relato y las frases sin datos no son un problema.
+
+FUENTE:
+\"\"\"{source}\"\"\"
+
+Título: {titulo}
+Relato:
+{relato}
+
+Respondé SOLO JSON (listas vacías si no hay problemas): {{"contradice": [{{"relato": "...", "fuente": "..."}}],
+"sin_respaldo": [{{"relato": "...", "dato": "..."}}], "leyenda": [{{"relato": "...", "motivo": "..."}}]}}"""
+
+
+def _plano(s: str) -> str:
+    """Texto comparable: sin acentos ni mayúsculas, guiones como espacios, sin separadores de miles."""
+    s = unicodedata.normalize("NFKD", s or "")
+    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+    s = re.sub(r"(?<=\d)[,.\s](?=\d{3}\b)", "", s)
+    return re.sub(r"\s+", " ", re.sub(r"[-‐-―]", " ", s)).strip().lower()
+
+
+def _marcas(dato: str) -> list:
+    """Lo comprobable de un dato: cifras y palabras con mayúscula (nombres propios)."""
+    tokens = re.findall(r"\d+|[^\W\d_]{3,}", re.sub(r"(?<=\d)[,.\s](?=\d{3}\b)", "", dato or ""))
+    return [_plano(t) for t in tokens if t[0].isdigit() or t[0].isupper()]
+
+
+def _objeciones_validas(data: dict, source: str) -> list:
+    """Las objeciones que sobreviven a la fuente. El juez invoca su memoria aunque se le pida que no
+    (Deffaudis "no existe" estando en la fuente), así que lo comprueba el código y no el prompt."""
+    fuente = _plano(source)
+    palabras = set(re.findall(r"\d+|[^\W\d_]+", fuente))
+    validas = []
+    for o in data["contradice"]:
+        cita = _plano(o.get("fuente", ""))
+        if cita and cita in fuente:              # sin cita textual es memoria disfrazada de fuente
+            validas.append(f"contradice la fuente: {o.get('relato', '')} (fuente: {o.get('fuente', '')})")
+    for o in data["sin_respaldo"]:
+        marcas = _marcas(o.get("dato", ""))
+        if not marcas or sum(m in palabras for m in marcas) * 2 < len(marcas):   # mayoría = está en la fuente
+            validas.append(f"sin respaldo en la fuente: {o.get('dato', '')} ({o.get('relato', '')})")
+    for o in data["leyenda"]:
+        validas.append(f"leyenda contada como hecho: {o.get('relato', '')} ({o.get('motivo', '')})")
+    return validas
+
+
+def _parse_objeciones(raw: str) -> dict:
+    text = raw or ""
+    start, end = text.find("{"), text.rfind("}")
+    if start == -1 or end == -1:
+        raise ValueError(f"No se encontró JSON del juez: {text[:120]!r}")
+    data = json.loads(text[start:end + 1])
+    if not all(isinstance(data.get(k), list) for k in ("contradice", "sin_respaldo", "leyenda")):
+        raise ValueError(f"Respuesta del juez sin las listas pedidas: {text[:120]!r}")
+    return data
+
 
 def judge_story(client, model, story: dict, instr: str, source: str = "") -> dict:
-    """Verifica el relato narrativo. Si viene `source` (texto de Wikipedia), el prompt le pide
-    al juez que coteje el relato contra esa fuente: rechaza lo que la contradiga o lo que agregue
-    datos que no estén en ella. Backward-compatible: si no viene source, funciona igual que antes."""
+    """Verifica el relato narrativo. Si viene `source` (texto de Wikipedia) coteja contra esa fuente, a
+    temperatura 0 (a 0.8 el mismo relato salía aprobado o rechazado según la corrida) y descartando por
+    código las objeciones que la fuente desmiente. Sin source, juzga de memoria como antes."""
     relato = "\n".join(f"- {s['text']}" for s in story.get("segments", []))
-    source_block = ""
-    if source:
-        source_block = ('\nVerificá el relato CONTRA esta fuente (los hechos reales del caso): rechazá '
-                        'lo que la contradiga o lo que agregue datos que no esten en ella.\n'
-                        f'"""{source}"""\n')
-    prompt = _PROMPT_STORY.format(instr=instr, source_block=source_block,
-                                  titulo=story.get("titulo", ""), relato=relato)
-    return parse_verdict(_chat(client, model, prompt))
+    titulo = story.get("titulo", "")
+    if not source:
+        return parse_verdict(_chat(client, model, _PROMPT_STORY.format(instr=instr, titulo=titulo, relato=relato)))
+    prompt = _PROMPT_STORY_FUENTE.format(instr=instr, source=source, titulo=titulo, relato=relato)
+    validas = _objeciones_validas(_parse_objeciones(_chat(client, model, prompt, temperature=0)), source)
+    return {"ok": not validas, "problema": " | ".join(validas)}
