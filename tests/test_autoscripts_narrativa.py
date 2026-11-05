@@ -165,7 +165,7 @@ def test_is_duplicate_detecta_sujeto_ya_usado():
 def test_generate_story_grounded_usa_la_fuente(monkeypatch):
     import src.wiki_facts as W
     monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Mary Celeste")
-    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE_REAL_XYZ")
+    monkeypatch.setattr(W, "fetch_source", lambda subj, **k: "FUENTE_REAL_XYZ")
     monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJEMPLO_NARRATIVO")
     visto = {}
     def fake_chat(c, m, prompt, **k):
@@ -183,7 +183,7 @@ def test_generate_story_grounded_usa_la_fuente(monkeypatch):
 def test_generate_story_sin_articulo_levanta(monkeypatch):
     import src.wiki_facts as W
     monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Nada De Nada")
-    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: None)
+    monkeypatch.setattr(W, "fetch_source", lambda subj, **k: None)
     mod = _fake_module({1: _STORY})
     with pytest.raises(RuntimeError):
         N.generate_story(object(), "m", mod, "instr", [], hint="h", max_subject_tries=2)
@@ -199,7 +199,7 @@ def test_generate_story_no_requema_sujeto_descartado(monkeypatch):
     def fake_fetch(subj, **k):
         fetched.append(subj)
         return None if subj == "Repetido" else "FUENTE"
-    monkeypatch.setattr(W, "fetch_summary", fake_fetch)
+    monkeypatch.setattr(W, "fetch_source", fake_fetch)
     monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
     monkeypatch.setattr(N, "_chat", lambda c, m, p, **k: json.dumps(_STORY, ensure_ascii=False))
     mod = _fake_module({1: _STORY})
@@ -212,7 +212,7 @@ def test_generate_story_reintenta_json_roto(monkeypatch):
     # Review follow-up: el modelo a veces devuelve JSON roto -> reintentar el relato (misma fuente).
     import src.wiki_facts as W
     monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Bueno")
-    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE")
+    monkeypatch.setattr(W, "fetch_source", lambda subj, **k: "FUENTE")
     monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
     respuestas = iter(["esto no es json valido", json.dumps(_STORY, ensure_ascii=False)])
     monkeypatch.setattr(N, "_chat", lambda c, m, p, **k: next(respuestas))
@@ -226,7 +226,7 @@ def test_generate_story_ancla_el_sujeto_en_el_prompt(monkeypatch):
     # decia "elegi uno distinto". Ahora el sujeto esta fijo (el de la fuente) y entra en el prompt.
     import src.wiki_facts as W
     monkeypatch.setattr(N, "propose_subject", lambda c, m, h, a: "Madeleine McCann")
-    monkeypatch.setattr(W, "fetch_summary", lambda subj, **k: "FUENTE")
+    monkeypatch.setattr(W, "fetch_source", lambda subj, **k: "FUENTE")
     monkeypatch.setattr(N, "_fewshot", lambda mod, k=2: "EJ")
     visto = {}
     def fake_chat(c, m, p, **k):
@@ -263,3 +263,14 @@ def test_propose_subject_mete_hint_y_avoid_en_el_prompt(monkeypatch):
     monkeypatch.setattr(N, "_chat", fake)
     N.propose_subject(object(), "m", "HINT_ABC", ["mary celeste"])
     assert "HINT_ABC" in visto["p"] and "mary celeste" in visto["p"].lower()
+
+
+def test_propose_subject_pide_el_titulo_del_articulo(monkeypatch):
+    # La fuente ahora se busca por titulo exacto: un nombre descriptivo no encontraria nada.
+    visto = {}
+    def fake(c, m, p):
+        visto["p"] = p
+        return "Tema X"
+    monkeypatch.setattr(N, "_chat", fake)
+    N.propose_subject(object(), "m", "h", [])
+    assert "título exacto" in visto["p"]

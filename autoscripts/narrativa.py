@@ -46,7 +46,8 @@ Proponé UN solo sujeto REAL y bien documentado para el proximo episodio: un nom
 articulo en Wikipedia (una persona, un hecho, un caso, un lugar). Ni los cuatro o cinco de siempre,
 ni algo tan oscuro que no haya info. NO repitas estos ya usados: {avoid}.
 
-Respondé SOLO el nombre del sujeto, en una sola linea, sin comillas ni explicacion."""
+Respondé SOLO el título exacto del artículo de Wikipedia (en español o inglés), en una sola linea,
+sin comillas ni explicacion."""
 
 
 def propose_subject(client, model, hint: str, avoid_subjects: list) -> str:
@@ -220,11 +221,11 @@ def is_duplicate(topic: str, used: set) -> bool:
 
 
 def generate_story(client, model, series_module, instr: str, avoid_subjects: list,
-                   n_segs: int = 5, hint: str = "", max_subject_tries: int = 3,
+                   n_segs: int = 5, hint: str = "", max_subject_tries: int = 5,
                    max_parse_tries: int = 2) -> tuple[dict, str]:
     """Grounded: propone un sujeto, trae sus hechos de Wikipedia y escribe el relato pegado a ellos.
     Devuelve (story, source). RuntimeError si no encuentra un sujeto con articulo tras varios intentos."""
-    from src.wiki_facts import fetch_summary
+    from src.wiki_facts import fetch_source
     used = set(avoid_subjects)
     avoid = list(avoid_subjects)
     for _ in range(max_subject_tries):
@@ -233,7 +234,7 @@ def generate_story(client, model, series_module, instr: str, avoid_subjects: lis
             continue
         used.add(norm(subject))            # no reproponer/re-buscar este sujeto en los siguientes intentos
         avoid.append(subject)
-        source = fetch_summary(subject)
+        source = fetch_source(subject)
         if not source:
             continue                       # sin articulo -> probar otro sujeto
         prompt = _PROMPT.format(examples=_fewshot(series_module), instr=instr, n=n_segs,
