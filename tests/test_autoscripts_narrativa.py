@@ -160,6 +160,20 @@ def test_is_duplicate_detecta_sujeto_ya_usado():
     assert N.is_duplicate("La plaga del baile de Estrasburgo", used) is False
 
 
+def test_validate_story_rechaza_anio_mal_formado():
+    # Bug real: "mil ocho treinta y dos" por 1832; la voz lo lee tal cual y el juez no lo mira.
+    malo = json.loads(json.dumps(_STORY))
+    malo["segments"][1]["text"] += " Pasó en mil ocho treinta y dos."
+    with pytest.raises(ValueError):
+        N.validate_story(malo)
+
+
+def test_validate_story_acepta_anios_bien_escritos():
+    bueno = json.loads(json.dumps(_STORY))
+    bueno["segments"][1]["text"] += " Pasó en mil ochocientos treinta y dos, o en mil ocho."
+    N.validate_story(bueno)
+
+
 def test_is_duplicate_no_distingue_mayusculas():
     # Bug real: Tunguska se aprobo 3 veces porque comparaba "tunguska event" con "Tunguska event".
     assert N.is_duplicate("Tunguska event", {"Tunguska event"}) is True

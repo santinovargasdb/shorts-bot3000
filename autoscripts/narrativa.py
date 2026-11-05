@@ -84,6 +84,8 @@ _GENERICAS = {"great", "battle", "event", "incident", "woman", "murders", "islan
               "mystery", "earthquake", "explosion", "massacre", "expedition", "plague", "flood", "guerra", "batalla",
               "desaparicion", "terremoto", "masacre", "expedicion", "incidente", "misterio", "plaga", "london",
               "county", "killer", "party", "girls", "revolt", "triangle"}
+_ANIO_ROTO = re.compile(r"\bmil (dos|tres|cuatro|cinco|seis|siete|ocho|nueve) "
+                        r"(diez|veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa)\b")
 
 _PROMPT = """Sos guionista del canal de shorts narrativos (ESPAÑOL NEUTRO). Escribís con la MISMA
 calidad y estilo que estos episodios REALES del canal (son tu estándar de oro: igualá su tono, su
@@ -173,6 +175,8 @@ def validate_story(st: dict) -> None:
             raise ValueError(f"momento sin exactamente 2 imágenes: {s.get('imgs')}")
         if re.search(r"\d", s["text"]):          # el texto hablado lleva números en palabras
             raise ValueError(f"momento con dígitos en el texto: {s['text'][:60]!r}")
+        if _ANIO_ROTO.search(s["text"].lower()):  # "mil ocho treinta" por 1830: la voz lo lee tal cual
+            raise ValueError(f"año mal formado en el texto: {s['text'][:60]!r}")
     if "eguime" in segs[-1]["text"]:              # sin CTA hablada en el remate (fórmula §7/§9)
         raise ValueError("el remate tiene un llamado a la acción hablado")
     # §2/§9.7 in-medias-res: NUNCA abrir con la fecha; la anomalía/gancho va primero. El judge
