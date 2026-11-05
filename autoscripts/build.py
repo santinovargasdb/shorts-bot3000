@@ -202,12 +202,12 @@ def _build_narrative(channel: str, n: int) -> int:
         conn = db.connect(db.DB_PATH(channel))
         episode, topic_keys = assemble_story(st), [st["topic"]]
         if verdict["ok"]:
-            db.add_episode(conn, episode=episode, topic_keys=topic_keys, status="approved")
+            db.add_episode(conn, episode=episode, topic_keys=topic_keys, status="approved", source=source)
             made += 1
             print(f"[{channel}] APROBADO (juez OK)")
         else:
             db.add_episode(conn, episode=episode, topic_keys=topic_keys, status="rejected",
-                           qc_note=verdict["problema"])
+                           qc_note=verdict["problema"], source=source)
             print(f"[{channel}] RECHAZADO por el juez: {verdict['problema'][:80]}")
         conn.close()
     return made

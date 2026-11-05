@@ -27,3 +27,25 @@ def test_approved_episodes_sin_db_devuelve_vacio(tmp_path, monkeypatch):
     monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / "nope.sqlite")
     assert db.approved_episodes("faceless") == []
     assert db.used_topics_db("faceless") == set()
+
+
+def test_add_episode_guarda_la_fuente(tmp_path):
+    conn = db.connect(tmp_path / "x.sqlite")
+    seq = db.add_episode(conn, episode={"x": 1}, topic_keys=["t"], status="rejected", source="FUENTE")
+    assert conn.execute("SELECT source FROM episodes WHERE seq = ?", (seq,)).fetchone()["source"] == "FUENTE"
+
+
+def test_connect_migra_una_base_vieja_sin_perder_datos(tmp_path):
+    import sqlite3
+    path = tmp_path / "vieja.sqlite"
+    old = sqlite3.connect(path)
+    old.execute("CREATE TABLE episodes (seq INTEGER PRIMARY KEY AUTOINCREMENT, episode_json TEXT NOT NULL, "
+                "topic_keys TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', qc_note TEXT, created_utc TEXT)")
+    old.execute("INSERT INTO episodes (episode_json, topic_keys, status) VALUES ('{\"x\": 1}', '[\"t\"]', 'approved')")
+    old.commit()
+    old.close()
+    conn = db.connect(path)
+    assert db.by_status(conn, "approved")[0]["episode"] == {"x": 1}
+    db.add_episode(conn, episode={"x": 2}, topic_keys=["u"], source="F")
+    conn.close()
+    assert db.connect(path).execute("SELECT count(*) AS n FROM episodes").fetchone()["n"] == 2

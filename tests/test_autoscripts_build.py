@@ -176,6 +176,17 @@ def test_build_narrative_descarta_sujeto_repetido(tmp_path, monkeypatch):
     assert db.approved_episodes("historia") == []
 
 
+def test_build_narrative_guarda_la_fuente_aprobado_y_rechazado(tmp_path, monkeypatch):
+    # Sin la fuente guardada no se puede medir por que rechaza el juez ni detectar articulos errados.
+    monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / f"{ch}.sqlite")
+    for ok, canal in ((True, "historia"), (False, "misterios")):
+        _wire_narr(monkeypatch, judge_ok=ok)
+        B.build(canal, n=1)
+        conn = db.connect(db.DB_PATH(canal))
+        assert conn.execute("SELECT source FROM episodes").fetchone()["source"] == "FUENTE_MOCK"
+        conn.close()
+
+
 def test_build_narrative_429_levanta_quota_exhausted(tmp_path, monkeypatch):
     from autobuild.errors import QuotaExhausted
     monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / f"{ch}.sqlite")

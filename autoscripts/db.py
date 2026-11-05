@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS episodes (
     topic_keys TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     qc_note TEXT,
-    created_utc TEXT
+    created_utc TEXT,
+    source TEXT
 );
 """
 
@@ -29,17 +30,19 @@ def connect(path) -> sqlite3.Connection:
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
     conn.executescript(_SCHEMA)
+    if "source" not in [r["name"] for r in conn.execute("PRAGMA table_info(episodes)")]:
+        conn.execute("ALTER TABLE episodes ADD COLUMN source TEXT")   # bases creadas antes de guardar la fuente
     conn.commit()
     return conn
 
 
 def add_episode(conn, *, episode: dict, topic_keys: list, status: str = "pending",
-                qc_note: str = "") -> int:
+                qc_note: str = "", source: str = "") -> int:
     cur = conn.execute(
-        "INSERT INTO episodes (episode_json, topic_keys, status, qc_note, created_utc) "
-        "VALUES (?, ?, ?, ?, datetime('now'))",
+        "INSERT INTO episodes (episode_json, topic_keys, status, qc_note, created_utc, source) "
+        "VALUES (?, ?, ?, ?, datetime('now'), ?)",
         (json.dumps(episode, ensure_ascii=False), json.dumps(topic_keys, ensure_ascii=False),
-         status, qc_note))
+         status, qc_note, source))
     conn.commit()
     return int(cur.lastrowid)
 
