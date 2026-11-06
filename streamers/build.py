@@ -55,6 +55,18 @@ def facecam_needs_face(channel_content: str, layout_override: str | None,
     return is_facecam and not face_found
 
 
+def language_mismatch(expected: str | None, detected: tuple[str, float, int] | None,
+                      min_prob: float = 0.4, min_words: int = 15) -> bool:
+    """True si en el clip se HABLA en otro idioma que el canal. Elegir un streamer hispano no garantiza
+    el idioma (invitados, escenas del juego) y la transcripción fuerza el del canal, así que no se notaba.
+    Lo que decide es que haya voz de verdad: sobre música o gritos whisper arriesga cualquier idioma con
+    unas pocas palabras, y en cambio un clip real en inglés dio solo 0.45 de probabilidad."""
+    if not expected or not detected:
+        return False
+    lang, prob, words = detected
+    return lang != expected and prob >= min_prob and words >= min_words
+
+
 def _name_platform(entry, default_platform: str) -> tuple[str, str]:
     """Un streamer se declara como 'nombre' (usa la plataforma por defecto del canal) o como
     ('nombre', 'plataforma') para mezclar Twitch y Kick en un mismo canal (ej. IRL inglés)."""
@@ -122,6 +134,19 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
                 print(f"[{channel_key}] RECHAZADO (sin cara estable para facecam) "
                       f"seq {real} ({clip['streamer']})")
             return real
+
+    # Guard de idioma: un clip en otro idioma que el canal no se renderiza (el QC de visión no lo ve).
+    from src.transcribe import detect_language
+    detected = detect_language(clip["local_path"])
+    if language_mismatch(cfg.get("language"), detected):
+        real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
+                           video_path="", streamer=clip["streamer"], clip_id=clip["id"],
+                           views=clip.get("views", 0), status="rejected",
+                           qc_note=f"idioma {detected[0]} ({detected[1]:.2f}), el canal es {cfg['language']}",
+                           has_gameplay=has_gp)
+        if verbose:
+            print(f"[{channel_key}] RECHAZADO (idioma {detected[0]}) seq {real} ({clip['streamer']})")
+        return real
 
     ov = {"clips_per_source": 1, "name": channel_key}
     if has_gp is not None:

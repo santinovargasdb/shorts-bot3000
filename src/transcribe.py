@@ -81,6 +81,17 @@ def transcribe_words(
             raise             # sin VAD tampoco -> propagar (el build lo rechaza, no muere)
 
 
+def detect_language(audio_or_video: Path | str, model_size: str = "small") -> tuple[str, float, int] | None:
+    """(idioma, probabilidad, palabras dichas), mirando solo la voz. None si no se pudo detectar (sin
+    audio, el VAD explotó). Con 'tiny' salía portugués o coreano sobre ruido y español real."""
+    try:
+        segments, info = _get_model(model_size).transcribe(
+            _decode_audio(audio_or_video), vad_filter=True, beam_size=1)
+        return info.language, info.language_probability, sum(len(s.text.split()) for s in segments)
+    except Exception:
+        return None
+
+
 def align_script_to_words(script_text: str, asr_words: list[Word]) -> list[Word]:
     """Alinea el TEXTO CANÓNICO del guion a los tiempos de la transcripción.
 
