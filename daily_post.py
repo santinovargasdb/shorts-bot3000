@@ -136,6 +136,7 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
                              if hasattr(series, "intro_card_for") else None),
                  # Golpe de ritmo cada 3er dato: solo las series que lo declaran (faceless).
                  ritmo=getattr(series, "RITMO", False),
+                 pixabay=ctx.get("pixabay", True),
                  verbose=False)
     # El render guarda title_meta (el título del archivo) en el .json; el que se publica es
     # title_for. Se re-sincroniza siempre, así un título-gancho nuevo llega aunque el mp4 ya exista.

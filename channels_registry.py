@@ -35,6 +35,7 @@ CHANNELS = {
         "platforms": ("yt", "ig"),   # TikTok PAUSADO 2026-10-28 hasta aprobación de prod; ver [[tiktok-auth-estado]]
         "first_comment": "¿Vos qué hubieras hecho en su lugar? 👇",
         "sfx_style": "historia",     # boom en el giro del relato
+        "pixabay": False,            # hechos reales: sin foto de Wikipedia, mejor sin imagen que una cualquiera
     },
     "misterios": {
         "display": "Misterios en 60 Segundos",
@@ -47,6 +48,7 @@ CHANNELS = {
         "platforms": ("yt", "ig"),   # TikTok PAUSADO 2026-10-28 hasta aprobación de prod; ver [[tiktok-auth-estado]]
         "first_comment": "Dejá tu teoría abajo 👇 ¿qué creés que pasó de verdad?",
         "sfx_style": "misterios",    # riser hacia el remate + corte de música
+        "pixabay": False,            # casos reales: "Tara Calico" traía un gatito de Pixabay
     },
     "soyelmalo": {
         "display": "¿Soy el Malo?",

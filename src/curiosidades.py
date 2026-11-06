@@ -60,6 +60,21 @@ def _card(img: Path, out: Path, size: int = 620) -> Path:
     return out
 
 
+def _pick_image(queries: list[str], dest, used_ids: set, pixabay: bool):
+    """(ruta, id) de la primera imagen disponible, o None. Prueba TODOS los términos en Wikipedia antes
+    de ir a Pixabay: con el 1º sin foto caía directo a su búsqueda por palabra ("Tara Calico" -> un gato)."""
+    for permitir in ([False, True] if pixabay else [False]):
+        for q in queries:
+            try:
+                res = stock.download_image(q, dest, exclude_ids=used_ids, allow_pixabay=permitir)
+            except Exception as e:
+                print(f"  ⚠️  imagen '{q}': {e}")
+                continue
+            if res:
+                return res
+    return None
+
+
 def generate(
     segments: list[dict],
     channel_name: str = "faceless",
@@ -76,6 +91,7 @@ def generate(
     intro_card: str | Path | None = None,
     intro_card_seconds: float = 3.0,   # estándar del nicho: el card se muestra 2-3s
     ritmo: bool = False,
+    pixabay: bool = True,
     verbose: bool = True,
 ) -> Path:
     """segments: lista ordenada de
@@ -88,7 +104,9 @@ def generate(
        question: pregunta binaria del remate, fija en pantalla los últimos segundos.
        ritmo: golpe de ritmo cada 3er dato (pausa corta + la tarjeta entra con zoom punch +
               flash + boom en vez del whoosh). Análisis vidIQ nov-2026: con todos los datos
-              iguales el espectador predice los próximos 5s y se va."""
+              iguales el espectador predice los próximos 5s y se va.
+       pixabay: permitir su búsqueda por palabra como último recurso. Sin imagen, el dato va solo sobre
+              el fondo: en casos reales eso es mejor que una foto de cualquier cosa."""
     PUNCH_EVERY, PUNCH_PAUSE = 3, 0.30
     channel = cfg.load_channel(channel_name)
     w, h = int(channel["target_width"]), int(channel["target_height"])
@@ -131,17 +149,9 @@ def generate(
         queries = seg.get("imgs") or ([seg["img"]] if seg.get("img") else [])
         cards, used_ids = [], set()
         for j in range(2):
-            res = None
-            for q in queries:
-                try:
-                    # La 2ª imagen solo de Wikipedia (probando cada término): el fallback a Pixabay
-                    # por palabra clave traía imágenes equivocadas. Sin 2ª buena -> 1 sola imagen.
-                    res = stock.download_image(q, work / f"img_{i:02d}_{j}.jpg", exclude_ids=used_ids,
-                                               allow_pixabay=(j == 0))
-                except Exception as e:
-                    print(f"  ⚠️  imagen '{q}': {e}")
-                if res:
-                    break
+            # La 2ª imagen solo de Wikipedia: el fallback a Pixabay por palabra clave traía imágenes
+            # equivocadas. Sin 2ª buena -> 1 sola imagen.
+            res = _pick_image(queries, work / f"img_{i:02d}_{j}.jpg", used_ids, pixabay and j == 0)
             if res:
                 path, iid = res
                 used_ids.add(iid)
