@@ -23,3 +23,21 @@ def test_vf_con_satisfying_agrega_banda_abajo():
     # La banda satisfactoria entra como 3er input [2:v] y se superpone en la zona muerta (y=1120).
     vf = rw._vf("smart", satisfy=True)
     assert "[2:v]" in vf and "overlay=0:1120" in vf
+
+
+def test_audio_files_con_transicion():
+    import render_whatonearth as rw
+    assert rw._audio_files(1, has_fact=False, trans=True) == ["trans.mp3", "q1.mp3", "gap.mp3", "a1.mp3"]
+
+
+def test_counter_card_crea_png(tmp_path):
+    import render_whatonearth as rw
+    out = tmp_path / "c.png"
+    rw.counter_card("2/6", out)
+    assert out.exists() and out.stat().st_size > 0
+
+
+def test_render_default_es_pantalla_completa():
+    import inspect
+    import render_whatonearth as rw
+    assert inspect.signature(rw.render).parameters["frame"].default == "fill"

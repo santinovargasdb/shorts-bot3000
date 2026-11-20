@@ -5,6 +5,6 @@ REM adelanta TikTok, así el atraso se achica 1 por día. Cuando un canal alcanz
 REM YouTube, la sincro lo auto-saltea. Quitar esta tarea cuando estén todos al día.
 cd /d "C:\Users\accsoc\Desktop\yt short"
 set PYTHONIOENCODING=utf-8
-python daily_post.py --channel faceless --only tt  >> automation_tiktok_catchup.log 2>&1
-python daily_post.py --channel historia --only tt  >> automation_tiktok_catchup.log 2>&1
-python daily_post.py --channel misterios --only tt >> automation_tiktok_catchup.log 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0shortsbot_lock.ps1" python daily_post.py --channel faceless --only tt  >> automation_tiktok_catchup.log 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0shortsbot_lock.ps1" python daily_post.py --channel historia --only tt  >> automation_tiktok_catchup.log 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0shortsbot_lock.ps1" python daily_post.py --channel misterios --only tt >> automation_tiktok_catchup.log 2>&1

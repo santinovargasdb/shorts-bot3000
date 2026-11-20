@@ -21,6 +21,10 @@ MUSIC_VOL = 0.12        # volumen del bed de música (bajo, debajo de la voz)
 CLIP_H = 1000           # alto del clip en modo 'smart' (entre 608=fit y 1920=fill): zoom medio
 CLIP_Y = 120            # margen superior del clip: lo deja ARRIBA de la UI de TikTok (like/cuenta)
 _FONT = "C:/Windows/Fonts/ariblk.ttf"   # Arial Black (bold, para el cartel)
+TRANS = 0.6             # whoosh de transición al empezar cada ítem (2º en adelante)
+TRANS_VOL = 0.5
+COUNTER_Y = 150         # contador "2/6": debajo de la barra superior de TikTok/Shorts
+ROOT = Path(__file__).resolve().parent
 
 
 def _clean_tts(text: str) -> str:
@@ -49,10 +53,12 @@ def _dur(p):
     return float(out)
 
 
-def _audio_files(i: int, has_fact: bool) -> list[str]:
+def _audio_files(i: int, has_fact: bool, trans: bool = False) -> list[str]:
     """Orden de los audios de UN ítem: pregunta -> gap de suspenso -> respuesta, y si hay dato,
-    un gap corto + el dato (que llena el silencio que antes quedaba después del nombre)."""
-    files = [f"q{i}.mp3", "gap.mp3", f"a{i}.mp3"]
+    un gap corto + el dato (que llena el silencio que antes quedaba después del nombre).
+    `trans`: whoosh de transición antes de la pregunta (ítems 2+). Análisis vidIQ nov-2026: sin
+    marca entre ítems el video se siente a toda velocidad y el espectador se pierde."""
+    files = (["trans.mp3"] if trans else []) + [f"q{i}.mp3", "gap.mp3", f"a{i}.mp3"]
     if has_fact:
         files += ["gapf.mp3", f"f{i}.mp3"]
     return files
@@ -106,6 +112,23 @@ def name_card(name: str, out_path) -> None:
     img.save(out_path)
 
 
+def counter_card(text: str, out_path) -> None:
+    """Contador de progreso ('2/6') para la esquina superior izquierda: el que mira sabe cuánto
+    falta y percibe el cambio de ítem. Mismo estilo que name_card, más chico."""
+    stroke = 7
+    f = ImageFont.truetype(_FONT, 62)
+    probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
+    bbox = probe.textbbox((0, 0), text, font=f, stroke_width=stroke)
+    pad = 16
+    W = (bbox[2] - bbox[0]) + pad * 2
+    H = (bbox[3] - bbox[1]) + pad * 2
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.text((W / 2, H / 2), text, font=f, anchor="mm",
+           fill=(255, 255, 255, 255), stroke_width=stroke, stroke_fill=(0, 0, 0, 255))
+    img.save(out_path)
+
+
 def credit_card(author: str, out_path) -> None:
     """Crédito mínimo y discreto para la esquina sup. derecha (cortesía; NO da
     protección legal real). Sin autor -> PNG transparente (invisible)."""
@@ -126,8 +149,11 @@ def credit_card(author: str, out_path) -> None:
     img.save(out_path)
 
 
-def render(items: list, out_path, workdir, music=None, frame="smart", satisfy=False) -> Path:
-    """frame='fill' = el clip llena el 9:16 (sin bandas, pero zoomea horizontales);
+def render(items: list, out_path, workdir, music=None, frame="fill", satisfy=False) -> Path:
+    """Default 'fill' desde nov-2026 (prueba pedida por el usuario tras el análisis de vidIQ: las
+    bandas borrosas restan pantalla al objeto). Con 'fill' no hay banda satisfactoria (satisfy se
+    ignora). Para volver al layout anterior: frame='smart', satisfy=True.
+    frame='fill' = el clip llena el 9:16 (sin bandas, pero zoomea horizontales);
     'fit' = clip entero sobre fondo desenfocado (sin zoom, con bandas difusas);
     'smart' = clip anclado arriba sobre fondo borroso. satisfy=True rellena la banda muerta
     de abajo (solo en 'smart') con clips del pool satisfactorio compartido."""
@@ -137,6 +163,14 @@ def render(items: list, out_path, workdir, music=None, frame="smart", satisfy=Fa
           "-t", f"{GAP}", "-q:a", "9", "gap.mp3"], work)
     _run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono",
           "-t", f"{GAP_FACT}", "-q:a", "9", "gapf.mp3"], work)
+    whoosh = ROOT / "sfx" / "whoosh.wav"
+    if whoosh.exists():   # transición entre ítems: whoosh recortado/rellenado a TRANS segundos
+        _run(["ffmpeg", "-y", "-i", str(whoosh), "-af",
+              f"volume={TRANS_VOL},apad,atrim=0:{TRANS}", "-ar", "24000", "-ac", "1",
+              "-c:a", "libmp3lame", "-q:a", "4", "trans.mp3"], work)
+    else:
+        _run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono",
+              "-t", f"{TRANS}", "-q:a", "9", "trans.mp3"], work)
     sats = []
     if satisfy and frame == "smart":
         try:
@@ -158,7 +192,7 @@ def render(items: list, out_path, workdir, music=None, frame="smart", satisfy=Fa
         for raw, fin in raws:
             _run(["ffmpeg", "-y", "-i", raw, "-filter:a", f"atempo={SPEED}",
                   "-c:a", "libmp3lame", "-q:a", "4", fin], work)
-        files = _audio_files(i, has_fact)
+        files = _audio_files(i, has_fact, trans=i > 0)
         (work / f"al{i}.txt").write_text(
             "".join(f"file '{f}'\n" for f in files), encoding="utf-8")
         _run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", f"al{i}.txt",
@@ -174,8 +208,17 @@ def render(items: list, out_path, workdir, music=None, frame="smart", satisfy=Fa
                "-i", f"au{i}.m4a"]
         if use_sat:                                   # 3er input: clip satisfactorio (ignoramos su audio)
             cmd += ["-stream_loop", "-1", "-t", f"{seg_dur:.2f}", "-i", str(Path(sat).resolve())]
+        # Contador "i/N" arriba a la izquierda, debajo de la barra de la app (último input)
+        counter_card(f"{i + 1}/{len(items)}", work / f"cnt{i}.png")
+        cnt_i = 3 if use_sat else 2
+        cmd += ["-loop", "1", "-t", f"{seg_dur:.2f}", "-i", f"cnt{i}.png"]
+        vf = vf[: -len("[v]")] + f"[v0];[v0][{cnt_i}:v]overlay=48:{COUNTER_Y}:shortest=1[v]"
+        # Audio rellenado con silencio hasta el largo del clip: el HOLD/TAIL no tiene voz y, sin
+        # esto, cada segmento quedaba con el audio más corto que el video -> al concatenar se perdía
+        # ese respiro (~4s por video) y la voz del ítem siguiente se adelantaba sobre el clip.
+        vf += ";[1:a]apad[aout]"
         cmd += ["-filter_complex", vf,
-                "-map", "[v]", "-map", "1:a", "-c:v", "libx264", "-preset", "medium",
+                "-map", "[v]", "-map", "[aout]", "-c:v", "libx264", "-preset", "medium",
                 "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", "-r", "30",
                 "-t", f"{seg_dur:.2f}", f"seg{i}.mp4"]
         _run(cmd, work)

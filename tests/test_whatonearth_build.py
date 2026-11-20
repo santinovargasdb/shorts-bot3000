@@ -51,3 +51,16 @@ def test_collect_items_lugares_sin_articulo():
         _find=lambda q, wd: {"local_path": "x.mp4", "source": "pixabay",
                              "author": "", "license": "", "source_url": ""})
     assert items[0]["answer_en"] == "This is Lake Natron."
+
+
+def test_collect_items_no_repite_lo_de_videos_anteriores():
+    # caso real: "glass frog" en 19 de 34 videos porque cada video arrancaba sin memoria
+    vistos = []
+
+    def gen(count, cat, exclude):
+        vistos.append(set(exclude))
+        return [{"name": "Glass frog", "query": "q1"}, {"name": "Saola", "query": "q2"}]
+    items = build.collect_items(1, "w", "animal", _gen=gen,
+                                _find=lambda q, wd: {"local_path": q}, used_before={"glass frog"})
+    assert [it["name"] for it in items] == ["Saola"]
+    assert "glass frog" in vistos[0]        # el LLM recibe lo ya usado para evitarlo

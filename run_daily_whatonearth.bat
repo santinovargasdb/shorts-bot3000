@@ -4,4 +4,4 @@ REM Video PRE-RENDERIZADO en whatonearth/videos.sqlite (ver series_whatonearth.p
 REM Agregar al Programador de tareas cuando existan los tokens en secrets/whatonearth/.
 cd /d "C:\Users\accsoc\Desktop\yt short"
 set PYTHONIOENCODING=utf-8
-python daily_post.py --channel whatonearth >> automation_whatonearth.log 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0shortsbot_lock.ps1" python daily_post.py --channel whatonearth >> automation_whatonearth.log 2>&1

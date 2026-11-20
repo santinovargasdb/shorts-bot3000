@@ -127,8 +127,15 @@ misterios:
   hook_text: ""
   tts_voice: "es-MX-DaliaNeural" # voz elegida por el usuario: más narrativa y pausada
   tts_rate: "+8%"                  # más pausado, clima de misterio
+  layout: "documental"             # la foto real del caso a pantalla completa, sin gameplay de
+                                   # relleno (src/documental.py; sondeo de competencia 12-nov-2026)
+  brand: "Misterios en 60 Segundos"   # marca chica arriba del titular (layout documental)
   caption:
     highlight_color: "&H000000FF"  # ROJO (BGR de ASS): refuerza el tono del canal (fórmula §6)
+    hook_frac: 0.8                 # titular fijo de arriba (layout documental): 72px...
+    hook_wrap: 18                  # ...en renglones de ~18 letras
+    hook_margin: 150
+    brand_margin: 96
   legal_note: "Contenido propio generado con IA/stock. Sin riesgo de copyright."
 
 # -------------------------------------------------------------------------

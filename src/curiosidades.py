@@ -18,6 +18,7 @@ import subprocess
 from pathlib import Path
 
 from . import config as cfg
+from . import documental
 from . import stock
 from .faceless import OUTPUT_DIR, _resolve_music, _slug
 from .multidato import _audio_dur, _music_credit
@@ -92,6 +93,8 @@ def generate(
     intro_card_seconds: float = 3.0,   # estándar del nicho: el card se muestra 2-3s
     ritmo: bool = False,
     pixabay: bool = True,
+    headline: str | None = None,
+    layout: str | None = None,
     verbose: bool = True,
 ) -> Path:
     """segments: lista ordenada de
@@ -106,12 +109,17 @@ def generate(
               flash + boom en vez del whoosh). Análisis vidIQ nov-2026: con todos los datos
               iguales el espectador predice los próximos 5s y se va.
        pixabay: permitir su búsqueda por palabra como último recurso. Sin imagen, el dato va solo sobre
-              el fondo: en casos reales eso es mejor que una foto de cualquier cosa."""
+              el fondo: en casos reales eso es mejor que una foto de cualquier cosa.
+       layout: 'tarjeta' (imagen chica sobre gameplay) o 'documental' (la foto real del caso a
+              pantalla completa, ver src/documental.py). None = el del canal en channels.yaml.
+       headline: titular fijo arriba todo el video (solo layout documental)."""
     PUNCH_EVERY, PUNCH_PAUSE = 3, 0.30
     channel = cfg.load_channel(channel_name)
     w, h = int(channel["target_width"]), int(channel["target_height"])
     voice = voice or channel.get("tts_voice", "es-MX-DaliaNeural")
     rate = rate or channel.get("tts_rate", "+8%")
+    layout = layout or channel.get("layout", "tarjeta")
+    doc = layout == "documental"
 
     slug = _slug(title_meta or segments[0]["text"])
     out_dir = OUTPUT_DIR / channel_name
@@ -147,8 +155,9 @@ def generate(
         # relevante). Se descartan por id para no repetir; las otras queries
         # son solo respaldo si la principal no tiene resultados.
         queries = seg.get("imgs") or ([seg["img"]] if seg.get("img") else [])
+        info["queries"] = queries
         cards, used_ids = [], set()
-        for j in range(2):
+        for j in range(0 if doc else 2):   # documental: se eligen todas juntas, abajo
             # La 2ª imagen solo de Wikipedia: el fallback a Pixabay por palabra clave traía imágenes
             # equivocadas. Sin 2ª buena -> 1 sola imagen.
             res = _pick_image(queries, work / f"img_{i:02d}_{j}.jpg", used_ids, pixabay and j == 0)
@@ -162,6 +171,17 @@ def generate(
             print(f"[curiosidades] Dato {i}: {queries} -> {len(cards)} img ({d:.1f}s)")
         segs.append(info)
         t += d
+
+    # Documental: varias fotos libres de los artículos del caso, repartidas sin repetir.
+    creditos: list[str] = []
+    if doc:
+        plan = documental.plan_images([s["queries"] for s in segs])
+        placas, creditos = documental.download_plan(plan, work, w, h)
+        for s, fila in zip(segs, placas):
+            if fila:
+                s["cards"] = fila
+        if verbose:
+            print(f"[curiosidades] Documental: {[len(f) for f in placas]} imágenes por momento")
 
     # 2) Narración concatenada
     alist = work / "alist.txt"
@@ -185,7 +205,8 @@ def generate(
     first = segs[0] if segs else None
     ass = work / "captions.ass"
     build_ass(words, ass, caption=channel["caption"], target_width=w, target_height=h,
-              offset=0.0, hook_text="", clip_duration=duration,
+              offset=0.0, hook_text=(headline or "") if doc else "", clip_duration=duration,
+              brand_text=channel.get("brand", "") if doc else "",
               center_title=(title_text if first else ""),
               center_start=(first["start"] + 0.15 if first and title_text else 0.0),
               center_end=(min(first["end"], first["start"] + 3.2) if first and title_text else 0.0),
@@ -212,6 +233,8 @@ def generate(
         for j, card in enumerate(cards):
             events.append({"card": card, "start": cortes[j], "end": cortes[j + 1],
                            "first": j == 0, "punch": bool(s.get("punch")) and j == 0})
+    if doc:
+        events = documental.hold_events(events, duration)
     # Índice determinístico por episodio: si `music` es una carpeta de nicho,
     # rota entre sus pistas (semilla propia para no tocar el stream de `rng`).
     track = _resolve_music(music, random.Random(slug + "|music").randrange(10_000))
@@ -219,7 +242,8 @@ def generate(
     cmd = ["ffmpeg", "-y",
            "-stream_loop", "-1", "-t", f"{duration:.3f}", "-i", str(Path(background).resolve())]
     for ev in events:
-        cmd += ["-loop", "1", "-framerate", "30", "-t", f"{duration:.3f}", "-i", str(ev["card"].resolve())]
+        cmd += ["-loop", "1", "-framerate", "30", "-t", f"{ev.get('dur_in', duration):.3f}",
+                "-i", str(ev["card"].resolve())]
     narr_i = 1 + len(events)
     cmd += ["-i", str(narration.resolve())]
     music_i = narr_i + 1
@@ -277,7 +301,7 @@ def generate(
     # Preparar cada tarjeta: Ken Burns sutil (zoom 1.0->1.08 durante su ventana,
     # §4: cambio visual continuo) + alpha + fundido de entrada/salida. La tarjeta 'punch'
     # entra con zoom fuerte (1.3) que cae a 1.0 en 0.3s y sigue el Ken Burns normal.
-    for k, ev in enumerate(events):
+    for k, ev in enumerate([] if doc else events):
         s, e2 = ev["start"], ev["end"] - AD
         dur_ev = max(0.3, ev["end"] - ev["start"])
         kb = f"1+0.08*max(0,min(1,(on/30.0-{s:.3f})/{dur_ev:.3f}))"
@@ -291,7 +315,7 @@ def generate(
     # Encadenar overlays: se desliza hacia arriba al entrar y al salir (comillas
     # simples protegen las comas de las expresiones)
     prev = "bg"
-    for k, ev in enumerate(events):
+    for k, ev in enumerate([] if doc else events):
         s, e, e2 = ev["start"], ev["end"], ev["end"] - AD
         yexpr = (f"'{Y_TOP} + {OFF}*(1-min(1,max(0,(t-{s:.3f})/{AD}))) "
                  f"- {OFF}*min(1,max(0,(t-{e2:.3f})/{AD}))'")
@@ -300,6 +324,8 @@ def generate(
             f"enable='between(t,{s:.3f},{e:.3f})'[o{k}]")
         prev = f"o{k}"
     vparts.append(f"[{prev}]subtitles={ass.name}[v]")
+    if doc:
+        vparts = documental.video_filters(events, w, h, ass.name)
     vlabel = "v"
     # Overlay de la tarjeta de Reddit en la apertura: arriba, se desvanece al final.
     if intro_card and card_i is not None:
@@ -372,6 +398,8 @@ def generate(
     credit = _music_credit(track)
     if credit:
         desc += "\n\n" + credit
+    if creditos:   # CC BY-SA: las fotos de Wikimedia piden atribución
+        desc += "\n\n📷 Imágenes (Wikimedia Commons): " + "; ".join(creditos)
     (out_dir / f"{slug}.json").write_text(
         json.dumps({"title": (title_meta or "Curiosidades")[:100], "description": desc,
                     "hashtags": tags}, ensure_ascii=False, indent=2), encoding="utf-8")

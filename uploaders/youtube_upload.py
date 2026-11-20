@@ -70,8 +70,10 @@ def upload(
     privacy: str = "private",       # "private" | "unlisted" | "public"
     category_id: str = "24",        # 24 = Entertainment
     token_file: str | Path | None = None,
+    language: str | None = None,
 ) -> str:
-    """Sube el video y devuelve el ID del video de YouTube."""
+    """Sube el video y devuelve el ID del video de YouTube. `language` (ej. "es") declara el idioma
+    del título y del audio; sin eso YouTube lo adivina."""
     from googleapiclient.http import MediaFileUpload
 
     service = _get_service(token_file)
@@ -84,6 +86,9 @@ def upload(
         },
         "status": {"privacyStatus": privacy, "selfDeclaredMadeForKids": False},
     }
+    if language:
+        body["snippet"]["defaultLanguage"] = language
+        body["snippet"]["defaultAudioLanguage"] = language
     media = MediaFileUpload(str(video_path), chunksize=-1, resumable=True, mimetype="video/mp4")
     request = service.videos().insert(part="snippet,status", body=body, media_body=media)
 
@@ -101,13 +106,15 @@ def upload_from_folder(clip_path: Path | str, privacy: str = "private", token_fi
     """Sube un clip usando su .json de metadatos hermano si existe."""
     clip_path = Path(clip_path)
     meta_path = clip_path.with_suffix(".json")
-    title, description, tags = clip_path.stem, "", None
+    title, description, tags, language = clip_path.stem, "", None, None
     if meta_path.exists():
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         title = meta.get("title", title)
         description = meta.get("description", "")
         tags = [t.lstrip("#") for t in (meta.get("hashtags") or [])]
-    return upload(clip_path, title, description, tags, privacy=privacy, token_file=token_file)
+        language = meta.get("language")
+    return upload(clip_path, title, description, tags, privacy=privacy, token_file=token_file,
+                  language=language)
 
 
 if __name__ == "__main__":

@@ -6,4 +6,4 @@ REM Agregar al Programador de tareas cuando existan los tokens en secrets/stream
 REM y platforms != () en channels_registry.py.
 cd /d "C:\Users\accsoc\Desktop\yt short"
 set PYTHONIOENCODING=utf-8
-python daily_post.py --channel streamers_b >> automation_streamers_b.log 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0shortsbot_lock.ps1" python daily_post.py --channel streamers_b >> automation_streamers_b.log 2>&1

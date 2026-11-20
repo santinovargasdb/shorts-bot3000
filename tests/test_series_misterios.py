@@ -25,7 +25,12 @@ def test_estructura_episodios():
 
 def test_interfaz_serie():
     assert sm.MISTERIOS[1]["titulo"] in sm.title_for(1)
-    assert "Misterios en 60 Segundos" in sm.title_for(1)
+    assert sm.title_for(1).endswith("| Misterios sin Resolver #1")   # serie numerada
+    assert "Misterios en 60 Segundos" in sm.file_title_for(1)        # nombre estable del mp4
+    for n in sm.MISTERIOS:
+        # YouTube corta el título en 100: el recorte cae en el gancho, nunca en el "#N".
+        assert len(sm.title_for(n)) <= 100 and sm.title_for(n).endswith(f"#{n}")
+        assert sm.headline_for(n) in sm.MISTERIOS[n]["titulo"]
     assert sm.background_for(1).startswith("backgrounds/")
     assert sm.KEYWORDS
     desc = sm.descripcion(1, "resumen de prueba")

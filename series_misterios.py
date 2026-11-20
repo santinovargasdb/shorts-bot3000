@@ -15,9 +15,32 @@ KEYWORDS = [
 ]
 
 
-def title_for(part: int) -> str:
-    """Título propio por episodio (mejor búsqueda que 'pt. N')."""
+SERIE = "Misterios sin Resolver"
+LANGUAGE = "es"     # idioma declarado al subir (YouTube lo usa para saber a quién recomendar)
+
+
+def file_title_for(part: int) -> str:
+    """Nombre ESTABLE del mp4 (el del título viejo): cambiar el título publicado no re-renderiza
+    ni pisa los videos ya hechos."""
     return f"{MISTERIOS[part]['titulo']} | Misterios en 60 Segundos"
+
+
+def title_for(part: int) -> str:
+    """Título publicado: gancho del caso + serie numerada. El sondeo de competencia (12-nov-2026)
+    mostró que los canales que rompen el techo llevan la serie en el título: le da al que lo ve
+    un motivo para buscar los otros episodios."""
+    sufijo = f" | {SERIE} #{part}"
+    return MISTERIOS[part]["titulo"][:100 - len(sufijo)].rstrip() + sufijo
+
+
+def headline_for(part: int) -> str:
+    """Titular fijo arriba del video (layout documental). El título entero si entra en 3 renglones;
+    si no, solo el nombre del caso (lo que va antes de los dos puntos)."""
+    from src.documental import headline_lines
+    titulo = MISTERIOS[part]["titulo"].strip()
+    if len(headline_lines(titulo)) <= 3:
+        return titulo
+    return titulo.split(":")[0].strip()
 
 
 def descripcion(parte: int, resumen: str) -> str:
@@ -32,11 +55,18 @@ def descripcion(parte: int, resumen: str) -> str:
     )
 
 
+# Fondo del layout documental: tinta en agua, que el render oscurece y desenfoca. Solo se ve
+# si el episodio no consiguió ninguna foto (las fotos del caso llenan la pantalla).
+DARK_BACKGROUNDS = [
+    "backgrounds/pixabay_ink_water_27803.mp4",
+    "backgrounds/pixabay_ink_water_21536.mp4",
+]
+
+
 def background_for(part: int) -> str:
-    """Mismo set de fondos rotativos que los otros canales, desfasado dos posiciones
-    para que el mismo número de episodio no repita fondo entre canales.
-    Solo clips sin HUD (los Subway quedan fuera: CLEAN_BACKGROUNDS)."""
-    return CLEAN_BACKGROUNDS[(part + 1) % len(CLEAN_BACKGROUNDS)]
+    """Fondo oscuro rotativo. El gameplay de relleno (GTA, slime) se sacó el 12-nov-2026: chocaba
+    con el tono de los casos y era lo que más nos separaba de la competencia que sí crece."""
+    return DARK_BACKGROUNDS[part % len(DARK_BACKGROUNDS)]
 
 
 def _m(text, *imgs):

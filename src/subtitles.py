@@ -83,12 +83,14 @@ def build_ass(
     boundaries: list[float] | None = None,
     question_text: str = "",
     question_start: float = 0.0,
+    brand_text: str = "",
 ) -> Path:
     """Escribe el .ass. `offset` resta el tiempo de inicio del clip. `hook_text`
     pinta un texto fijo arriba todo el clip. `center_title` pinta un título
     grande al centro entre [center_start, center_end] (para el momento del título).
     `question_text` pinta la pregunta binaria del remate desde `question_start`
-    hasta el final, debajo del karaoke pero dentro de la zona segura (y<1420)."""
+    hasta el final, debajo del karaoke pero dentro de la zona segura (y<1420).
+    `brand_text` pinta la marca del canal, chica, arriba del gancho fijo (layout documental)."""
     out_path = Path(out_path)
     font = caption.get("font", "Arial Black")
     size = int(caption.get("font_size", 90))
@@ -102,7 +104,11 @@ def build_ass(
     italic = 1 if caption.get("italic") else 0       # fuente itálica (estilo clip viral)
     blur = float(caption.get("blur", 0) or 0)        # glow suave alrededor del texto (\blur)
     blur_tag = f"{{\\blur{blur:.1f}}}" if blur else ""
-    hook_size = int(size * 0.62)   # más chico para que el título entre y pueda envolver
+    hook_size = int(size * caption.get("hook_frac", 0.62))   # más chico: entra y puede envolver
+    hook_margin = int(caption.get("hook_margin", 180))
+    hook_wrap = int(caption.get("hook_wrap", 16))
+    brand_size = int(caption.get("brand_size", 34))
+    brand_margin = int(caption.get("brand_margin", 100))
     # El título ya no tiene ventana propia: convive con el dato 1 (fórmula §2),
     # en la banda libre entre la tarjeta de imagen (termina y≈830) y el karaoke.
     title_size = int(size * 0.58)
@@ -123,7 +129,8 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,{font},{size},{primary},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},2,60,60,{margin_v},1
-Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,60,60,180,1
+Style: Hook,{font},{hook_size},{primary},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{hook_margin},1
+Style: Marca,{font},{brand_size},{accent},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,6,0,1,2,0,8,60,60,{brand_margin},1
 Style: Titulo,{font},{title_size},{accent},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,80,80,{title_margin},1
 Style: Pregunta,{font},{quest_size},{accent},&H000000FF,&H00000000,&H80000000,1,{italic},0,0,100,100,0,0,1,{outline},{shadow},8,60,60,{quest_margin},1
 
@@ -137,9 +144,16 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     if hook_text and clip_duration and clip_duration > 0:
         htxt = (hook_text.upper() if uppercase else hook_text)
         htxt = htxt.replace("{", "(").replace("}", ")")
-        htxt = _wrap(htxt, max_chars=16)   # parte el título en varias líneas
+        htxt = _wrap(htxt, max_chars=hook_wrap)   # parte el título en varias líneas
         lines.append(
             f"Dialogue: 0,{_fmt_time(0)},{_fmt_time(clip_duration)},Hook,,0,0,0,,{htxt}\n"
+        )
+
+    # Marca del canal: chica, arriba del gancho, todo el clip
+    if brand_text and clip_duration and clip_duration > 0:
+        btxt = brand_text.upper().replace("{", "(").replace("}", ")")
+        lines.append(
+            f"Dialogue: 0,{_fmt_time(0)},{_fmt_time(clip_duration)},Marca,,0,0,0,,{btxt}\n"
         )
 
     # Título grande centrado durante su ventana (momento del título)

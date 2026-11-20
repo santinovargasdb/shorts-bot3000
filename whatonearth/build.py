@@ -38,14 +38,21 @@ def make_description(items: list) -> str:
 
 
 def collect_items(n: int, workdir, category: str = "object", *, _gen=None, _find=None,
-                  max_rounds: int = 4) -> list:
+                  max_rounds: int = 4, used_before=()) -> list:
+    """`used_before`: nombres ya usados en videos ANTERIORES. Antes la lista arrancaba vacía en cada
+    video y el LLM volvía a sus favoritos: en el backlog de nov-2026, 204 ítems y solo 62 distintos
+    (glass frog en 19 de 34 videos)."""
     gen = _gen or (lambda count, cat, exclude: topics.generate_topics(count, cat, exclude))
     find = _find or (lambda q, wd: sourcing_ytdlp.find_clip(q, wd))
-    items, used = [], set()
+    items, used = [], set(used_before)
+    vistos = {u.strip().lower() for u in used_before}
     rounds = 0
     while len(items) < n and rounds < max_rounds:
         rounds += 1
         for t in gen(n - len(items), category, used):
+            if t["name"].strip().lower() in vistos:
+                continue                      # el LLM lo repitió igual: se descarta
+            vistos.add(t["name"].strip().lower())
             used.add(t["name"])
             clip = find(t["query"], workdir)
             if not clip:
@@ -69,13 +76,14 @@ def build_video(n: int = N_ITEMS, out_dir=OUT_DIR, conn=None, category: str | No
     # Un video = UNA categoría; rotá entre place/animal/object por el nº de videos ya hechos.
     if category is None:
         category = CATEGORIES[len(existing) % len(CATEGORIES)]
-    items = collect_items(n, work, category)
+    ya_usados = {it["name"] for v in existing for it in v.get("items", []) if it.get("name")}
+    items = collect_items(n, work, category, used_before=ya_usados)
     if len(items) < n:
         print(f"[whatonearth] solo {len(items)}/{n} ítems ({category}) con clip; no se postea.")
         return None
     seq = (max([v["seq"] for v in existing], default=0)) + 1
     video_path = out_dir / f"woe_{seq:04d}.mp4"
-    render_whatonearth.render(items, video_path, work, music=str(MUSIC), satisfy=True)
+    render_whatonearth.render(items, video_path, work, music=str(MUSIC))   # default 'fill' (pantalla completa)
     meta_items = [{"name": it["name"], "source": it.get("source"), "author": it.get("author"),
                    "license": it.get("license"), "source_url": it.get("source_url")} for it in items]
     title = make_title(items, category)

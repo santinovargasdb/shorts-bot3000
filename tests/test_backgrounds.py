@@ -20,9 +20,19 @@ def test_sin_clip_repetido_dentro_del_ciclo():
     # ningún canal puede repetir un clip exacto. El ciclo rota sobre el pool
     # SIN HUD (CLEAN_BACKGROUNDS), no sobre el inventario completo.
     n = len(series_data.CLEAN_BACKGROUNDS)
-    for serie in (series_data, series_historia, series_misterios):
+    # misterios quedó fuera de este pool el 12-nov-2026 (layout documental, fondo oscuro propio).
+    for serie in (series_data, series_historia):
         fondos = [serie.background_for(p) for p in range(1, n + 1)]
         assert len(set(fondos)) == n, f"{serie.__name__} repite clip dentro del ciclo"
+
+
+def test_misterios_usa_fondo_oscuro_propio_sin_gameplay():
+    # Sondeo 12-nov-2026: el gameplay de relleno chocaba con el tono de los casos.
+    for p in range(1, 31):
+        bg = series_misterios.background_for(p)
+        assert bg in series_misterios.DARK_BACKGROUNDS
+        assert bg not in series_data.BACKGROUNDS
+        assert (ROOT / bg).exists(), f"falta el archivo {bg}"
 
 
 def test_mismo_episodio_distinto_fondo_entre_canales():

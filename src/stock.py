@@ -184,6 +184,108 @@ def _wiki_search_image_url(query: str) -> str | None:
     return result
 
 
+# ─── Todas las imágenes LIBRES de un artículo (layout documental: varias fotos reales del caso) ───
+# pageimages da UNA foto por artículo; el layout documental llena la pantalla con la imagen, así
+# que necesita varias. Se listan los archivos del artículo y se filtran: solo raster, de tamaño
+# usable, sin íconos/banderas/mapas de plantilla y sin las "fair use" (NonFree).
+
+_WIKI_JUNK = ("icon", "logo", "flag", "symbol", "commons", "wiki", "ambox", "stub", "padlock",
+              "question", "edit-", "oojs", "arrow", "pog", "map", "locator", "location",
+              "disambig", "portal", "folder", "crystal", "nuvola", "emblem", "seal of",
+              "coat of arms", "signature", "blank", "increase", "decrease", "steady")
+# Fotos que pueden costar una restricción de edad (un Short restringido no se recomienda):
+# escenas del crimen con sangre, cuerpos, autopsias. Se filtran por nombre de archivo.
+_WIKI_SENSIBLE = ("crime scene", "corpse", "cadaver", "autopsy", "postmortem", "post-mortem",
+                  "dead body", "bodies", "morgue", "execution", "lynching", "behead", "mutilat",
+                  "wound", "blood", "nude", "naked", "hanged", "massacre victims")
+_ARTICLE_MIN_W, _ARTICLE_MIN_H = 480, 300
+_ARTICLE_CACHE: dict = {}
+
+
+def usable_article_image(title: str, info: dict) -> bool:
+    """True si el archivo `title` (con su `imageinfo`) sirve como foto del caso: JPEG/PNG de
+    tamaño usable, licencia libre y sin pinta de ícono/bandera/mapa de plantilla."""
+    if info.get("mime") not in ("image/jpeg", "image/png"):
+        return False
+    if int(info.get("width") or 0) < _ARTICLE_MIN_W or int(info.get("height") or 0) < _ARTICLE_MIN_H:
+        return False
+    meta = info.get("extmetadata") or {}
+    if str((meta.get("NonFree") or {}).get("value", "")).lower() == "true":
+        return False
+    name = title.lower()
+    return not any(j in name for j in _WIKI_JUNK + _WIKI_SENSIBLE)
+
+
+def _strip_html(text: str) -> str:
+    import re
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", text or "")).strip()
+
+
+def article_images_from_response(data: dict) -> list[dict]:
+    """[{id, url, title, credit}] de las imágenes usables de una respuesta `imageinfo`,
+    en el orden que las devuelve la API."""
+    out = []
+    for pg in ((data or {}).get("query", {}).get("pages", {}) or {}).values():
+        title = pg.get("title", "")
+        info = (pg.get("imageinfo") or [{}])[0]
+        if not usable_article_image(title, info):
+            continue
+        url = info.get("thumburl") or info.get("url")
+        if not url:
+            continue
+        url = strip_tracking(url)
+        meta = info.get("extmetadata") or {}
+        autor = _strip_html((meta.get("Artist") or {}).get("value", ""))[:60]
+        lic = _strip_html((meta.get("LicenseShortName") or {}).get("value", ""))
+        nombre = title.split(":", 1)[-1].rsplit(".", 1)[0]
+        credit = f"«{nombre}»" + (f" ({', '.join(x for x in (autor, lic) if x)})" if autor or lic else "")
+        out.append({"id": f"wiki:{url}", "url": url, "title": title, "credit": credit})
+    return out
+
+
+def _wiki_get(params: dict) -> dict | None:
+    """GET a la API de Wikipedia con cortesía anti-429 y reintentos. None si no hubo caso."""
+    for attempt in range(4):
+        try:
+            _wiki_pace()
+            r = requests.get(WIKI_API, params=params, timeout=30, headers=_WIKI_UA)
+            if r.status_code == 429:
+                time.sleep(2.0 * (attempt + 1)); continue
+            r.raise_for_status()
+            return r.json()
+        except requests.RequestException:
+            time.sleep(1.0 * (attempt + 1))
+    return None
+
+
+def article_images(query: str, limit: int = 8) -> list[dict]:
+    """Imágenes libres del artículo de Wikipedia (en) que matchea `query`:
+    [{id, url, title, credit}], la principal del artículo primero. [] si no hay."""
+    q = clean_wiki_query(query) or query
+    if q in _ARTICLE_CACHE:
+        return _ARTICLE_CACHE[q][:limit]
+    result: list[dict] = []
+    listado = _wiki_get({"action": "query", "format": "json", "generator": "search",
+                         "gsrsearch": q, "gsrlimit": 1, "prop": "images", "imlimit": 50,
+                         "redirects": 1})
+    files = [im["title"] for pg in ((listado or {}).get("query", {}).get("pages", {}) or {}).values()
+             for im in pg.get("images", [])]
+    files = [f for f in files if not any(j in f.lower() for j in _WIKI_JUNK)][:30]
+    if files:
+        info = _wiki_get({"action": "query", "format": "json", "titles": "|".join(files),
+                          "prop": "imageinfo", "iiprop": "url|size|mime|extmetadata",
+                          "iiurlwidth": 1280,
+                          "iiextmetadatafilter": "NonFree|LicenseShortName|Artist"})
+        result = article_images_from_response(info or {})
+        # La foto principal del artículo (la que eligieron sus editores) va primero.
+        lead = _wiki_search_image_url(query)
+        if lead:
+            base = lead.rsplit("/", 1)[-1].split("px-", 1)[-1]
+            result.sort(key=lambda im: 0 if base and base in im["url"] else 1)
+    _ARTICLE_CACHE[q] = result
+    return result[:limit]
+
+
 def _download_url(url: str, dest: Path, headers=None) -> Path | None:
     """Baja `url` a `dest` (stream), reintentando ante 429/errores. None si falla."""
     dest = Path(dest)
