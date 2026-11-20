@@ -116,9 +116,9 @@ def render_short(
     face_box=None,
     crf: int = 20,
     watermark: Path | str | None = None,
-    wm_opacity: float = 0.55,
-    wm_scale: float = 0.42,
-    wm_margin: int = 45,
+    wm_opacity: float = 0.75,
+    wm_scale: float = 0.14,     # el ícono es cuadrado: a 0.42 del ancho tapaba la cara del streamer
+    wm_margin: int = 40,
     satisfy_top: Path | str | None = None,
     satisfy_bottom: Path | str | None = None,
 ) -> Path:
@@ -239,13 +239,14 @@ def render_short(
                 a_labels.append(f"[sd{j}]")
             idx += 1
 
-    # Watermark (branding): overlay del @handle arriba-centro, semi-transparente, sobre [v].
+    # Watermark (branding): ícono del canal chico en la esquina de arriba a la derecha, sobre [v].
+    # No va al centro: ahí está la cara del streamer (panel de arriba).
     wm_parts, vlabel = [], "[v]"
     if watermark and Path(watermark).exists():
         extra_inputs += ["-i", str(Path(watermark).resolve())]
         wm_parts.append(
             f"[{idx}:v]format=rgba,colorchannelmixer=aa={wm_opacity:.2f},"
-            f"scale={int(width * wm_scale)}:-1[wm];[v][wm]overlay=(W-w)/2:{wm_margin}[vw]")
+            f"scale={int(width * wm_scale)}:-1[wm];[v][wm]overlay=W-w-{wm_margin}:{wm_margin}[vw]")
         vlabel = "[vw]"
         idx += 1
 
