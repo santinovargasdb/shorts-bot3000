@@ -28,7 +28,8 @@ def load_parts(channel_key: str) -> dict:
     conn = db.connect(cfg["db"])
     try:
         return {c["seq"]: {"titulo": clean_title(c["title"]), "video_path": c["video_path"],
-                           "descripcion": c["description"], "resumen": clean_title(c["title"])}
+                           "descripcion": c["description"], "resumen": clean_title(c["title"]),
+                           "priority": c["priority"]}   # juego del momento: daily_post lo saca primero
                 for c in db.by_status(conn, "approved")}   # solo aprobados por el usuario
     finally:
         conn.close()

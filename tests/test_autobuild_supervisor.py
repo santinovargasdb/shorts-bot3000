@@ -108,5 +108,6 @@ def test_run_real_usa_refiller_del_gen(monkeypatch):
     seq = iter([3, 28])
     monkeypatch.setattr(sup.runway, "parts_ahead", lambda ch, *a, **k: next(seq))
     monkeypatch.setitem(rf.REFILLERS, "clips", lambda ch, n: None)
+    monkeypatch.setattr(rf, "topup_priority", lambda ch, n: None)   # sin red en el test
     results = sup.run(["streamers_a"], dry_run=False)
     assert len(results) == 1 and results[0].severity == "OK"

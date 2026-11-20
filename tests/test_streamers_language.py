@@ -47,6 +47,11 @@ def test_build_clip_rechaza_sin_renderizar_y_quema_el_clip(monkeypatch, tmp_path
     assert "idioma" in clip["qc_note"]
 
 
+def test_streamers_b_es_irl_con_formato_facecam():
+    cfg = scfg.get("streamers_b")
+    assert cfg["content"] == "irl" and cfg["layout_override"] == "facecam"
+
+
 def test_streamers_c_transcribe_en_ingles():
     assert scfg.get("streamers_c").get("language") == "en"
 

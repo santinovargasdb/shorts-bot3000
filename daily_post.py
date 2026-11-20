@@ -137,14 +137,20 @@ def _ensure_video(part: int, ctx: dict, series) -> Path:
                  # Golpe de ritmo cada 3er dato: solo las series que lo declaran (faceless).
                  ritmo=getattr(series, "RITMO", False),
                  pixabay=ctx.get("pixabay", True),
+                 # Titular fijo arriba (solo las series con layout documental lo declaran).
+                 headline=(series.headline_for(part)
+                           if hasattr(series, "headline_for") else None),
                  verbose=False)
     # El render guarda title_meta (el título del archivo) en el .json; el que se publica es
     # title_for. Se re-sincroniza siempre, así un título-gancho nuevo llega aunque el mp4 ya exista.
     meta = video.with_suffix(".json")
     if title != file_title and meta.exists():
         info = json.loads(meta.read_text(encoding="utf-8"))
-        if info.get("title") != title[:100]:
+        lang = getattr(series, "LANGUAGE", None)
+        if info.get("title") != title[:100] or (lang and info.get("language") != lang):
             info["title"] = title[:100]
+            if lang:
+                info["language"] = lang
             meta.write_text(json.dumps(info, ensure_ascii=False), encoding="utf-8")
     return video
 
@@ -188,13 +194,28 @@ def _tt_caption(video: Path) -> str:
     return f"{title}\n\n{hashtags}" if hashtags else title
 
 
-def _next_available_part(next_part: int, series) -> int | None:
+def _next_available_part(next_part: int, series, posted=()) -> int | None:
     """Primera parte DISPONIBLE >= next_part. Los backlogs de clips (streamers) tienen HUECOS en
     los seq aprobados (los rechazados por el QC consumen número), así que no alcanza con next_part
     exacto: hay que saltar al siguiente disponible. Para numeración contigua (faceless/historia/
-    misterios/soyelmalo) devuelve next_part sin cambios. None si no queda ninguna parte."""
-    disponibles = [k for k in series.PARTS if k >= next_part]
+    misterios/soyelmalo) devuelve next_part sin cambios. None si no queda ninguna parte.
+
+    Las partes PRIORITARIAS (clips del juego del momento, PARTS[k]['priority']) saltean la fila:
+    si hay alguna sin postear en esta plataforma (`posted` = historial del estado) sale primero, y
+    cuando la fila normal llega a su número ya está posteada y se la saltea."""
+    ya = {p.get("part") for p in posted}
+    prio = {k for k, v in series.PARTS.items() if v.get("priority")}
+    pendientes = prio - ya
+    if pendientes:
+        return min(pendientes)
+    disponibles = [k for k in series.PARTS if k >= next_part and not (k in prio and k in ya)]
     return min(disponibles) if disponibles else None
+
+
+def _advance(next_part: int, part: int, series) -> int:
+    """Contador tras postear `part`. Una parte prioritaria se posteó salteando la fila, así que
+    no lo mueve: la fila normal sigue donde estaba."""
+    return next_part if series.PARTS[part].get("priority") else part + 1
 
 
 def do_youtube(st: dict, ctx: dict, series) -> None:
@@ -202,7 +223,7 @@ def do_youtube(st: dict, ctx: dict, series) -> None:
         _log(ctx, "[YT] No configurado (sin token), lo salteo.")
         return
     want = st["youtube"]["next_part"]
-    part = _next_available_part(want, series)
+    part = _next_available_part(want, series, st["youtube"]["posted"])
     if part is None:
         _log(ctx, f"[YT] No hay parte {want} o posterior en el backlog. Agregá más partes.")
         return
@@ -214,7 +235,7 @@ def do_youtube(st: dict, ctx: dict, series) -> None:
     except Exception as e:
         _log(ctx, f"[YT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
-    st["youtube"]["next_part"] = part + 1
+    st["youtube"]["next_part"] = _advance(want, part, series)
     st["youtube"]["posted"].append({"part": part, "video_id": vid, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
     _log(ctx, f"[YT] ✅ Parte {part}: https://youtube.com/shorts/{vid}")
 
@@ -307,7 +328,7 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
     want = st["instagram"]["next_part"]
     # IG postea INDEPENDIENTE de YouTube: un fallo/traba de YT (ej. token vencido)
     # no debe frenar Instagram. Cada plataforma avanza su propio contador.
-    part = _next_available_part(want, series)
+    part = _next_available_part(want, series, st["instagram"]["posted"])
     if part is None:
         _log(ctx, f"[IG] No hay parte {want} o posterior en el backlog. Agregá más partes.")
         return
@@ -324,7 +345,7 @@ def do_instagram(st: dict, ctx: dict, series) -> None:
     except Exception as e:
         _log(ctx, f"[IG] ⚠️  No se pudo publicar (reintenta la próxima): {e}")
         return
-    st["instagram"]["next_part"] = part + 1
+    st["instagram"]["next_part"] = _advance(want, part, series)
     st["instagram"]["posted"].append({"part": part, "media_id": media_id, "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
     _log(ctx, f"[IG] ✅ Parte {part}: Reel {media_id}")
     comentario = ctx.get("first_comment")
@@ -376,7 +397,7 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
         return
     want = st["tiktok"]["next_part"]
     # TikTok postea INDEPENDIENTE de YouTube (igual que IG): un fallo de YT no lo frena.
-    part = _next_available_part(want, series)
+    part = _next_available_part(want, series, st["tiktok"]["posted"])
     if part is None:
         _log(ctx, f"[TT] No hay parte {want} o posterior en el backlog. Agregá más partes.")
         return
@@ -401,7 +422,7 @@ def do_tiktok(st: dict, ctx: dict, series) -> None:
     except Exception as e:
         _log(ctx, f"[TT] ⚠️  No se pudo subir (reintenta la próxima): {e}")
         return
-    st["tiktok"]["next_part"] = part + 1
+    st["tiktok"]["next_part"] = _advance(want, part, series)
     st["tiktok"]["posted"].append({"part": part, "publish_id": publish_id, "modo": modo,
                                    "date": f"{datetime.now():%Y-%m-%d %H:%M}"})
     if modo == "directo":

@@ -36,10 +36,33 @@ def available_parts(channel: str) -> set[int]:
     return set(getattr(mod, "PARTS", {}).keys())
 
 
+def posted_parts(channel: str, state_path=STATE) -> set[int]:
+    """Partes ya posteadas en TODAS las plataformas activas del canal (historial del estado)."""
+    ch = get_channel(channel)
+    plats = [PLATFORM_MAP[p] for p in ch["platforms"] if p in PLATFORM_MAP]
+    state_path = Path(state_path)
+    if not plats or not state_path.exists():
+        return set()
+    cstate = json.loads(state_path.read_text(encoding="utf-8")).get(channel, {})
+    sets = [{e.get("part") for e in cstate.get(p, {}).get("posted", [])} for p in plats]
+    return set.intersection(*sets)
+
+
 def parts_ahead(channel: str, state_path=STATE) -> int:
-    """Cantidad de episodios listos con key >= next_part (gap-safe)."""
+    """Cantidad de episodios listos con key >= next_part (gap-safe). Una parte prioritaria se
+    postea salteando la fila (queda >= next_part ya posteada): esas no cuentan como colchón."""
     nextp = next_part(channel, state_path)
-    return sum(1 for p in available_parts(channel) if p >= nextp)
+    ya = posted_parts(channel, state_path)
+    return sum(1 for p in available_parts(channel) if p >= nextp and p not in ya)
+
+
+def priority_pending(channel: str, state_path=STATE) -> int:
+    """Cantidad de partes PRIORITARIAS (juego del momento) listas y todavía sin postear."""
+    ch = get_channel(channel)
+    mod = importlib.reload(importlib.import_module(ch["series"]))
+    ya = posted_parts(channel, state_path)
+    return sum(1 for k, v in getattr(mod, "PARTS", {}).items()
+               if v.get("priority") and k not in ya)
 
 
 def runway_days(channel: str, state_path=STATE) -> float:

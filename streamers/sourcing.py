@@ -28,6 +28,10 @@ SPIKE_MIN = 1.25         # gate LENIENT (gameplay): solo descarta audio muerto/p
 SPIKE_IRL = 1.05         # IRL/charla: hablar tranquilo NO hace pico; acá solo matamos silencio real
                          # (la viralidad la dan los views, y el clip ya es un momento curado).
 DUR_MIN, DUR_MAX = 8.0, 60.0
+GAME_LIMIT = 100         # clips a listar por streamer al buscar UN juego (tope del GQL): con 30, en la
+                         # semana del lanzamiento los clips del juego quedaban tapados por los de otros
+# Título autogenerado por Twitch ('alexby11 - Highlight eed4fb Part 06'): no dice nada, no sirve de título.
+_AUTO_TITLE = re.compile(r"highlight\s+[0-9a-f]{5,}", re.IGNORECASE)
 
 
 def spike_floor(want: str) -> float:
@@ -99,9 +103,46 @@ def _list_kick(streamer: str, period: str, limit: int) -> list[dict]:
     return out
 
 
+_TWITCH_GQL = "https://gql.twitch.tv/gql"
+_TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko"     # el público de la web de Twitch (el que usa yt-dlp)
+_GQL_PERIOD = {"24h": "LAST_DAY", "7d": "LAST_WEEK", "30d": "LAST_MONTH"}
+_GQL_CLIPS = ("query($login:String!,$limit:Int!,$period:ClipsPeriod!){user(login:$login){"
+              "clips(first:$limit,criteria:{period:$period}){edges{node{"
+              "id title viewCount durationSeconds url game{name}}}}}}")
+
+
+def _list_twitch_game(streamer: str, period: str, limit: int, games) -> list[dict]:
+    """Clips de Twitch del streamer que son de alguno de `games` (nombre de categoría en minúscula).
+    yt-dlp no informa el juego en el listado, así que esto le pregunta al GQL de Twitch; devuelve
+    el mismo formato que _list_twitch (mismo `id`, así el dedup del backlog sigue sirviendo)."""
+    import urllib.request
+    body = json.dumps({"query": _GQL_CLIPS, "variables": {
+        "login": streamer, "limit": limit, "period": _GQL_PERIOD.get(period, "ALL_TIME")}}).encode()
+    try:
+        req = urllib.request.Request(_TWITCH_GQL, data=body, headers={
+            "Client-ID": _TWITCH_CLIENT_ID, "Content-Type": "application/json"})
+        data = json.loads(urllib.request.urlopen(req, timeout=30).read())
+        edges = data["data"]["user"]["clips"]["edges"]
+    except Exception:
+        return []
+    out = []
+    for e in edges or []:
+        n = e.get("node") or {}
+        game = ((n.get("game") or {}).get("name") or "").strip().lower()
+        if game not in games or not n.get("id") or not n.get("url"):
+            continue
+        out.append({"id": str(n["id"]), "views": int(n.get("viewCount") or 0),
+                    "duration": float(n.get("durationSeconds") or 0), "title": n.get("title") or "",
+                    "url": n["url"], "streamer": streamer, "platform": "twitch", "title_score": 0.5})
+    return out
+
+
 def list_clips(streamer: str, period: str = "30d", limit: int = LIST_LIMIT,
-               platform: str = "twitch") -> list[dict]:
-    """Top clips (por views) del streamer. platform: 'twitch' (yt-dlp) | 'kick' (API)."""
+               platform: str = "twitch", games=None) -> list[dict]:
+    """Top clips (por views) del streamer. platform: 'twitch' (yt-dlp) | 'kick' (API).
+    Con `games` devuelve solo los clips de esos juegos (hoy solo Twitch; en Kick, ninguno)."""
+    if games:
+        return [] if platform == "kick" else _list_twitch_game(streamer, period, limit, games)
     return (_list_kick if platform == "kick" else _list_twitch)(streamer, period, limit)
 
 
@@ -171,7 +212,8 @@ def rank(clips: list[dict]) -> list[dict]:
     'no pasa nada' lo dan: curación de clip + LLM + pico de audio (gate al bajar)."""
     import math
     usable = [c for c in clips
-              if DUR_MIN <= c["duration"] <= DUR_MAX and c.get("title_score", _OK_SCORE) > 0.0]
+              if DUR_MIN <= c["duration"] <= DUR_MAX and c.get("title_score", _OK_SCORE) > 0.0
+              and not _AUTO_TITLE.search(c.get("title") or "")]
     if not usable:
         return []
     maxv = max((c["views"] for c in usable), default=1) or 1
@@ -238,14 +280,16 @@ def watchparty_matters(want: str) -> bool:
 
 def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
               want: str = "gameplay", platform: str = "twitch",
-              verbose: bool = True) -> dict | None:
+              verbose: bool = True, games=None) -> dict | None:
     """Devuelve el mejor clip del streamer (listo en disco) que: no se usó, baja en HD y
-    TIENE un pico de audio (algo pasa). dict con local_path/title/url/... o None."""
+    TIENE un pico de audio (algo pasa). dict con local_path/title/url/... o None.
+    Con `games` solo considera clips de esos juegos (ver list_clips)."""
     used_ids = used_ids or set()
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
 
-    clips = [c for c in list_clips(streamer, period, platform=platform) if c["id"] not in used_ids]
+    clips = [c for c in list_clips(streamer, period, platform=platform, games=games)
+             if c["id"] not in used_ids]
     if not clips:
         if verbose:
             print(f"[streamers] {streamer}: sin clips nuevos en {period}")
@@ -254,9 +298,44 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
     ordered = rank(clips)
     if verbose:
         print(f"[streamers] {streamer}: {len(ordered)} candidatos rankeados")
+    clip = _first_valid(ordered, workdir, want, verbose)
+    if not clip and verbose:
+        print(f"[streamers] {streamer}: ningún candidato pasó la validación")
+    return clip
 
-    out = workdir / f"tw_{streamer}.mp4"
+
+def best_game_clip(streamers, workdir, used_ids=None, period: str = "7d", want: str = "gameplay",
+                   games=(), min_views: int = 0, verbose: bool = True) -> dict | None:
+    """El mejor clip de `games` entre TODOS los streamers juntos (lista de (nombre, plataforma)).
+    Rankear de a un streamer se quedaba con el primero que tuviera algo: salían clips de 15 views
+    habiendo otros de 60.000 en el streamer de al lado. `min_views` descarta los que nadie miró."""
+    used_ids = used_ids or set()
+    workdir = Path(workdir)
+    workdir.mkdir(parents=True, exist_ok=True)
+    pool = [c for name, platform in streamers
+            for c in list_clips(name, period, limit=GAME_LIMIT, platform=platform, games=games)
+            if c["id"] not in used_ids and c["views"] >= min_views]
+    if not pool:
+        if verbose:
+            print(f"[streamers] juego prioritario: sin clips nuevos en {period}")
+        return None
+    pool.sort(key=lambda c: c["views"], reverse=True)      # el LLM de títulos solo mira los primeros
+    score_titles(pool, want=want)
+    ordered = rank(pool)
+    if verbose:
+        print(f"[streamers] juego prioritario: {len(ordered)} candidatos rankeados "
+              f"({len({c['streamer'] for c in ordered})} streamers)")
+    clip = _first_valid(ordered, workdir, want, verbose)
+    if not clip and verbose:
+        print("[streamers] juego prioritario: ningún candidato pasó la validación")
+    return clip
+
+
+def _first_valid(ordered: list[dict], workdir: Path, want: str, verbose: bool) -> dict | None:
+    """Baja los candidatos en orden y devuelve el primero que pasa audio / watch-party / QC de fuente."""
     for cand in ordered[:TRY_TOP]:
+        streamer = cand["streamer"]
+        out = workdir / f"tw_{streamer}.mp4"
         if not download_hd(cand, out):
             continue
         spike = audio_spike(out)
@@ -282,6 +361,4 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
                   f"score {cand['score']:.2f}): {_s(cand['title'])!r}")
         return {"local_path": out, "id": cand["id"], "title": cand["title"],
                 "url": cand["url"], "streamer": streamer, "views": cand["views"]}
-    if verbose:
-        print(f"[streamers] {streamer}: ningún candidato pasó la validación")
     return None

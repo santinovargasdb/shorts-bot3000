@@ -37,17 +37,21 @@ def connect(path) -> sqlite3.Connection:
         conn.execute("ALTER TABLE clips ADD COLUMN qc_note TEXT")
     if "has_gameplay" not in cols:                  # migración: ¿el clip tiene gameplay? (layout)
         conn.execute("ALTER TABLE clips ADD COLUMN has_gameplay INTEGER")
+    if "priority" not in cols:                      # migración: clip del juego del momento (saltea la fila)
+        conn.execute("ALTER TABLE clips ADD COLUMN priority INTEGER")
     conn.commit()
     return conn
 
 
 def add_clip(conn, *, title, description, video_path, streamer, clip_id,
-             views=0, status="pending", qc_note="", has_gameplay: bool | None = None) -> int:
+             views=0, status="pending", qc_note="", has_gameplay: bool | None = None,
+             priority: bool = False) -> int:
     cur = conn.execute(
         "INSERT INTO clips (title, description, video_path, streamer, clip_id, views, status,"
-        " qc_note, has_gameplay, created_utc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+        " qc_note, has_gameplay, priority, created_utc)"
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
         (title, description, video_path, streamer, clip_id, int(views or 0), status, qc_note,
-         None if has_gameplay is None else int(has_gameplay)),
+         None if has_gameplay is None else int(has_gameplay), int(bool(priority))),
     )
     conn.commit()
     return int(cur.lastrowid)
@@ -61,6 +65,7 @@ def _row(r) -> dict:
             "qc_note": r["qc_note"] if "qc_note" in keys else "",
             "has_gameplay": (None if ("has_gameplay" not in keys or r["has_gameplay"] is None)
                              else bool(r["has_gameplay"])),
+            "priority": bool(r["priority"]) if "priority" in keys else False,
             "created_utc": r["created_utc"]}
 
 

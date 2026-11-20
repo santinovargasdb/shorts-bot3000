@@ -23,13 +23,23 @@ def _clean(t: str) -> str:
 
 
 def make_title(clip: dict) -> str:
-    return f"{_clean(clip['title'])} \U0001F602\U0001F3AE"
+    """Con `tag` (clip del juego prioritario, ej. 'GTA 6') el juego va adelante: es lo que se busca."""
+    title, tag = _clean(clip["title"]), clip.get("tag")
+    if tag and re.search(re.escape(tag), title, re.IGNORECASE):
+        # el título ya nombra el juego ('gta 6 borrado'): no repetirlo, solo emprolijar cómo se escribe
+        title = re.sub(re.escape(tag), tag, title, count=1, flags=re.IGNORECASE)
+    elif tag:
+        title = f"{tag}: {title}"
+    return f"{title} \U0001F602\U0001F3AE"
 
 
 def make_description(clip: dict) -> str:
     s = clip["streamer"]
     cred = f"\U0001F3A5 Clip: {s} — twitch.tv/{s}"
-    return f"{_clean(clip['title'])}\n\n{cred}\n\n{_HASHTAGS}\n\n{_DISCLAIMER}"
+    tags = _HASHTAGS
+    if clip.get("tag"):
+        tags = f"#{clip['tag'].replace(' ', '').lower()} {tags}"
+    return f"{_clean(clip['title'])}\n\n{cred}\n\n{tags}\n\n{_DISCLAIMER}"
 
 
 def content_mismatch(channel_content: str, has_gameplay: bool | None) -> bool:
@@ -75,7 +85,10 @@ def _name_platform(entry, default_platform: str) -> tuple[str, str]:
     return entry, default_platform
 
 
-def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | None:
+def build_clip(channel_key: str, *, conn=None, verbose: bool = True,
+               only_priority: bool = False) -> int | None:
+    """only_priority: arma SOLO si hay un clip del juego prioritario del canal (carril rápido
+    con el colchón lleno); si no hay, devuelve None sin caer a los clips comunes."""
     cfg = scfg.get(channel_key)
     own = conn or db.connect(cfg["db"])
     existing = db.all_clips(own)
@@ -88,7 +101,20 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     order = streamers[k:] + streamers[:k]
     default_plat = cfg.get("platform", "twitch")
     clip = None
-    for entry in order:
+    # Juego del momento: primero se busca el mejor clip fresco de ese juego entre TODOS los streamers.
+    pg = scfg.priority_game(cfg)
+    if pg:
+        clip = sourcing.best_game_clip([_name_platform(e, default_plat) for e in streamers], work,
+                                       used_ids=used, period=pg["period"],
+                                       want=cfg.get("content", "gameplay"), games=pg["names"],
+                                       min_views=pg.get("min_views", 0), verbose=verbose)
+        if clip:
+            clip["tag"] = pg["tag"]
+    if not clip and only_priority:
+        if verbose:
+            print(f"[{channel_key}] sin clip nuevo del juego prioritario")
+        return None
+    for entry in ([] if clip else order):
         name, platform = _name_platform(entry, default_plat)
         clip = sourcing.best_clip(name, work, used_ids=used, period=cfg.get("period", "30d"),
                                   want=cfg.get("content", "gameplay"),
@@ -191,7 +217,8 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
                        video_path=str(dst), streamer=clip["streamer"],
                        clip_id=clip["id"], views=clip.get("views", 0),
-                       status=status, qc_note=v.get("problema", ""))
+                       status=status, qc_note=v.get("problema", ""),
+                       priority=bool(clip.get("tag")))
     if has_gp is not None:
         db.set_gameplay(own, real, has_gp)
     if verbose:
@@ -201,7 +228,7 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True) -> int | No
     return real
 
 
-def build_backlog(channel_key: str, n: int = 5) -> int:
+def build_backlog(channel_key: str, n: int = 5, only_priority: bool = False) -> int:
     from collections import Counter
     from streamers import verify
     conn = db.connect(scfg.get(channel_key)["db"])
@@ -210,8 +237,10 @@ def build_backlog(channel_key: str, n: int = 5) -> int:
         if verify.QUOTA_HIT:          # cuota de Gemini agotada -> no malgastar renders en 'pending'
             print(f"[{channel_key}] cuota de QC agotada -> freno el build (reanuda cuando vuelva)")
             break
-        if build_clip(channel_key, conn=conn):
+        if build_clip(channel_key, conn=conn, only_priority=only_priority):
             made += 1
+        elif only_priority:           # no quedan clips del juego prioritario -> no seguir preguntando
+            break
     c = Counter(x["status"] for x in db.all_clips(conn))
     print(f"\n[{channel_key}] listo. El QC auto dejó: {c.get('approved', 0)} aprobados, "
           f"{c.get('rejected', 0)} rechazados, {c.get('pending', 0)} pendientes.")

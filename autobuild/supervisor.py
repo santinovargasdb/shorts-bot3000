@@ -116,6 +116,11 @@ def run(channels: list[str], dry_run: bool = False) -> list[Result]:
             _log("DRY " + _plan_line(ch, cfg))
             continue
         refiller = refillers.REFILLERS[cfg["gen"]]
+        if cfg["gen"] == "clips":       # juego del momento primero, aunque el colchón esté lleno
+            try:
+                refillers.topup_priority(ch, cfg["batch"])
+            except Exception as e:
+                _log(f"{ch:13} carril prioritario falló ({type(e).__name__}: {e}); sigo con el refill")
         r = refill_channel(ch, cfg, measure=lambda c: runway.parts_ahead(c),
                            refiller=refiller)
         _log(f"{r.channel:13} {r.parts_before}->{r.parts_after} (+{r.added})  "

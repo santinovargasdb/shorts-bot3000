@@ -19,6 +19,25 @@ def refill_clips(channel: str, n: int) -> None:
         raise QuotaExhausted(f"{channel}: cuota de Gemini agotada")
 
 
+PRIORITY_STOCK = 4      # clips del juego prioritario listos sin postear (2 días): más, se ponen viejos
+
+
+def topup_priority(channel: str, n: int) -> None:
+    """Carril rápido del juego del momento: arma clips de ESE juego aunque el colchón esté lleno
+    (si no, con el backlog en objetivo nunca se sourcearían). No hace nada si el canal no tiene
+    juego prioritario vigente o ya hay PRIORITY_STOCK esperando turno."""
+    from streamers import config as scfg, verify
+    from streamers.build import build_backlog
+    from autobuild import runway
+    if not scfg.priority_game(scfg.get(channel)):
+        return
+    falta = PRIORITY_STOCK - runway.priority_pending(channel)
+    if falta <= 0:
+        return
+    verify.reset_quota()
+    build_backlog(channel, min(n, falta), only_priority=True)
+
+
 def refill_whatonearth(channel: str, n: int) -> None:
     from whatonearth.build import build_video
     for _ in range(n):
