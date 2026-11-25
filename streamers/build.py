@@ -19,7 +19,9 @@ _DISCLAIMER = ("Clip del streamer original. Si es tuyo y querés crédito o que 
 
 
 def _clean(t: str) -> str:
-    return (re.sub(r"\s+", " ", (t or "").strip())[:80]) or "Momentazo"
+    t = re.sub(r"\s+", " ", (t or "").strip())[:80]
+    # un título de puro signo (".", "???") no dice nada: salió "GTA 6: . 😂🎮"
+    return t if len(re.findall(r"\w", t)) >= 2 else "Momentazo"
 
 
 def make_title(clip: dict) -> str:

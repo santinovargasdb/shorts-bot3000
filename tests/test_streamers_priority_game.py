@@ -171,3 +171,10 @@ def test_colchon_no_cuenta_prioritarias_ya_posteadas(tmp_path, monkeypatch):
         "instagram": {"next_part": 83, "posted": [{"part": 82}, {"part": 150}]}}}), encoding="utf-8")
     monkeypatch.setattr(rw, "available_parts", lambda ch: {83, 84, 150})
     assert rw.parts_ahead("streamers_c", state) == 2
+
+
+def test_titulo_de_puro_signo_cae_al_generico():
+    from streamers.build import make_title
+    assert make_title({"title": ".", "tag": "GTA 6"}) == "GTA 6: Momentazo 😂🎮"
+    assert make_title({"title": "???"}) == "Momentazo 😂🎮"
+    assert make_title({"title": "ah"}) == "ah 😂🎮"
