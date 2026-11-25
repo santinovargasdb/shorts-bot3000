@@ -68,7 +68,7 @@ def test_juego_prioritario_elige_el_mejor_entre_todos_los_streamers(monkeypatch,
     monkeypatch.setattr(sourcing, "score_titles", lambda *a, **k: None)
     vistos = []
     monkeypatch.setattr(sourcing, "_first_valid",
-                        lambda ordered, *a: vistos.extend(c["id"] for c in ordered))
+                        lambda ordered, *a, **k: vistos.extend(c["id"] for c in ordered))
     sourcing.best_game_clip([("alexby11", "twitch"), ("illojuan", "twitch"), ("ibai", "twitch")],
                             tmp_path, used_ids={"d"}, games=PG["names"], min_views=500, verbose=False)
     # por views entre todos; afuera el ya usado, el de 15 views y el de título autogenerado

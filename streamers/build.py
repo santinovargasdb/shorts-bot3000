@@ -3,6 +3,7 @@ el mejor clip (HD, 'va a pegar') -> lo pasa por el pipeline (layout gaming/facec
 guarda video + metadata en la db. daily_post lo postea tal cual (video_path_for)."""
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import sys
@@ -79,6 +80,15 @@ def language_mismatch(expected: str | None, detected: tuple[str, float, int] | N
     return lang != expected and prob >= min_prob and words >= min_words
 
 
+def _transcript_of(rendered: Path) -> str:
+    """Lo que se dice en el clip, del .json borrador que el render deja al lado del video."""
+    try:
+        meta = json.loads(Path(rendered).with_suffix(".json").read_text(encoding="utf-8"))
+        return meta.get("description", "").split("\n\n")[0]
+    except Exception:
+        return ""
+
+
 def _name_platform(entry, default_platform: str) -> tuple[str, str]:
     """Un streamer se declara como 'nombre' (usa la plataforma por defecto del canal) o como
     ('nombre', 'plataforma') para mezclar Twitch y Kick en un mismo canal (ej. IRL inglés)."""
@@ -109,7 +119,8 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True,
         clip = sourcing.best_game_clip([_name_platform(e, default_plat) for e in streamers], work,
                                        used_ids=used, period=pg["period"],
                                        want=cfg.get("content", "gameplay"), games=pg["names"],
-                                       min_views=pg.get("min_views", 0), verbose=verbose)
+                                       min_views=pg.get("min_views", 0), verbose=verbose,
+                                       bottom_cut=pg.get("layout") == "juego")
         if clip:
             clip["tag"] = pg["tag"]
     if not clip and only_priority:
@@ -181,6 +192,9 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True,
         ov["_has_gameplay"] = has_gp
     if cfg.get("layout_override"):                  # canal C (IRL): fuerza facecam-only
         ov["layout"] = cfg["layout_override"]
+    variant = ""
+    if clip.get("tag") and pg and pg.get("layout"):  # juego del momento: formato propio
+        ov["layout"] = variant = pg["layout"]
     if cfg.get("language"):                         # idioma de transcripción por canal (C=en, A/B=es)
         ov["language"] = cfg["language"]
     wm = ROOT / "branding" / channel_key / "watermark.png"
@@ -204,6 +218,8 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True,
             print(f"[{channel_key}] el render no produjo short")
         return None
 
+    transcript = _transcript_of(outs[0])       # el .json del render queda al lado del video
+
     seq = (max([v["seq"] for v in existing], default=0)) + 1
     dst_dir = ROOT / "output" / channel_key
     dst_dir.mkdir(parents=True, exist_ok=True)
@@ -213,14 +229,26 @@ def build_clip(channel_key: str, *, conn=None, verbose: bool = True,
     # QC AUTOMÁTICO con visión (Gemini): aprueba/rechaza solo (plug-and-forget).
     # ok=None (sin GEMINI_API_KEY o error) -> queda PENDING para revisión manual.
     from streamers.verify import verify_clip
-    v = verify_clip(dst, verbose=verbose)
+    v = verify_clip(dst, verbose=verbose, layout=variant)
     status = {True: "approved", False: "rejected"}.get(v["ok"], "pending")
 
-    real = db.add_clip(own, title=make_title(clip), description=make_description(clip),
+    # Juego del momento: título que describe lo que pasa (no el del clip de Twitch), armado desde
+    # lo que el QC vio en el juego + lo que se dice. Si no sale, queda el título de siempre.
+    title = make_title(clip)
+    if clip.get("tag") and pg and pg.get("smart_title"):
+        from streamers.titles import game_title
+        smart = game_title(clip["title"], transcript, clip["tag"], clip["streamer"],
+                           seen=v.get("que_pasa", ""))
+        if smart:
+            title = smart
+            if verbose:
+                print(f"[{channel_key}] título: {clip['title']!r} -> {smart!r}")
+
+    real = db.add_clip(own, title=title, description=make_description(clip),
                        video_path=str(dst), streamer=clip["streamer"],
                        clip_id=clip["id"], views=clip.get("views", 0),
                        status=status, qc_note=v.get("problema", ""),
-                       priority=bool(clip.get("tag")))
+                       priority=bool(clip.get("tag")), variant=variant)
     if has_gp is not None:
         db.set_gameplay(own, real, has_gp)
     if verbose:

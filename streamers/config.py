@@ -31,6 +31,11 @@ CHANNELS = {
             "period": "7d",            # solo clips frescos
             "min_views": 500,          # views en Twitch: menos que eso, no lo miró nadie
             "until": "2026-12-15",
+            # Prueba desde 25-nov-2026: el juego a pantalla completa (sin panel de cara ni
+            # satisfactorio) y título que describe el momento. Los 6 clips anteriores, en el
+            # formato de siempre, hicieron ~1.465 de mediana. Borrar estas dos líneas para volver.
+            "layout": "juego",
+            "smart_title": True,
         },
     },
     "streamers_b": {

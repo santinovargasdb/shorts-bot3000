@@ -39,12 +39,20 @@ _SRC_DEALBREAKERS = (
     "re-editar a un short vertical con NUESTROS subtítulos. Decime si NO conviene usarlo: ok=false si:\n"
     "- NSFW (lo más grave, banea la cuenta): desnudez, genitales, sexual, gore/sangre extrema. "
     "Ante la duda, false.\n"
-    "- SUBTÍTULOS/TEXTO QUEMADOS: el clip YA trae subtítulos o texto grande encima (ya está "
-    "editado) -> si lo re-subtitulamos quedarían DOBLES.\n"
+    "{subs}"
     "- MULTI-STREAMER: mosaico/grilla de varias caras de streamers (watch-party).\n"
     "- Un overlay/ventana/alerta que TAPA la cara del streamer o cubre casi toda la pantalla. "
     "OJO: el CHAT de Twitch chico a un costado es ACEPTABLE (suma contexto) -> NO lo rechaces por eso.\n"
     "- Pantalla estática / sin nada pasando / solo un menú o texto.\n")
+_SRC_SUBS = (
+    "- SUBTÍTULOS/TEXTO QUEMADOS: el clip YA trae subtítulos o texto grande encima (ya está "
+    "editado) -> si lo re-subtitulamos quedarían DOBLES.\n")
+# Formato "juego": el render descarta la franja de abajo del clip, así que lo que haya ahí
+# (subtítulos automáticos del clip, subtítulos del propio juego) no llega al short.
+_SRC_SUBS_CUT = (
+    "- SUBTÍTULOS/TEXTO QUEMADOS EN EL CENTRO O ARRIBA de la imagen (texto grande encima del "
+    "juego). OJO: lo que esté en la FRANJA DE ABAJO (el 15% inferior: subtítulos del clip o del "
+    "propio juego) NO importa, esa franja se recorta -> NO rechaces por eso.\n")
 _SRC_GAMEPLAY = (
     "- NO hay ningún VIDEOJUEGO en pantalla: es solo el streamer hablando/IRL. Este canal es de "
     "GAMEPLAY; el contenido IRL/charla va a OTRA cuenta, así que acá IRL = descartar.\n")
@@ -191,20 +199,49 @@ def _check(video_path, prompt: str, label: str, verbose: bool) -> dict:
     ok = bool(v.get("ok"))
     if verbose:
         print(f"[qc] {label}: {'OK' if ok else 'RECHAZADO'} {v.get('problema', '')[:55]}")
-    return {"ok": ok, "problema": str(v.get("problema", ""))}
+    out = {"ok": ok, "problema": str(v.get("problema", ""))}
+    if v.get("que_pasa"):                 # solo el QC del formato "juego" lo pide (para el título)
+        out["que_pasa"] = str(v["que_pasa"])[:300]
+    return out
 
 
-def verify_source(video_path, want: str = "gameplay", verbose: bool = True) -> dict:
+def verify_source(video_path, want: str = "gameplay", verbose: bool = True,
+                  bottom_cut: bool = False) -> dict:
     """Chequeo del clip CRUDO ANTES de renderizar. ok False -> no vale la pena editarlo.
     want: 'gameplay' (A/B, descarta IRL) | 'irl' (C, descarta gameplay) | 'any' (acepta ambos)."""
     clause = {"gameplay": _SRC_GAMEPLAY, "irl": _SRC_IRL}.get(want, "")
-    prompt = _SRC_DEALBREAKERS + clause + _SRC_END
+    prompt = (_SRC_DEALBREAKERS.format(subs=_SRC_SUBS_CUT if bottom_cut else _SRC_SUBS)
+              + clause + _SRC_END)
     return _check(video_path, prompt, "fuente", verbose)
 
 
-def verify_clip(video_path, verbose: bool = True) -> dict:
+# Chequeo del short en formato "juego" (juego del momento a pantalla completa).
+_PROMPT_JUEGO = (
+    "Sos control de calidad de un canal de Shorts de clips de un VIDEOJUEGO. El video YA fue "
+    "editado por NOSOTROS con este formato VÁLIDO (NO es un error): el JUEGO a pantalla completa "
+    "en vertical, a veces con un recuadro chico de la cámara del streamer arriba a la izquierda, "
+    "y NUESTROS subtítulos (Montserrat blanca con una palabra en ROJO, en itálica) en el tercio "
+    "de abajo.\n"
+    "Marcá ok=false si ves CUALQUIERA de estos problemas:\n"
+    "- CONTENIDO NSFW (lo más grave, banea la cuenta): desnudez, genitales, contenido sexual, "
+    "gore/sangre extrema. Ante la duda, false.\n"
+    "- EL JUEGO NO SE VE: lo que llena la pantalla NO es el juego en acción, sino un menú, una "
+    "pantalla de carga, un cartel/overlay/sorteo del stream, el juego borroneado o tapado, o la "
+    "cara del streamer en grande.\n"
+    "- SUBTÍTULOS DOBLES: además de los nuestros hay OTROS subtítulos o texto grande quemado del "
+    "clip original. OJO: los subtítulos PROPIOS DEL JUEGO (chicos, del diálogo de los personajes) "
+    "son normales -> NO rechaces por eso.\n"
+    "- Imagen MUY borrosa/pixelada o pantalla estática sin nada pasando.\n"
+    "Si está limpio, ok=true.\n"
+    "Además, en \"que_pasa\" describí en UNA frase corta y concreta lo que pasa EN EL JUEGO en "
+    "estas imágenes (personajes, vehículos, lugar, acción). Solo lo que se ve, sin inventar.\n"
+    'Respondé SOLO JSON: {"ok": true/false, "problema": "breve o vacío", "que_pasa": "frase"}'
+)
+
+
+def verify_clip(video_path, verbose: bool = True, layout: str = "") -> dict:
     """Chequeo de NUESTRO short ya renderizado. ok True -> approved, False -> rejected."""
-    return _check(video_path, _PROMPT, "final", verbose)
+    return _check(video_path, _PROMPT_JUEGO if layout == "juego" else _PROMPT, "final", verbose)
 
 
 _GAMEPLAY_PROMPT = (

@@ -39,19 +39,21 @@ def connect(path) -> sqlite3.Connection:
         conn.execute("ALTER TABLE clips ADD COLUMN has_gameplay INTEGER")
     if "priority" not in cols:                      # migración: clip del juego del momento (saltea la fila)
         conn.execute("ALTER TABLE clips ADD COLUMN priority INTEGER")
+    if "variant" not in cols:                       # migración: formato con que se renderizó (para medir pruebas)
+        conn.execute("ALTER TABLE clips ADD COLUMN variant TEXT")
     conn.commit()
     return conn
 
 
 def add_clip(conn, *, title, description, video_path, streamer, clip_id,
              views=0, status="pending", qc_note="", has_gameplay: bool | None = None,
-             priority: bool = False) -> int:
+             priority: bool = False, variant: str = "") -> int:
     cur = conn.execute(
         "INSERT INTO clips (title, description, video_path, streamer, clip_id, views, status,"
-        " qc_note, has_gameplay, priority, created_utc)"
-        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
+        " qc_note, has_gameplay, priority, variant, created_utc)"
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))",
         (title, description, video_path, streamer, clip_id, int(views or 0), status, qc_note,
-         None if has_gameplay is None else int(has_gameplay), int(bool(priority))),
+         None if has_gameplay is None else int(has_gameplay), int(bool(priority)), variant or None),
     )
     conn.commit()
     return int(cur.lastrowid)
@@ -66,6 +68,7 @@ def _row(r) -> dict:
             "has_gameplay": (None if ("has_gameplay" not in keys or r["has_gameplay"] is None)
                              else bool(r["has_gameplay"])),
             "priority": bool(r["priority"]) if "priority" in keys else False,
+            "variant": (r["variant"] or "") if "variant" in keys else "",
             "created_utc": r["created_utc"]}
 
 

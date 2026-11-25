@@ -305,7 +305,8 @@ def best_clip(streamer: str, workdir, used_ids=None, period: str = "30d",
 
 
 def best_game_clip(streamers, workdir, used_ids=None, period: str = "7d", want: str = "gameplay",
-                   games=(), min_views: int = 0, verbose: bool = True) -> dict | None:
+                   games=(), min_views: int = 0, verbose: bool = True,
+                   bottom_cut: bool = False) -> dict | None:
     """El mejor clip de `games` entre TODOS los streamers juntos (lista de (nombre, plataforma)).
     Rankear de a un streamer se quedaba con el primero que tuviera algo: salían clips de 15 views
     habiendo otros de 60.000 en el streamer de al lado. `min_views` descarta los que nadie miró."""
@@ -325,14 +326,17 @@ def best_game_clip(streamers, workdir, used_ids=None, period: str = "7d", want: 
     if verbose:
         print(f"[streamers] juego prioritario: {len(ordered)} candidatos rankeados "
               f"({len({c['streamer'] for c in ordered})} streamers)")
-    clip = _first_valid(ordered, workdir, want, verbose)
+    clip = _first_valid(ordered, workdir, want, verbose, bottom_cut=bottom_cut)
     if not clip and verbose:
         print("[streamers] juego prioritario: ningún candidato pasó la validación")
     return clip
 
 
-def _first_valid(ordered: list[dict], workdir: Path, want: str, verbose: bool) -> dict | None:
-    """Baja los candidatos en orden y devuelve el primero que pasa audio / watch-party / QC de fuente."""
+def _first_valid(ordered: list[dict], workdir: Path, want: str, verbose: bool,
+                 bottom_cut: bool = False) -> dict | None:
+    """Baja los candidatos en orden y devuelve el primero que pasa audio / watch-party / QC de fuente.
+    `bottom_cut`: el render va a descartar la franja de abajo (formato "juego"), así que los
+    subtítulos que el clip traiga ahí no son motivo de rechazo."""
     for cand in ordered[:TRY_TOP]:
         streamer = cand["streamer"]
         out = workdir / f"tw_{streamer}.mp4"
@@ -350,7 +354,7 @@ def _first_valid(ordered: list[dict], workdir: Path, want: str, verbose: bool) -
             out.unlink(missing_ok=True)
             continue
         from streamers.verify import verify_source   # QC con visión del clip CRUDO (pre-render)
-        src = verify_source(out, want=want, verbose=verbose)
+        src = verify_source(out, want=want, verbose=verbose, bottom_cut=bottom_cut)
         if src["ok"] is False:                 # NSFW / subs quemados / grilla / chat -> no renderizar
             if verbose:
                 print(f"[streamers]   descartado (QC fuente: {src['problema'][:40]}): {_s(cand['title'])!r}")
