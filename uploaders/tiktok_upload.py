@@ -296,9 +296,14 @@ def creator_info(token_file: Path | None = None) -> dict:
 
 def publish_direct(video_path: Path | str, title: str, privacy_level: str,
                    disable_comment: bool = False, disable_duet: bool = False,
-                   disable_stitch: bool = False, token_file: Path | None = None) -> str:
+                   disable_stitch: bool = False, token_file: Path | None = None,
+                   brand_content_toggle: bool = False,
+                   brand_organic_toggle: bool = False) -> str:
     """Publica el mp4 DIRECTO en TikTok (requiere scope video.publish y app
-    auditada; con app sin auditar el post queda privado). Devuelve publish_id."""
+    auditada; con app sin auditar el post queda privado). Devuelve publish_id.
+
+    `brand_organic_toggle` = promociona al propio creador ("Your brand");
+    `brand_content_toggle` = promociona a un tercero ("Branded content")."""
     video_path = Path(video_path)
     size = video_path.stat().st_size
     token = _get_token(token_file)
@@ -314,6 +319,8 @@ def publish_direct(video_path: Path | str, title: str, privacy_level: str,
             "disable_comment": disable_comment,
             "disable_duet": disable_duet,
             "disable_stitch": disable_stitch,
+            "brand_content_toggle": brand_content_toggle,
+            "brand_organic_toggle": brand_organic_toggle,
         },
         "source_info": {
             "source": "FILE_UPLOAD",

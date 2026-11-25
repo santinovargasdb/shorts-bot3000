@@ -129,3 +129,22 @@ scope de más abajo, que no tienen ese límite.)
 - [ ] Volver la cuenta a público + borrar posts privados de prueba y borradores
 - [ ] Al aprobarse: `.env` → credenciales TIKTOK_PROD_*, re-autorizar, y migrar
       `daily_post.do_tiktok` de `upload_draft` a `publish_direct` (full-auto)
+
+---
+
+# Auditoría de Direct Post (Content Posting API) — 25-nov-2026
+
+Trámite APARTE del review de la app (aprobada el 4-nov). Sin esta auditoría el direct
+post da `unaudited_client_can_only_post_to_private_accounts`.
+
+- **Organization name:** `En 60 Segundos` · **Website:** https://santinovargasdb.github.io/en60segundos/
+- **App ID:** copiarlo del portal (Manage apps → app de producción). No es el Client key.
+- **Usuarios por día:** Less than 100 (4 cuentas conectadas × hasta 2 videos/día).
+- **Video:** `tiktok_audit_demo.mp4`, se graba con `grabar_auditoria_tiktok.bat`
+  (pantalla `tiktok_post_ui.py`, que implementa las Content Sharing Guidelines).
+  Practicar antes con `grabar_auditoria_tiktok.bat ensayo` (simulado, no toca TikTok).
+- **Antes de grabar:** cuenta de TikTok en PRIVADO. **Después:** borrar el post de prueba
+  y volverla a público.
+- **Campos guardados (API response data fields):** del token OAuth: access_token,
+  refresh_token, expires_in, refresh_expires_in, open_id, scope, token_type; del posteo:
+  publish_id. creator_info y el status se leen al publicar y no se guardan.

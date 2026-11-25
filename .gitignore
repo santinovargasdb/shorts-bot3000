@@ -97,3 +97,6 @@ calendario/
 perfiles/
 perfil.json
 .matriz/
+
+# Grabacion cruda de pantalla (demo/auditoria de TikTok): nunca al repo publico
+*.mkv
