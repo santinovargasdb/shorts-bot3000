@@ -176,6 +176,43 @@ def _grounding(client, model, familia: str, avoid: str, titulos: str, extra: dic
             f"escrito acá.\n" + "\n".join(bloques) + "\n")
 
 
+_PROMPT_REEMPAQUE = """Estos son los datos FINALES (ya verificados) de un short de curiosidades en
+español. Armá el empaque para ESTOS datos, sin agregar nada que no digan:
+
+{datos}
+
+Respondé SOLO JSON con claves exactas:
+- "primero": el número del dato MÁS impactante o visual (el que hace decir "¿en serio?"): abre el video.
+- "gancho": una PREGUNTA corta (seis a catorce palabras) sobre ESE dato, que abre una intriga SIN
+  responderla y sin afirmar nada que el dato no diga (ej. "¿Qué país perdió una guerra contra unos
+  pájaros?"). Sin dígitos, sin "sabías que", sin saludo.
+- "titulo": título de 30 a 60 caracteres que promete algo concreto y vale para TODOS los datos de
+  la lista (no nombres un sujeto que no esté). En español, sin palabras en inglés.
+- "resumen": UNA línea en español que lista los datos con su nombre común."""
+
+
+def reempaque(client, model, datos: list) -> dict:
+    """Gancho + título + resumen para los datos que SOBREVIVIERON al juez. El empaque original se
+    escribió para la lista entera: cuando el juez sacaba el 1er dato el episodio salía sin
+    pregunta-gancho, con un título que prometía un sujeto que ya no estaba y el resumen en inglés
+    (medido nov-2026: esos retienen la mitad). {} si el modelo no devuelve algo usable."""
+    lista = "\n".join(f"{i}. {d['text']}" for i, d in enumerate(datos))
+    extra = {"max_tokens": 2000}
+    if "gpt-oss" in str(model):
+        extra["reasoning_effort"] = "low"
+    try:
+        raw = _chat(client, model, _PROMPT_REEMPAQUE.format(datos=lista), temperature=0.5, **extra)
+        text = (raw or "").strip()
+        data = json.loads(text[text.find("{"):text.rfind("}") + 1])
+        primero = int(data.get("primero", 0))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(data, dict) or not (0 <= primero < len(datos)):
+        return {}
+    return {"primero": primero, "gancho": str(data.get("gancho", "")),
+            "titulo": str(data.get("titulo", "")), "resumen": str(data.get("resumen", ""))}
+
+
 def generate_episode(client, model, avoid_topics: list, n_datos: int = 10,
                      avoid_titles: list | None = None, familia: str | None = None) -> dict:
     import random

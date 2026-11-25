@@ -32,6 +32,9 @@ def _wire(monkeypatch, *, judge_ok=True):
     monkeypatch.setattr(B, "model_name", lambda: "m")
     monkeypatch.setattr(B.topics, "used_topics", lambda ch: set())
     monkeypatch.setattr(B, "_sources", lambda datos: [None] * len(datos))
+    monkeypatch.setattr(B.generate, "reempaque",
+                        lambda client, model, datos: {"primero": 0, "gancho": "¿Qué tiene de raro este dato nuevo?",
+                                                      "titulo": "", "resumen": ""})
     monkeypatch.setattr(B.generate, "generate_episode",
                         lambda client, model, avoid_topics, n_datos=6, avoid_titles=None:
                         {"pregunta": "¿?", "resumen": "r", "datos": _datos(6)})
@@ -279,7 +282,36 @@ def test_build_no_usa_el_gancho_si_el_juez_saco_el_primer_dato(tmp_path, monkeyp
     monkeypatch.setattr(B.judge, "judge_datos", lambda c, m, datos, **k: {"falsos": {0}, "problema": "x"})
     assert B.build("faceless", n=1) == 1
     primero = db.approved_episodes("faceless")[0]["segments"][0]["text"]
-    assert "¿Qué tiene de raro" not in primero
+    assert "¿Qué tiene de raro el dato cero?" not in primero
+
+
+def test_build_reempaqueta_si_se_perdio_el_gancho(tmp_path, monkeypatch):
+    # el juez sacó el 1er dato: gancho, título y resumen se rehacen sobre los datos que quedaron,
+    # y el dato elegido pasa a abrir el video
+    monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / "faceless.sqlite")
+    _wire(monkeypatch, judge_ok=True)
+    monkeypatch.setattr(B.generate, "generate_episode",
+                        lambda *a, **k: {"pregunta": "¿?", "resumen": "r", "titulo": "Título de prueba largo",
+                                         "gancho": "¿Qué tiene de raro el dato cero?", "datos": _datos(6)})
+    # cada pasada del juez saca el primero que ve: quedan t2..t5
+    monkeypatch.setattr(B.judge, "judge_datos", lambda c, m, datos, **k: {"falsos": {0}, "problema": "x"})
+    monkeypatch.setattr(B.generate, "reempaque",
+                        lambda c, m, datos: {"primero": 2, "gancho": "¿Qué esconde el dato cuatro?",
+                                             "titulo": "Título nuevo de prueba", "resumen": "resumen nuevo"})
+    assert B.build("faceless", n=1) == 1
+    ep = db.approved_episodes("faceless")[0]
+    assert ep["segments"][0]["text"].startswith("¿Qué esconde el dato cuatro? dato t4 sin numeros.")
+    assert ep["titulo"] == "Título nuevo de prueba" and ep["resumen"] == "resumen nuevo"
+
+
+def test_build_rechaza_si_no_hay_gancho_ni_reempaque(tmp_path, monkeypatch):
+    monkeypatch.setattr(db, "DB_PATH", lambda ch: tmp_path / "faceless.sqlite")
+    _wire(monkeypatch, judge_ok=True)
+    monkeypatch.setattr(B.generate, "reempaque", lambda c, m, datos: {})
+    assert B.build("faceless", n=1) == 0
+    conn = db.connect(db.DB_PATH("faceless"))
+    assert "sin pregunta-gancho" in db.by_status(conn, "rejected")[0]["qc_note"]
+    conn.close()
 
 
 def test_build_usa_el_gancho_si_el_primer_dato_sobrevive(tmp_path, monkeypatch):

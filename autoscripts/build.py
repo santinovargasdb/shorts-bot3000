@@ -264,12 +264,29 @@ def build(channel: str, n: int = 3) -> int:
                 raise QuotaExhausted(f"{channel}: cuota de Groq agotada")
             print(f"[{channel}] intento falló: {type(e).__name__}: {e}")
             continue
-        conn = db.connect(db.DB_PATH(channel))
         titulo = _clean_title(ep.get("titulo", ""))
         # La pregunta-gancho se escribió para el 1er dato ORIGINAL: si el dedup o el juez lo
         # sacaron, respondería a otro dato -> no va.
         primero_original = (ep.get("datos") or [{}])[0]
         gancho = clean_gancho(ep.get("gancho", "")) if datos and datos[0] is primero_original else ""
+        # Sin gancho el short abre con un dato suelto y la gente se va (medido nov-2026: ~30% de
+        # retención contra ~60% con pregunta). Se re-empaqueta sobre los datos que quedaron; si ni
+        # así hay pregunta, el episodio no se aprueba.
+        if verdict["ok"] and not gancho:
+            try:
+                nuevo = generate.reempaque(client, model, datos)
+            except Exception as e:
+                if _is_quota(e):
+                    raise QuotaExhausted(f"{channel}: cuota de Groq agotada")
+                nuevo = {}
+            gancho = clean_gancho(nuevo.get("gancho", ""))
+            if gancho:
+                datos.insert(0, datos.pop(nuevo["primero"]))
+                titulo = _clean_title(nuevo.get("titulo", "")) or titulo
+                ep["resumen"] = nuevo.get("resumen", "").strip() or ep["resumen"]
+            else:
+                verdict = {"ok": False, "problema": (verdict["problema"] + " | sin pregunta-gancho").strip(" |")}
+        conn = db.connect(db.DB_PATH(channel))
         episode = {"pregunta": ep["pregunta"], "resumen": ep["resumen"],
                    "segments": assemble_segments(datos, titulo, gancho)}
         if titulo:
