@@ -100,3 +100,8 @@ perfil.json
 
 # Grabacion cruda de pantalla (demo/auditoria de TikTok): nunca al repo publico
 *.mkv
+
+# Material de trabajo local que no va al repo publico
+sondeo_yt_misterios/
+.patch_guion.ps1
+yt_api_quota_followup.md
