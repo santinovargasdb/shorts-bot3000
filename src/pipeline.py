@@ -46,6 +46,18 @@ def _satisfy_for_channel(channel, use_gaming, picker, no_face=False):
     return (got[0] if len(got) > 0 else None, got[1] if len(got) > 1 else None)
 
 
+def _cam_box(fb) -> tuple[int, int, int, int]:
+    """Box de la facecam estimado desde la cara (YuNet da la cara "tight"; la cam es ~4x el
+    ancho de la cara). Multiplicadores altos = menos upscale del panel y más cabeza+hombros
+    (no una cara recortada y blanda)."""
+    cx, cy, fw, fh, W, H = fb
+    cam_w = min(W, fw * 4.0)
+    cam_h = min(H, fh * 3.2)
+    cam_x = max(0, min(cx - cam_w / 2, W - cam_w))
+    cam_y = max(0, min(cy - cam_h * 0.5, H - cam_h))
+    return (int(cam_x), int(cam_y), int(cam_w), int(cam_h))
+
+
 def _classify_mood(transcript: str) -> str:
     """'emotivo' | 'epico' | 'gracioso' según el transcript, vía LLM (Groq). Default epico."""
     try:
@@ -161,7 +173,21 @@ def process_source(
     face_box = None
     layout = ""
     caption = channel["caption"]
-    if channel.get("face_crop"):
+    if channel.get("layout") == "juego":
+        # Juego del momento: el JUEGO a pantalla completa. La cam del streamer solo va de
+        # recuadro chico si es un box chico de la fuente (si la cara llena el cuadro no hay juego).
+        from .facecrop import detect_face
+        layout = "juego"
+        # max_hold: en estos clips el streamer habla de a ratos; sin tope, la última frase
+        # quedaba clavada en pantalla 20 segundos mientras solo pasaba el juego.
+        caption = {**channel["caption"], "margin_v": int(channel.get("caption_margin_juego", 480)),
+                   "max_hold": 1.0}
+        fb = detect_face(source)
+        if fb and fb[4] and (fb[2] / fb[4]) < float(channel.get("gaming_face_frac", 0.18)):
+            face_box = _cam_box(fb)
+        if verbose:
+            print(f"[{channel_name}] Layout: JUEGO pantalla completa (recuadro cam {face_box})")
+    elif channel.get("face_crop"):
         from .facecrop import detect_face, facecam_crop
         fb = detect_face(source)
         if fb:
@@ -172,14 +198,7 @@ def process_source(
                 lay == "auto" and frac < float(channel.get("gaming_face_frac", 0.18)))
             if gaming:
                 layout = "gaming"
-                # Box de la facecam estimado desde la cara (YuNet da la cara "tight"; la cam
-                # es ~4x el ancho de la cara). Multiplicadores altos = menos upscale del panel
-                # superior y más cabeza+hombros (no una cara recortada y blanda).
-                cam_w = min(W, fw * 4.0)
-                cam_h = min(H, fh * 3.2)
-                cam_x = max(0, min(cx - cam_w / 2, W - cam_w))
-                cam_y = max(0, min(cy - cam_h * 0.5, H - cam_h))
-                face_box = (int(cam_x), int(cam_y), int(cam_w), int(cam_h))
+                face_box = _cam_box(fb)
                 caption = {**channel["caption"],
                            "margin_v": int(channel.get("caption_margin_gaming", 560))}
             else:
@@ -212,7 +231,7 @@ def process_source(
         tmp_out = f"{source.stem}_clip{i:02d}.mp4"
         if verbose:
             print(f"[{channel_name}] Render {i}/{len(clips)}  ({clip.start:.0f}s → {clip.end:.0f}s)...")
-        if channel.get("satisfying"):
+        if channel.get("satisfying") and layout != "juego":
             from streamers.verify import classify_gameplay
             from streamers.satisfying import pick_for
             has_gp = channel.get("_has_gameplay")

@@ -175,6 +175,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         )
 
     groups = _group_words(words, max_words, max_chars, boundaries=boundaries)
+    max_hold = float(caption.get("max_hold") or 0)   # 0 = línea persistente (comportamiento de siempre)
 
     for gi, group in enumerate(groups):
         # Fin del grupo: hasta el arranque del siguiente grupo (línea persistente)
@@ -184,6 +185,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         for wi, w in enumerate(group):
             start = w.start - offset
             end = (group[wi + 1].start if wi + 1 < len(group) else group_end) - offset
+            if max_hold:      # habla salteada: la línea no queda clavada durante el silencio
+                end = min(end, w.end - offset + max_hold)
             if end <= start:
                 end = start + 0.15
             if end <= 0:

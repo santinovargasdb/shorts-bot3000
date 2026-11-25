@@ -37,6 +37,12 @@ def _punch_filter(interval: float, amount: float, hold: float) -> str:
     return f"fps=30,zoompan=z='{z}':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':fps=30"
 
 
+# Layout "juego": recuadro de la cam del streamer (ancho y esquina). Y=150 lo deja debajo de
+# los íconos de arriba de la UI de Shorts.
+JUEGO_PIP_W, JUEGO_PIP_X, JUEGO_PIP_Y = 330, 36, 150
+JUEGO_CUT = 0.16      # fracción de abajo de la fuente que se descarta (subtítulos del clip/juego)
+
+
 def _layout_graph(
     layout: str,
     face_box,
@@ -168,7 +174,28 @@ def render_short(
         _next += 1
         _use_sat = True
 
-    if _use_sat:
+    if layout == "juego":
+        # JUEGO A PANTALLA COMPLETA (juego del momento): el juego llena el 9:16 recortando los
+        # costados; la cam del streamer, si hay, va de recuadro chico arriba a la izquierda.
+        # Sin satisfactorios ni panel de cara: lo que se vende es lo que pasa en el juego.
+        # Se descarta la franja de abajo de la fuente: ahí vienen los subtítulos automáticos del
+        # clip de Twitch y los del propio juego, que quedaban DOBLES con los nuestros.
+        game = (f"crop=iw:trunc(ih*{1 - JUEGO_CUT:.2f}/2)*2:0:0,"
+                f"scale={width}:{height}:force_original_aspect_ratio=increase:flags=lanczos,"
+                f"crop={width}:{height},setsar=1")
+        post = f"{grade}," if grade else ""
+        if face_box:
+            fx, fy, fw_, fh_ = [int(v) for v in face_box]
+            vfc = ";".join([
+                "[0:v]split=2[gb][fa]",
+                f"[gb]{game}[game]",
+                f"[fa]crop={fw_}:{fh_}:{fx}:{fy},scale={JUEGO_PIP_W}:-2:flags=lanczos,setsar=1[face]",
+                f"[game][face]overlay={JUEGO_PIP_X}:{JUEGO_PIP_Y}[comp]",
+                f"[comp]{post}{subs}[v]",
+            ])
+        else:
+            vfc = f"[0:v]{game},{post}{subs}[v]"
+    elif _use_sat:
         vfc = _layout_graph(layout, face_box, width, height, punch, grade, subs, sat_top_idx, sat_bot_idx)
     elif layout == "gaming" and face_box:
         # Layout 2 PANELES (clips CON gameplay): cara arriba, gameplay al medio, negro abajo
