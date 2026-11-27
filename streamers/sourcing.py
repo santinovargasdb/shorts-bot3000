@@ -364,5 +364,6 @@ def _first_valid(ordered: list[dict], workdir: Path, want: str, verbose: bool,
             print(f"[streamers]   ELEGIDO (spike {spike:.2f}, views {cand['views']}, "
                   f"score {cand['score']:.2f}): {_s(cand['title'])!r}")
         return {"local_path": out, "id": cand["id"], "title": cand["title"],
-                "url": cand["url"], "streamer": streamer, "views": cand["views"]}
+                "url": cand["url"], "streamer": streamer, "views": cand["views"],
+                "platform": cand.get("platform", "twitch")}
     return None

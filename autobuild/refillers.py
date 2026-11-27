@@ -38,6 +38,20 @@ def topup_priority(channel: str, n: int) -> None:
     build_backlog(channel, min(n, falta), only_priority=True)
 
 
+def topup_tiktok(channel: str, n: int) -> None:
+    """Clips virales de TikTok (streamers/tiktok.py): también prioritarios, así que comparten el
+    tope PRIORITY_STOCK con el carril de Twitch. Se llama ANTES que topup_priority: lo que ya se
+    probó viral tiene preferencia. No hace nada si el canal no tiene bloque 'tiktok' con auto=True."""
+    from streamers import config as scfg
+    from streamers.tiktok import build_backlog
+    from autobuild import runway
+    if not (scfg.get(channel).get("tiktok") or {}).get("auto"):
+        return
+    falta = PRIORITY_STOCK - runway.priority_pending(channel)
+    if falta > 0:
+        build_backlog(channel, min(n, falta))
+
+
 def refill_whatonearth(channel: str, n: int) -> None:
     from whatonearth.build import build_video
     for _ in range(n):

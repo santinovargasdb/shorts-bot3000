@@ -109,5 +109,6 @@ def test_run_real_usa_refiller_del_gen(monkeypatch):
     monkeypatch.setattr(sup.runway, "parts_ahead", lambda ch, *a, **k: next(seq))
     monkeypatch.setitem(rf.REFILLERS, "clips", lambda ch, n: None)
     monkeypatch.setattr(rf, "topup_priority", lambda ch, n: None)   # sin red en el test
+    monkeypatch.setattr(rf, "topup_tiktok", lambda ch, n: None)     # ídem: sin esto baja y encola un clip real
     results = sup.run(["streamers_a"], dry_run=False)
     assert len(results) == 1 and results[0].severity == "OK"

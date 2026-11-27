@@ -78,6 +78,17 @@ streamers/satisfying_state.json
 # el spec/plan NO se publican. La LÓGICA (streamers/allowlist.py) SÍ es pública para que
 # config.py la pueda importar; sin el data file, la allowlist queda vacía (gate seguro).
 streamers/allowlist_data.py
+# Capturas y registros del navegador automatizado (Playwright)
+.playwright-mcp/
+
+# Prueba de animación 3D por código: dependencias y renders
+anim3d/node_modules/
+anim3d/out/
+# Personajes y animaciones bajados (Mixamo y otros): se usan en los videos, no se redistribuyen
+anim3d/assets/
+
+# Ídem para TikTok: de qué cuentas/links se resube es dato privado (la lógica, streamers/tiktok.py, es pública)
+streamers/tiktok_data.json
 streamers/clip_allowlist_design.md
 streamers/clip_allowlist_plan.md
 

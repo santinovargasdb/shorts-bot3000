@@ -89,6 +89,13 @@ def test_titulo_y_hashtag_llevan_el_juego():
     assert not B.make_title({"title": "x", "streamer": "ibai"}).startswith("GTA")
 
 
+def test_el_credito_va_en_la_ultima_linea_con_el_link_de_su_plataforma():
+    ultima = lambda clip: B.make_description(clip).splitlines()[-1]
+    assert ultima({"title": "x", "streamer": "ibai"}).endswith("resubido de ibai — twitch.tv/ibai")
+    assert ultima({"title": "x", "streamer": "coscu", "platform": "kick"}).endswith("kick.com/coscu")
+    assert ultima({"title": "x", "streamer": "oni", "platform": "tiktok"}).endswith("tiktok.com/@oni")
+
+
 def _cfg(tmp_path, **extra):
     return {"streamers": ["ibai", "knekro"], "db": tmp_path / "b.sqlite", "content": "gameplay",
             "language": "es", **extra}

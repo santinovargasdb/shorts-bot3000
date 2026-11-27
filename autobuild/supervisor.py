@@ -118,6 +118,7 @@ def run(channels: list[str], dry_run: bool = False) -> list[Result]:
         refiller = refillers.REFILLERS[cfg["gen"]]
         if cfg["gen"] == "clips":       # juego del momento primero, aunque el colchón esté lleno
             try:
+                refillers.topup_tiktok(ch, cfg["batch"])
                 refillers.topup_priority(ch, cfg["batch"])
             except Exception as e:
                 _log(f"{ch:13} carril prioritario falló ({type(e).__name__}: {e}); sigo con el refill")
@@ -127,6 +128,29 @@ def run(channels: list[str], dry_run: bool = False) -> list[Result]:
              f"{r.severity}: {r.note}")
         results.append(r)
     return results
+
+
+def tiktok_only() -> list[str]:
+    """Canales de clips que están FUERA del refill común pero igual sacan de TikTok (streamers_b:
+    sus streamers no rinden, lo único nuevo que recibe son los clips virales)."""
+    from streamers import config as scfg
+    return [ch for ch, c in scfg.CHANNELS.items() if c.get("tiktok") and ch not in REFILL]
+
+
+def run_tiktok_only(channels: list[str], dry_run: bool = False) -> None:
+    for ch in channels:
+        if dry_run:
+            _log(f"DRY {ch:13} solo TikTok  prioritarios={runway.priority_pending(ch)}")
+            continue
+        try:
+            antes = runway.priority_pending(ch)
+            refillers.topup_tiktok(ch, _CLIPS_BATCH)
+            _log(f"{ch:13} tiktok: prioritarios {antes}->{runway.priority_pending(ch)}")
+        except Exception as e:
+            _log(f"{ch:13} tiktok falló ({type(e).__name__}: {e})")
+
+
+_CLIPS_BATCH = 5    # mismo lote que los canales de clips del REFILL
 
 
 def main(argv: list[str]) -> int:
@@ -140,15 +164,18 @@ def main(argv: list[str]) -> int:
     dry = "--dry-run" in argv
     force = "--force" in argv
     channels = list(REFILL)
+    extra = tiktok_only()
     if "--channel" in argv:
-        i = argv.index("--channel")
-        channels = [argv[i + 1]]
+        only = argv[argv.index("--channel") + 1]
+        extra = [c for c in extra if c == only]
+        channels = [] if extra else [only]
 
     if not dry and not acquire_lock(force):
         _log("otra corrida de autobuild está activa (lock fresco). Abortando. Usá --force.")
         return 1
     try:
-        _log(f"=== autobuild start (dry={dry}) canales={channels} ===")
+        _log(f"=== autobuild start (dry={dry}) canales={channels + extra} ===")
+        run_tiktok_only(extra, dry_run=dry)     # rápido (no renderiza): antes que el refill largo
         results = run(channels, dry_run=dry)
         if not dry and alert.any_problem(results):
             subject, body = alert.render_digest(results)

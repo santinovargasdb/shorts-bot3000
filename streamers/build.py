@@ -36,13 +36,24 @@ def make_title(clip: dict) -> str:
     return f"{title} \U0001F602\U0001F3AE"
 
 
+_SOURCE_URL = {"twitch": "twitch.tv/{}", "kick": "kick.com/{}", "tiktok": "tiktok.com/@{}",
+               "youtube": "youtube.com/@{}"}
+
+
 def make_description(clip: dict) -> str:
+    """El crédito va en la ÚLTIMA línea: quien lea la descripción hasta abajo ve de quién es el
+    clip resubido. Va como link a su perfil y no como @mención: en YouTube/IG un @handle de
+    Twitch/TikTok puede ser de otra persona. Al ir después de los hashtags, también entra en el
+    caption de IG (_ig_caption solo conserva lo que viene debajo de esa línea)."""
     s = clip["streamer"]
-    cred = f"\U0001F3A5 Clip: {s} — twitch.tv/{s}"
+    url = _SOURCE_URL.get(clip.get("platform") or "twitch", _SOURCE_URL["twitch"]).format(s)
+    cred = f"\U0001F3A5 Clip resubido de {s} — {url}"
     tags = _HASHTAGS
+    if clip.get("platform") in ("tiktok", "youtube"):   # no es un clip de Twitch
+        tags = tags.replace("#twitch ", "")
     if clip.get("tag"):
         tags = f"#{clip['tag'].replace(' ', '').lower()} {tags}"
-    return f"{_clean(clip['title'])}\n\n{cred}\n\n{tags}\n\n{_DISCLAIMER}"
+    return f"{_clean(clip['title'])}\n\n{tags}\n\n{_DISCLAIMER}\n\n{cred}"
 
 
 def content_mismatch(channel_content: str, has_gameplay: bool | None) -> bool:

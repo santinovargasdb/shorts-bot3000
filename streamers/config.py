@@ -14,6 +14,22 @@ from streamers.allowlist import approved_for
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Clips virales de TikTok del juego del momento (ver streamers/tiktok.py). Entran como
+# prioritarios (saltean la fila). El mismo video nunca va a los dos canales.
+TIKTOK_GTA6 = {
+    # False = el auto-refill NO saca clips solo; solo entran a mano con `python -m streamers.tiktok`.
+    "auto": True,
+    # Las cuentas y la cola de links van en streamers/tiktok_data.json (gitignorado, dato privado).
+    "keywords": ("gta6", "gta 6", "gtavi", "gta vi"),   # el texto del video tiene que nombrar el juego
+    "tag": "GTA 6",
+    "min_views": 100_000,        # solo lo que ya se probó que pega
+    "max_age_days": 14,
+    # Las vistas son el único filtro: estos videos NO pasan por el QC con visión (ya vienen
+    # editados y con texto quemado, que ese QC rechaza). False = quedan 'pending' para revisar
+    # a mano con `python -m streamers.review <canal>`.
+    "auto_approve": True,
+}
+
 CHANNELS = {
     "streamers_a": {
         "display": "Clips Hispanos",
@@ -37,6 +53,7 @@ CHANNELS = {
             "layout": "juego",
             "smart_title": True,
         },
+        "tiktok": TIKTOK_GTA6,
     },
     "streamers_b": {
         "display": "Clips Argentinos",
@@ -49,6 +66,7 @@ CHANNELS = {
         "language": "es",              # argentinos: transcribir/subtitular en español
         "layout_override": "facecam",  # formato facecam-only, igual que el canal C
         "platform": "kick",            # default si una entrada no trae platform; hoy el ledger las trae todas
+        "tiktok": TIKTOK_GTA6,         # único contenido nuevo del canal: sus streamers no rinden (IRL)
     },
     "streamers_c": {
         "display": "Clips IRL",
