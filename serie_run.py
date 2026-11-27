@@ -34,7 +34,7 @@ def main() -> int:
         description=descripcion(args.part, part["resumen"]),
         hashtags=KEYWORDS,
         background=background_for(args.part),
-        music="music/monkeys_spinning_monkeys.mp3",
+        music="music/lofi",
         question=part.get("pregunta"),
     )
     print("\nShort:", out)

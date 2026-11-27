@@ -80,7 +80,7 @@ def generate(
     segments: list[dict],
     channel_name: str = "faceless",
     background: str = "backgrounds/minecraft_parkour.mp4",
-    music: str = "music/monkeys_spinning_monkeys.mp3",
+    music: str = "music/lofi",
     sfx: str = "sfx/whoosh.wav",
     title_meta: str | None = None,
     description: str | None = None,

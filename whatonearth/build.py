@@ -10,7 +10,7 @@ import render_whatonearth
 N_ITEMS = 6
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "output" / "whatonearth"
-MUSIC = ROOT / "music" / "monkeys_spinning_monkeys.mp3"   # bed quirky estilo meme
+MUSIC = ROOT / "music" / "explicativo" / "mixkit_732.mp3"   # "Pop Track 06" (Mixkit, licencia libre, sin crédito)
 CATEGORIES = ("place", "animal", "object")
 
 _HASHTAGS = ("#shorts #whatisthis #satisfying #nature #animals #travel "
