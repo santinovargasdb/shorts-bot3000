@@ -59,13 +59,16 @@ const t0 = Date.now();
 
 if (process.argv.includes('--stills')) {          // cuadros sueltos para revisar rápido
   const times = process.argv.slice(process.argv.indexOf('--stills') + 1).map(Number).filter(n => !Number.isNaN(n));
+  // Con --page, cada episodio guarda sus cuadros en su carpeta (varios episodios se arman a la vez).
+  const dir = PAGE ? join(HERE, 'out', PAGE.split('?')[0].split('.')[0]) : join(HERE, 'out');
+  await mkdir(dir, { recursive: true });
   for (const t of times.length ? times : [0.5, 1.5, 3.5, 5.5, 7, 8.4, 9.6, 11.3, 13.5]) {
     const man = await page.evaluate(x => { window.renderFrame(x); return window.MAN; }, t);
     const name = String(t).replace('.', '_');
-    await page.screenshot({ path: join(HERE, 'out', `still_${name}.jpg`), type: 'jpeg', quality: 88 });
+    await page.screenshot({ path: join(dir, `still_${name}.jpg`), type: 'jpeg', quality: 88 });
     if (man) {                                       // recorte de la persona, para revisarla de cerca
       const x = Math.min(Math.max(man.x - 200, 0), 1080 - 400), y = Math.min(Math.max(man.y - 250, 0), 1920 - 500);
-      await page.screenshot({ path: join(HERE, 'out', `zoom_${name}.jpg`), type: 'jpeg', quality: 92,
+      await page.screenshot({ path: join(dir, `zoom_${name}.jpg`), type: 'jpeg', quality: 92,
         clip: { x, y, width: 400, height: 500 } });
     }
   }

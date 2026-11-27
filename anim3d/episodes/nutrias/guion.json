@@ -1,0 +1,25 @@
+{
+  "canal": "faceless",
+  "orden": 4,
+  "titulo": "Las nutrias que duermen de la mano",
+  "resumen": "por qué las nutrias marinas duermen flotando boca arriba, tomadas de las patas o enrolladas en algas, para que la corriente no las separe",
+  "pregunta": "¿Sabías que dormían de la mano?",
+  "fuente": "https://en.wikipedia.org/wiki/Sea_otter ; https://www.montereybayaquarium.org/animals/animals-a-to-z/sea-otter ; https://discovermagazine.com/planet-earth/sea-otters-hold-hands-while-sleeping-and-they-even-cuddle (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Las nutrias duermen de la MANO… y tiene una razón",
+    "resumen": "Las nutrias marinas duermen flotando boca arriba y, para que la corriente no las separe, se toman de las patas o se enrollan en algas. Se juntan en balsas de hasta más de 2.000 y las abriga el pelaje más denso del reino animal: hasta 150.000 pelos por cm²."
+  },
+  "frases": [
+    "Las nutrias marinas duermen flotando en el mar. Y algunas se toman de las patas para no separarse.",
+    "Porque dormidas, la corriente las va llevando mar adentro.",
+    "Así que se agarran de la pata de otra nutria, o se enrollan en algas, que funcionan como un ancla.",
+    "Y no duermen solas: se juntan en grupos llamados balsas. La más grande que se registró tenía más de dos mil nutrias.",
+    "Pero el agua es helada, y las nutrias no tienen grasa.",
+    "Así que las abriga el pelaje más denso del reino animal: hasta ciento cincuenta mil pelos por centímetro cuadrado.",
+    "Y las crías duermen arriba de la panza de su mamá, como en un bote propio.",
+    "Así, ni dormidas se pierden."
+  ]
+}

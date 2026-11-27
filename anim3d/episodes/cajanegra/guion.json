@@ -1,0 +1,27 @@
+{
+  "canal": "faceless",
+  "orden": 3,
+  "titulo": "La caja negra es naranja",
+  "resumen": "por qué la caja negra de los aviones es naranja, qué graba, dónde va y cuánto aguanta",
+  "pregunta": "¿Sabías que era naranja?",
+  "fuente": "https://en.wikipedia.org/wiki/Flight_recorder ; https://www.ntsb.gov/news/Pages/CVR_FDR.aspx ; https://www.gov.uk/government/publications/getting-to-the-bottom-of-aircraft-accidents/getting-to-the-bottom-of-aircraft-accidents (leídas el 26-nov-2026). Cifras prudentes: 3400 g por 6,5 ms, 1100 °C por 30 min (NTSB; normas más nuevas piden 1 h), 20.000 pies (~6000 m), baliza 37,5 kHz un pulso por segundo al menos 30 días (desde AF447 se exigen 90)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "La caja negra de los aviones… es NARANJA",
+    "resumen": "La caja negra no es negra: es naranja brillante para encontrarla rápido entre los restos. Son dos aparatos en la cola del avión que aguantan golpes de 3400 g, fuego de 1100 °C y la presión del mar a 6000 metros."
+  },
+  "frases": [
+    "La caja negra de los aviones no es negra. Es naranja brillante.",
+    "Así, los investigadores la encuentran rápido entre los restos, en tierra o en el agua.",
+    "Y en realidad son dos aparatos: uno graba las voces de la cabina,",
+    "y el otro, los datos del vuelo: altura, velocidad y rumbo.",
+    "Van en la cola, la parte del avión que mejor resiste un choque.",
+    "Adentro, la memoria viaja en un cilindro blindado, que aguanta un golpe de tres mil cuatrocientas veces la gravedad,",
+    "fuego de mil cien grados durante media hora, y la presión del mar a seis mil metros.",
+    "Y si cae al agua, un faro emite un pulso de sonido cada segundo, durante al menos treinta días.",
+    "Así, buzos y robots siguen la señal hasta encontrarla.",
+    "De negra, solo tiene el nombre."
+  ]
+}

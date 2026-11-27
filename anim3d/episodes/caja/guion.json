@@ -1,0 +1,31 @@
+{
+    "canal":  "historia",
+    "orden":  1,
+    "titulo":  "El hombre que se mandó por correo",
+    "resumen":  "cómo Henry Brown escapó de la esclavitud en mil ochocientos cuarenta y nueve viajando veintisiete horas dentro de una caja de Richmond a Filadelfia",
+    "pregunta":  "¿Vos te hubieras animado a meterte en la caja?",
+    "fuente":  "https://en.wikipedia.org/wiki/Henry_Box_Brown ; https://home.nps.gov/nebe/learn/historyculture/henryboxbrown.htm ; https://www.nationalgeographic.com/culture/article/this-magician-escaped-slavery-by-mailing-himself-to-freedom (leídas el 26-nov-2026)",
+    "rate":  "+14%",
+    "caption":  {
+                    "margin_v":  250
+                },
+    "musica":  "music/explicativo/numbers_temporex_instrumental.mp3",
+    "publicar":  {
+                     "titulo":  "Se mandó a sí mismo por CORREO… para ser libre",
+                     "resumen":  "En 1849, Henry Brown escapó de la esclavitud viajando 27 horas dentro de una caja de madera, de Richmond a Filadelfia. La caja decía \"este lado arriba\", y aun así viajó un tramo cabeza abajo."
+                 },
+    "frases":  [
+                   "En mil ochocientos cuarenta y nueve, un hombre esclavizado se mandó a sí mismo por correo. Para ser libre.",
+                   "Henry Brown vive en Richmond, Virginia. Y venden a su esposa y a sus tres hijos lejos de él.",
+                   "Así que decide escapar. Dentro de una caja.",
+                   "Lo ayudan James Smith, un hombre libre, y Samuel Smith, un zapatero blanco.",
+                   "La caja mide menos de un metro. Adentro lleva agua, unas galletas, y un agujero para respirar.",
+                   "La cierran con clavos y la despachan a Filadelfia, en un estado libre.",
+                   "La caja dice: este lado arriba. Pero la dan vuelta, y Henry viaja un tramo cabeza abajo.",
+                   "Siente que los ojos le estallan. Pero no se mueve, para que nadie lo descubra.",
+                   "Carreta, tren, barco de vapor. Veintisiete horas de viaje.",
+                   "En Filadelfia, unos abolicionistas abren la tapa. Henry sale y saluda: ¿cómo están, caballeros?",
+                   "Desde entonces lo llaman Henry Box Brown. Box, en inglés, es caja.",
+                   "Y recorre Estados Unidos e Inglaterra, contando su historia contra la esclavitud."
+               ]
+}

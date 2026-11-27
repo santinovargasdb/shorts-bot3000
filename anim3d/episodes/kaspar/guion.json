@@ -1,0 +1,28 @@
+{
+  "canal": "misterios",
+  "orden": 4,
+  "titulo": "Kaspar Hauser, el chico de la celda oscura",
+  "resumen": "el adolescente que apareció en Núremberg en mil ochocientos veintiocho con dos cartas, diciendo que había vivido encerrado en una celda oscura, y nadie supo nunca quién era",
+  "pregunta": "¿Quién creés que era Kaspar Hauser?",
+  "fuente": "https://en.wikipedia.org/wiki/Kaspar_Hauser ; https://es.wikipedia.org/wiki/Kaspar_Hauser ; https://www.mentalfloss.com/history/mystery/mysterious-life-and-death-kaspar-hauser (leídas el 26-nov-2026)",
+  "rate": "+12%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Apareció de la NADA con dos cartas… y nadie sabe quién era",
+    "resumen": "En 1828 apareció en Núremberg un chico de unos 16 años que casi no sabía hablar y decía haber vivido encerrado en una celda oscura. Lo atacaron dos veces, murió en 1833 y el ADN nunca resolvió quién era."
+  },
+  "frases": [
+    "En mil ochocientos veintiocho, aparece en Núremberg un chico que casi no sabe hablar. Y nadie sabe de dónde salió.",
+    "Lleva dos cartas. Una dice que lo criaron sin dejarlo dar un solo paso fuera de la casa.",
+    "La otra, supuestamente de su madre, dice que se llama Kaspar. Pero parecen escritas por la misma mano.",
+    "En la policía, lo único que sabe escribir es su nombre: Kaspar Hauser.",
+    "Con el tiempo cuenta que vivió en una celda oscura, a pan y agua, con unos caballitos de madera como juguete.",
+    "Y empieza un rumor: que es el príncipe heredero de Baden, cambiado al nacer y escondido.",
+    "Al año siguiente aparece herido. Dice que lo atacó un hombre encapuchado.",
+    "En mil ochocientos treinta y tres, en un parque de Ansbach, lo atacan otra vez. Y muere tres días después.",
+    "En el parque encuentran una bolsita con una nota escrita al revés, como en un espejo.",
+    "Muchos sospechan que se hirió él mismo. Y el ADN dice que no era el príncipe.",
+    "Casi doscientos años después, nadie sabe quién era Kaspar Hauser."
+  ]
+}

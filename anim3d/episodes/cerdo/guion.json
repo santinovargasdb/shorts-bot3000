@@ -1,0 +1,29 @@
+{
+  "canal": "historia",
+  "orden": 3,
+  "titulo": "La Guerra del Cerdo",
+  "resumen": "cómo estados unidos y gran bretaña casi van a la guerra en mil ochocientos cincuenta y nueve porque un granjero mató a un cerdo",
+  "pregunta": "¿Vos le hubieras pagado los cien dólares?",
+  "publicar": {
+    "titulo": "Casi hubo una GUERRA entre EE.UU. y Gran Bretaña… por un cerdo",
+    "resumen": "En 1859, un granjero de la isla San Juan mató a un cerdo británico que se comía sus papas, y 461 soldados estadounidenses terminaron frente a 5 barcos de guerra con más de 2.000 hombres. La única baja fue el cerdo."
+  },
+  "fuente": "https://en.wikipedia.org/wiki/Pig_War_(1859) ; https://www.nps.gov/sajh/learn/historyculture/the-pig-war.htm ; https://www.thecanadianencyclopedia.ca/en/article/pig-war ; https://www.historylink.org/File/5037 ; https://www.forcesnews.com/news/history/pig-war-12-year-conflict-between-us-and-uk (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "frases": [
+    "En mil ochocientos cincuenta y nueve, Estados Unidos y Gran Bretaña casi van a la guerra. Por un cerdo.",
+    "Los dos países reclaman la isla San Juan, y ahí viven granjeros de ambos.",
+    "El granjero estadounidense Lyman Cutlar encuentra un cerdo comiéndose sus papas. Y le dispara.",
+    "El cerdo era de un irlandés que trabajaba para una compañía británica.",
+    "Cutlar ofrece diez dólares. El dueño pide cien. Y los británicos amenazan con arrestarlo.",
+    "Así que llega el ejército estadounidense, con sesenta y seis soldados.",
+    "Pero Gran Bretaña manda barcos de guerra. En agosto ya son cuatrocientos sesenta y un soldados contra cinco barcos con más de dos mil hombres.",
+    "Los jefes tienen la misma orden: no disparar primero. Así que se pasan los días insultándose.",
+    "Hasta que un almirante británico se niega a empezar una guerra por un cerdo.",
+    "Así que comparten la isla, con un campamento cada uno, durante doce años.",
+    "Al final decide el káiser alemán. Y en mil ochocientos setenta y dos, la isla queda para Estados Unidos.",
+    "¿La única baja de toda la guerra? El cerdo."
+  ]
+}

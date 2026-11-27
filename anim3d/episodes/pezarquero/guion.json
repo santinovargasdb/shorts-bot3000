@@ -1,0 +1,26 @@
+{
+  "canal": "faceless",
+  "orden": 2,
+  "titulo": "El pez que caza a escupitajos",
+  "resumen": "cómo el pez arquero baja insectos de las hojas con un chorro de agua y calcula dónde van a caer",
+  "pregunta": "¿Sabías que existía este pez?",
+  "fuente": "https://en.wikipedia.org/wiki/Archerfish ; https://daily.jstor.org/the-amazing-eyes-of-the-archerfish ; https://www.sciencenews.org/article/catching-flies ; https://link.springer.com/article/10.1007/s00359-023-01658-2 ; https://ora.ox.ac.uk/objects/uuid:1c55ccb3-a1fa-423c-96b1-fbde474b3d46 (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Este pez caza moscas… a ESCUPITAJOS",
+    "resumen": "El pez arquero, de menos de 20 cm, baja insectos de las hojas con un chorro de agua que llega a unos 2 metros, corrigiendo cómo el agua dobla la luz. Y en una décima de segundo calcula dónde va a caer la presa."
+  },
+  "frases": [
+    "Este pez caza insectos que están fuera del agua. Y los baja a escupitajos.",
+    "Es el pez arquero: mide menos de veinte centímetros, y vive en los manglares del sudeste asiático y el norte de Australia.",
+    "Ve una mosca sobre una hoja. Pero desde abajo, el agua dobla la luz, y la mosca no está donde parece.",
+    "Así que el pez corrige ese error al apuntar.",
+    "Apoya la lengua contra una canaleta del paladar, y forma un cañón.",
+    "Cierra las agallas de golpe, y dispara un chorro que puede llegar a unos dos metros.",
+    "La mosca cae. Y en apenas una décima de segundo, el pez calcula dónde va a tocar el agua.",
+    "Así que nada hasta ahí antes de que llegue, porque los otros peces también la quieren.",
+    "Y cuando la mosca cae, ya la está esperando."
+  ]
+}

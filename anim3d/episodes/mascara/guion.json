@@ -1,0 +1,28 @@
+{
+  "canal": "misterios",
+  "orden": 1,
+  "titulo": "El hombre de la máscara de hierro",
+  "resumen": "el preso de Luis catorce que pasó treinta y cuatro años encerrado con la cara tapada y nadie sabe quién era",
+  "pregunta": "¿Quién creés que era?",
+  "fuente": "https://en.wikipedia.org/wiki/Man_in_the_Iron_Mask ; https://www.nationalgeographic.com/history/history-magazine/article/who-was-the-man-in-the-iron-mask-dumas ; https://www.historyhit.com/facts-about-the-man-in-the-iron-mask/ ; https://es.wikipedia.org/wiki/Hombre_de_la_m%C3%A1scara_de_hierro (leídas el 26-nov-2026)",
+  "rate": "+12%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "34 años preso con la cara TAPADA… y nadie sabe quién era",
+    "resumen": "En 1669, Luis XIV mandó encerrar a un hombre que pasó 34 años preso, con orden de matarlo si hablaba de más. Murió en la Bastilla en 1703 y su identidad sigue siendo un misterio."
+  },
+  "frases": [
+    "En mil seiscientos sesenta y nueve, Francia encierra a un hombre. Lo esconden treinta y cuatro años, y nadie sabe quién era.",
+    "Lo detienen por orden directa del rey Luis Catorce.",
+    "En los papeles figura como Eustache Dauger. Y casi nada más.",
+    "Su carcelero, Saint-Mars, recibe una orden: si el preso habla de otra cosa que no sean sus necesidades, lo tiene que matar.",
+    "Así que lo encierra en una celda con varias puertas, una detrás de otra, para que nadie escuche.",
+    "Y cada vez que a Saint-Mars lo mandan a otra prisión, el preso viaja con él, escondido en una silla tapada.",
+    "Pero la famosa máscara no era de hierro: era de terciopelo negro. Lo del hierro lo difundieron Voltaire y Dumas.",
+    "En mil seiscientos noventa y ocho llega a la Bastilla. Y ahí muere, en mil setecientos tres.",
+    "Lo entierran con otro nombre, queman sus cosas y raspan las paredes de su celda.",
+    "¿Quién era? Unos dicen que un hermano gemelo del rey. Otros, que un simple sirviente que vio algo que no debía.",
+    "Más de trescientos años después, nadie lo sabe."
+  ]
+}

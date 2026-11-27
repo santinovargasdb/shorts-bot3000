@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Plantilla de episodio: copiar como <ep>.html y cambiar EPISODIO.js por <ep>.js -->
+<style>
+  @font-face { font-family: Montserrat; font-weight: 800; src: url(/fonts/Montserrat-Black.ttf); }
+  @font-face { font-family: Montserrat; font-weight: 600; src: url(/fonts/Montserrat-SemiBold.ttf); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  canvas { position: absolute; left: 0; top: 0; }
+  #lines { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  /* viñeta y tinte cálido encima de la imagen (como la referencia). Misterios puede oscurecerla más. */
+  #post { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none;
+          background: radial-gradient(ellipse 78% 64% at 50% 46%, rgba(255,232,180,.10) 0%, rgba(255,232,180,0) 42%, rgba(46,16,56,0) 60%, rgba(46,16,56,.40) 100%); }
+  .tag { position: absolute; transform: translate(-50%, -50%); background: #1e1428; color: #fff; opacity: 0;
+         font: 600 30px Montserrat, sans-serif; letter-spacing: .5px; padding: 8px 16px;
+         border-radius: 8px; white-space: nowrap; text-transform: uppercase; }
+  .tag.big { font: 800 76px Montserrat, sans-serif; background: none; color: #ffd23a; padding: 0;
+             text-shadow: 0 5px 0 #1e1428, 5px 0 0 #1e1428, -5px 0 0 #1e1428, 0 -5px 0 #1e1428, 4px 4px 0 #1e1428, -4px 4px 0 #1e1428, 4px -4px 0 #1e1428, -4px -4px 0 #1e1428; }
+</style>
+<script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
+</head>
+<body>
+<div id="post"></div>
+<svg id="lines"></svg>
+<div id="tags"></div>
+<script type="module" src="/caja.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "canal": "faceless",
+  "orden": 1,
+  "titulo": "Por qué las ventanas de los aviones son redondas",
+  "resumen": "por qué las ventanas de los aviones son redondas: el comet, el primer avión de pasajeros a reacción, se partió en el aire en mil novecientos cincuenta y cuatro",
+  "pregunta": "¿Te habías dado cuenta?",
+  "fuente": "https://en.wikipedia.org/wiki/De_Havilland_Comet ; https://en.wikipedia.org/wiki/BOAC_Flight_781 ; https://howthingsfly.si.edu/ask-an-explainer/why-are-pressurized-windows-rounded-corners (leídas el 26-nov-2026)",
+  "fuente_nota": "Matiz respetado: en los restos de G-ALYP (vuelo 781) la grieta nació en la esquina de una ventanita del techo para las antenas ADF, no en una ventanilla de pasajeros (la forma de las ventanillas no figura en el informe). En el tanque de Farnborough, G-ALYU se abrió tras unos 3.057 ciclos, a partir de un agujero junto a la salida de emergencia delantera. Después De Havilland redondeó ventanas y recortes y engrosó la chapa.",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Por qué las ventanas del avión son REDONDAS… y no cuadradas",
+    "resumen": "En 1954, dos Comet, el primer avión de pasajeros a reacción, se partieron en pleno vuelo. Tras unos 3.000 vuelos simulados en un tanque de agua, quedó claro: las esquinas juntan la tensión y las curvas la reparten."
+  },
+  "frases": [
+    "Las ventanas de los aviones son redondas por dos aviones que se partieron en el aire.",
+    "El Comet es el primer avión de pasajeros a reacción. Y tiene ventanas casi cuadradas.",
+    "Para volar alto, la cabina se presuriza: en cada vuelo se infla como un globo.",
+    "Pero en mil novecientos cincuenta y cuatro, dos Comet se parten en pleno vuelo.",
+    "Así que meten un fuselaje entero en un tanque de agua, y lo inflan una y otra vez.",
+    "Después de unos tres mil vuelos simulados, el metal se raja junto a una salida de emergencia.",
+    "Y en los restos de un avión, la grieta nace en la esquina de una ventanita del techo.",
+    "Porque las esquinas juntan toda la tensión en un punto. Las curvas la reparten.",
+    "Así que el Comet vuelve con ventanas redondeadas. Y después, todos los aviones.",
+    "Desde entonces, ninguna tiene esquinas."
+  ]
+}

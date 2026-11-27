@@ -1,0 +1,29 @@
+{
+  "canal": "misterios",
+  "orden": 5,
+  "titulo": "La bóveda Chase de Barbados",
+  "resumen": "la tumba sellada de Barbados donde, según los relatos, los ataúdes de plomo aparecían movidos cada vez que la abrían, entre mil ochocientos doce y mil ochocientos veinte",
+  "pregunta": "¿Qué creés que los movía?",
+  "fuente": "https://en.wikipedia.org/wiki/Chase_Vault ; https://skeptoid.com/episodes/4399 ; https://www.historicmysteries.com/unexplained-mysteries/chase-vault/4066/ ; https://barbados.org/chase-vault.htm ; https://www.barbadospocketguide.com/our-island-barbados/monuments/the-chase-vault.html (leídas el 27-nov-2026)",
+  "rate": "+16%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Abrían esta TUMBA… y los ataúdes se habían movido solos",
+    "resumen": "Según los relatos, entre 1812 y 1820 la bóveda de la familia Chase, en Barbados, apareció varias veces con sus pesados ataúdes de plomo desordenados. En 1820 el gobernador la selló y puso arena en el piso: no hubo huellas, pero los ataúdes se habían movido otra vez."
+  },
+  "frases": [
+    "En Barbados hay una tumba vacía. Según los relatos, porque sus ataúdes se movían solos.",
+    "Es la bóveda de los Chase, en el cementerio de Christ Church.",
+    "En mil ochocientos doce, la abren para enterrar a Thomas Chase. Y los ataúdes de sus hijas no están donde los dejaron.",
+    "Y no eran cajones livianos: eran de plomo. Hacían falta varios hombres para mover uno.",
+    "Así que los acomodan, y sellan la entrada con una losa enorme y cemento.",
+    "Pero en mil ochocientos dieciséis, y en mil ochocientos diecinueve, otra vez todo revuelto.",
+    "Así que interviene el gobernador, Lord Combermere: echan arena en el piso para ver huellas, y él marca el cemento con su sello.",
+    "En abril de mil ochocientos veinte, la vuelven a abrir. El sello está intacto. En la arena, ni una huella.",
+    "Y los ataúdes, otra vez, tirados por todos lados.",
+    "Así que los sacan, los entierran por separado, y la bóveda queda vacía.",
+    "¿Inundaciones? ¿Temblores? ¿Una broma? Hay quien duda de que haya pasado: casi no hay papeles de la época.",
+    "Más de doscientos años después, nadie sabe qué los movía."
+  ]
+}

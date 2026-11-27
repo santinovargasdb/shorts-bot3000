@@ -1,0 +1,29 @@
+{
+  "canal": "historia",
+  "orden": 5,
+  "titulo": "El Ejército Fantasma de los tanques de goma",
+  "resumen": "cómo una unidad secreta de mil cien artistas engañó a los alemanes con tanques inflables, parlantes y radios falsas",
+  "pregunta": "¿Vos te hubieras dado cuenta?",
+  "fuente": "https://en.wikipedia.org/wiki/Ghost_Army ; https://www.nationalww2museum.org/war/articles/wwii-museum-exhibit-ghost-army ; https://worksthatwork.com/6/ghost-army ; https://www.warhistoryonline.com/instant-articles/ghost-army.html ; https://www.ghostarmy.org/ ; https://hackaday.com/2015/12/16/rubber-tanks-and-sonic-trucks-the-ghost-army-of-world-war-ii (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Engañaron a los alemanes con tanques de GOMA… y funcionó",
+    "resumen": "En 1944, el Ejército Fantasma, una unidad secreta de 1.100 soldados llenos de artistas, inventó ejércitos enteros con tanques inflables, parlantes y radios falsas. Fue secreto hasta 1996."
+  },
+  "frases": [
+    "En mil novecientos cuarenta y cuatro, Estados Unidos mandó a la guerra un ejército de tanques. Y eran de goma.",
+    "Oficialmente eran las Tropas Especiales del Cuartel General veintitrés. Pero les decían el Ejército Fantasma.",
+    "Eran apenas mil cien hombres, y muchos eran artistas, arquitectos y diseñadores.",
+    "Entre ellos, el futuro pintor Ellsworth Kelly y el modisto Bill Blass.",
+    "Su misión: que el enemigo viera un ejército donde no había casi nada.",
+    "Así que inflan tanques, cañones y camiones de goma, que desde lejos parecen de verdad.",
+    "Pero el enemigo también escucha. Así que suben parlantes gigantes a sus vehículos, con ruido grabado de motores, que se oye a veinticuatro kilómetros.",
+    "Y por radio, imitan los mensajes de unidades que no están ahí.",
+    "Un día, dos franceses en bicicleta ven a cuatro soldados levantar un tanque con las manos.",
+    "Y el guardia solo les dice: los americanos son muy fuertes.",
+    "Hicieron más de veinte engaños por toda Europa.",
+    "Y fue secreto durante más de cincuenta años, hasta mil novecientos noventa y seis."
+  ]
+}

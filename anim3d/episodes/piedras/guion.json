@@ -1,0 +1,29 @@
+{
+  "canal": "misterios",
+  "orden": 3,
+  "titulo": "Las piedras que se mueven solas",
+  "resumen": "las piedras de trescientos veinte kilos que se arrastraban solas en el Valle de la Muerte, hasta que en dos mil catorce lo resolvieron",
+  "pregunta": "¿Vos lo hubieras adivinado?",
+  "publicar": {
+    "titulo": "Piedras de 320 kilos que se MUEVEN solas… y nadie las veía",
+    "resumen": "En Racetrack Playa, en el Valle de la Muerte, hay piedras de hasta 320 kilos que dejan surcos de cientos de metros. En 2014, un equipo con piedras con GPS descubrió por fin qué las empuja."
+  },
+  "fuente": "https://www.nps.gov/deva/learn/news/racetrack.htm ; https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0105948 ; https://www.nps.gov/deva/planyourvisit/the-racetrack.htm ; https://physicsworld.com/a/the-restless-rocks-of-racetrack-playa/ ; https://en.wikipedia.org/wiki/Sailing_stones (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "frases": [
+    "En el Valle de la Muerte hay piedras que se mueven solas. Y durante décadas, nadie las vio moverse.",
+    "Están en Racetrack Playa, un lago seco de casi cinco kilómetros, plano y agrietado.",
+    "Algunas pesan hasta trescientos veinte kilos, y dejan surcos de cientos de metros.",
+    "Unos dicen que es el viento. Pero para empujar hasta una piedra chica, haría falta un huracán.",
+    "Otros culpan al hielo, a bromas de estudiantes, y hasta a extraterrestres.",
+    "Así que en dos mil once, un equipo de científicos le pone GPS a quince piedras, y espera.",
+    "Creen que van a pasar años sin ver nada.",
+    "Pero en diciembre de dos mil trece, el lago se llena con unos centímetros de agua. Y de noche, se congela.",
+    "Al mediodía, el hielo cruje, y se parte en placas finitas como un vidrio.",
+    "Una brisa suave empuja las placas, y las placas empujan las piedras, unos metros por minuto.",
+    "Ese día se mueven más de sesenta piedras a la vez.",
+    "Después el hielo se derrite, el agua se seca, y solo quedan los surcos."
+  ]
+}

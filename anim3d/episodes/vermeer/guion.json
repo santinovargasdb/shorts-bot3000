@@ -1,0 +1,28 @@
+{
+  "canal": "historia",
+  "orden": 4,
+  "titulo": "El falsificador que engañó a Göring",
+  "resumen": "cómo han van meegeren le vendió un vermeer falso a göring y en mil novecientos cuarenta y cinco tuvo que pintar otro delante de testigos para demostrar que era falso",
+  "pregunta": "¿Héroe o estafador?",
+  "fuente": "https://en.wikipedia.org/wiki/Han_van_Meegeren ; https://es.wikipedia.org/wiki/Han_van_Meegeren ; https://www.essentialvermeer.com/misc/van_meegeren.html (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Le vendió un VERMEER falso a Göring… y para salvarse tuvo que pintar otro",
+    "resumen": "Han van Meegeren falsificó a Vermeer y Hermann Göring le dio más de 100 cuadros robados por uno de sus falsos. En 1945 lo acusaron de colaborar con los nazis, y para probar que era falso pintó otro 'Vermeer' delante de testigos."
+  },
+  "frases": [
+    "Un pintor engañó a Göring con un Vermeer falso. Y para salvarse, tuvo que pintar otro ante testigos.",
+    "Han van Meegeren es un pintor holandés que imita a Vermeer, el maestro del siglo diecisiete.",
+    "Pero el óleo tarda décadas en secarse. Así que lo mezcla con baquelita, y hornea el cuadro a más de cien grados.",
+    "Le pasa un rodillo para agrietarlo, y rellena las grietas con tinta china. Parece de hace trescientos años.",
+    "Uno de sus falsos llega a Göring, el número dos de Hitler, que da más de cien cuadros robados a cambio.",
+    "Pero termina la guerra, y lo acusan de traición: venderle un tesoro holandés a los nazis.",
+    "Así que confiesa: ese Vermeer no es un Vermeer. Lo pintó él.",
+    "Y para probarlo, vigilado por policías y testigos, pinta otro Vermeer desde cero.",
+    "Los expertos confirman que es falso, y retiran la acusación de traición.",
+    "En mil novecientos cuarenta y siete lo condenan solo por falsificación: un año de cárcel.",
+    "Pero muere de un infarto antes de cumplirlo. Y una encuesta lo elige el segundo hombre más popular del país, por estafar a Göring."
+  ]
+}

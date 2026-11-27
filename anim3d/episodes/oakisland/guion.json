@@ -1,0 +1,30 @@
+{
+    "canal":  "misterios",
+    "orden":  2,
+    "titulo":  "El pozo del dinero de Oak Island",
+    "resumen":  "el pozo de oak island que un chico encontró en mil setecientos noventa y cinco y que más de dos siglos de excavaciones no pudieron vaciar",
+    "pregunta":  "¿Hay algo ahí abajo?",
+    "fuente":  "https://en.wikipedia.org/wiki/Oak_Island_mystery ; https://es.wikipedia.org/wiki/Isla_Oak ; https://www.thecanadianencyclopedia.ca/en/article/oak-island ; https://fictionhorizon.com/?p=398961 (temporada 14 de The Curse of Oak Island, estreno 10-nov-2026) (leídas el 26-nov-2026)",
+    "rate":  "+18%",
+    "caption":  {
+                    "margin_v":  250
+                },
+    "musica":  "music/explicativo/numbers_temporex_instrumental.mp3",
+    "publicar":  {
+                     "titulo":  "Más de 200 años cavando este POZO… y nadie sabe qué hay abajo",
+                     "resumen":  "En 1795, Daniel McGinnis, de 16 años, encontró un hundimiento junto a un roble en Oak Island, Canadá. Desde entonces lo excavaron cientos de buscadores, entre ellos un joven Franklin Roosevelt en 1909, murieron 6 personas y el tesoro nunca apareció."
+                 },
+    "frases":  [
+                   "En mil setecientos noventa y cinco, un chico encontró un pozo en una isla de Canadá. Y todavía nadie sabe qué esconde.",
+                   "Daniel McGinnis tiene dieciséis años, y ve un hundimiento en el suelo, al lado de un roble.",
+                   "Según los relatos, en una rama hay marcas de una polea. Así que vuelve con dos amigos a cavar.",
+                   "Encuentran lajas de piedra. Y a tres metros, una capa de troncos.",
+                   "Años después, otra compañía sigue bajando. Y según cuentan, aparecen troncos cada tres metros.",
+                   "A unos veintisiete metros, dicen que sale una piedra con símbolos, y una traducción habla de dos millones de libras. Pero la piedra se perdió.",
+                   "Y justo ahí, el pozo se llena de agua de mar.",
+                   "Llegan bombas, máquinas a vapor y grúas. Y al menos seis personas mueren buscando.",
+                   "En mil novecientos nueve, hasta un joven Franklin Roosevelt se suma a la búsqueda. Después sería presidente.",
+                   "Y hoy, más de dos siglos después, siguen excavando. Pero el tesoro nunca apareció.",
+                   "Algunos geólogos creen que es un hueco natural. Entonces... ¿hay algo ahí abajo?"
+               ]
+}

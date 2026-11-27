@@ -3,6 +3,10 @@
   "titulo": "El estafador que vendió la Torre Eiffel",
   "resumen": "cómo Victor Lustig le vendió la Torre Eiffel a un chatarrero en mil novecientos veinticinco",
   "pregunta": "¿Vos hubieras caído?",
+  "publicar": {
+    "titulo": "Le vendió la TORRE EIFFEL a un chatarrero… y no era suya",
+    "resumen": "En 1925, Victor Lustig se hizo pasar por funcionario y le vendió la Torre Eiffel a un chatarrero de París. Y después intentó venderla otra vez."
+  },
   "fuente": "https://www.smithsonianmag.com/history/the-smoothest-con-man-that-ever-lived-29861908/ (leída el 26-nov-2026: cada paso del guion sale de ese artículo)",
   "rate": "+14%",
   "caption": { "margin_v": 250 },

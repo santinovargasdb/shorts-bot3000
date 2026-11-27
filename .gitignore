@@ -116,3 +116,6 @@ perfil.json
 sondeo_yt_misterios/
 .patch_guion.ps1
 yt_api_quota_followup.md
+
+# videos para revisar a mano antes de publicar (se regeneran)
+revision/

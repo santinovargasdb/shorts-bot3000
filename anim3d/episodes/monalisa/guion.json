@@ -1,0 +1,31 @@
+{
+    "canal":  "historia",
+    "orden":  2,
+    "titulo":  "El robo de la Mona Lisa",
+    "resumen":  "cómo un ex empleado del louvre se robó la mona lisa en mil novecientos once y la tuvo escondida más de dos años",
+    "pregunta":  "¿Sabías que la habían robado?",
+    "fuente":  "https://en.wikipedia.org/wiki/Vincenzo_Peruggia ; https://es.wikipedia.org/wiki/Vincenzo_Peruggia ; https://www.rnz.co.nz/news/top/558116/the-art-heist-that-made-the-mona-lisa-arguably-the-most-famous-painting-in-the-world ; https://mymodernmet.com/mona-lisa-theft-1911/ ; https://www.aljazeera.com/gallery/2023/8/21/history-illustrated-who-stole-the-mona-lisa (leídas el 26-nov-2026)",
+    "rate":  "+14%",
+    "caption":  {
+                    "margin_v":  250
+                },
+    "musica":  "music/explicativo/numbers_temporex_instrumental.mp3",
+    "publicar":  {
+                     "titulo":  "Se llevó la MONA LISA caminando… y nadie lo notó hasta el otro día",
+                     "resumen":  "El 21 de agosto de 1911, Vincenzo Peruggia, que había trabajado en el Louvre, descolgó la Mona Lisa y salió caminando con ella. La tuvo más de 2 años en un baúl, y el robo la volvió el cuadro más famoso del mundo."
+                 },
+    "frases":  [
+                   "En mil novecientos once, alguien se roba la Mona Lisa. Y nadie lo nota hasta el otro día.",
+                   "Es lunes, el Louvre está cerrado, y Vincenzo Peruggia entra con el blusón blanco de los empleados.",
+                   "Descuelga el cuadro de sus cuatro ganchos, le saca el marco, y según la versión más contada, lo tapa con el blusón.",
+                   "Un plomero le abre la puerta, y sale a la calle con la Mona Lisa.",
+                   "Al otro día, un pintor que venía a copiarla encuentra la pared vacía.",
+                   "La policía detiene al poeta Apollinaire, y hasta interroga a Picasso.",
+                   "A Peruggia lo interrogan dos veces, pero nadie sospecha de él.",
+                   "Y la Mona Lisa sigue en un baúl, en su pieza de París, más de dos años.",
+                   "En mil novecientos trece, la lleva a Florencia para venderla.",
+                   "Pero el comprador llama al director de los Uffizi, que confirma que es la verdadera, y a la policía.",
+                   "Peruggia cae preso, y la Mona Lisa vuelve a París.",
+                   "Pero mientras faltaba, su cara salió en diarios de todo el mundo. Así que un ladrón la volvió el cuadro más famoso del planeta."
+               ]
+}

@@ -1,0 +1,25 @@
+{
+  "canal": "faceless",
+  "orden": 5,
+  "titulo": "Por qué el hielo flota",
+  "resumen": "por qué el hielo flota y cómo eso deja que los peces pasen el invierno bajo la tapa de hielo de los lagos",
+  "pregunta": "¿Sabías por qué flota el hielo?",
+  "fuente": "https://en.wikipedia.org/wiki/Ice ; https://en.wikipedia.org/wiki/Properties_of_water ; https://www.gi.alaska.edu/alaska-science-forum/surprises-ice ; https://wtamu.edu/~cbaird/sq/2013/12/05/why-does-ice-form-on-the-top-of-a-lake/ (leídas el 26-nov-2026)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "publicar": {
+    "titulo": "Si el hielo no FLOTARA… los lagos se congelarían enteros",
+    "resumen": "Casi todo es más denso en estado sólido, pero el agua al congelarse arma hexágonos con huecos y ocupa un 9% más: por eso el hielo flota. El agua más densa está a unos 4 °C y se va al fondo, y la tapa de hielo aísla a los peces durante el invierno."
+  },
+  "frases": [
+    "El hielo flota. Y si no flotara, casi no habría peces en los lagos.",
+    "Casi todas las sustancias, al volverse sólidas, se aprietan y se hunden en su propio líquido.",
+    "Pero el agua no. Al congelarse, sus moléculas se toman de la mano y arman hexágonos con huecos.",
+    "Así que el hielo ocupa alrededor de un nueve por ciento más de lugar. Y flota.",
+    "Además, el agua más pesada no es la más fría: es la que está a unos cuatro grados, y se va al fondo.",
+    "Por eso los lagos se congelan de arriba hacia abajo, y la tapa de hielo aísla el agua de abajo.",
+    "Ahí, los peces pasan el invierno tranquilos.",
+    "Si el hielo se hundiera, los lagos se congelarían desde el fondo. Y casi nada sobreviviría."
+  ]
+}

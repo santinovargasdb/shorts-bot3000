@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Episodio: la bóveda Chase de Barbados (misterios). Copia de plantilla.html con la viñeta más oscura. -->
+<style>
+  @font-face { font-family: Montserrat; font-weight: 800; src: url(/fonts/Montserrat-Black.ttf); }
+  @font-face { font-family: Montserrat; font-weight: 600; src: url(/fonts/Montserrat-SemiBold.ttf); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  canvas { position: absolute; left: 0; top: 0; }
+  #lines { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  /* misterios: viñeta más fuerte y fría, el centro queda con un resplandor cálido para que las caras se lean */
+  #post { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none;
+          background: radial-gradient(ellipse 76% 60% at 50% 45%, rgba(255,214,150,.10) 0%, rgba(255,214,150,0) 40%, rgba(14,8,30,0) 56%, rgba(14,8,30,.62) 100%); }
+  .tag { position: absolute; transform: translate(-50%, -50%); background: #1e1428; color: #fff; opacity: 0;
+         font: 600 30px Montserrat, sans-serif; letter-spacing: .5px; padding: 8px 16px;
+         border-radius: 8px; white-space: nowrap; text-transform: uppercase; }
+  .tag.big { font: 800 76px Montserrat, sans-serif; background: none; color: #ffd23a; padding: 0;
+             text-shadow: 0 5px 0 #1e1428, 5px 0 0 #1e1428, -5px 0 0 #1e1428, 0 -5px 0 #1e1428, 4px 4px 0 #1e1428, -4px 4px 0 #1e1428, 4px -4px 0 #1e1428, -4px -4px 0 #1e1428; }
+</style>
+<script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
+</head>
+<body>
+<div id="post"></div>
+<svg id="lines"></svg>
+<div id="tags"></div>
+<script type="module" src="/boveda.js"></script>
+</body>
+</html>
