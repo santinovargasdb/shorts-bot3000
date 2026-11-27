@@ -1,0 +1,128 @@
+{
+ "faceless": [
+  {
+   "ep": "ventanas",
+   "parte": 9001,
+   "video": "output/faceless/por_qu_las_ventanas_del_avi_n_son_redond.mp4",
+   "titulo": "Por qué las ventanas del avión son REDONDAS… y no cuadradas | En 60 Segundos",
+   "resumen": "En 1954, dos Comet, el primer avión de pasajeros a reacción, se partieron en pleno vuelo. Tras unos 3.000 vuelos simulados en un tanque de agua, quedó claro: las esquinas juntan la tensión y las curvas la reparten.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "pezarquero",
+   "parte": 9002,
+   "video": "output/faceless/este_pez_caza_moscas_a_escupitajos.mp4",
+   "titulo": "Este pez caza moscas… a ESCUPITAJOS | En 60 Segundos",
+   "resumen": "El pez arquero, de menos de 20 cm, baja insectos de las hojas con un chorro de agua que llega a unos 2 metros, corrigiendo cómo el agua dobla la luz. Y en una décima de segundo calcula dónde va a caer la presa.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "cajanegra",
+   "parte": 9003,
+   "video": "output/faceless/la_caja_negra_de_los_aviones_es_naranja.mp4",
+   "titulo": "La caja negra de los aviones… es NARANJA | En 60 Segundos",
+   "resumen": "La caja negra no es negra: es naranja brillante para encontrarla rápido entre los restos. Son dos aparatos en la cola del avión que aguantan golpes de 3400 g, fuego de 1100 °C y la presión del mar a 6000 metros.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "nutrias",
+   "parte": 9004,
+   "video": "output/faceless/las_nutrias_duermen_de_la_mano_y_tiene_u.mp4",
+   "titulo": "Las nutrias duermen de la MANO… y tiene una razón | En 60 Segundos",
+   "resumen": "Las nutrias marinas duermen flotando boca arriba y, para que la corriente no las separe, se toman de las patas o se enrollan en algas. Se juntan en balsas de hasta más de 2.000 y las abriga el pelaje más denso del reino animal: hasta 150.000 pelos por cm².",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "hielo",
+   "parte": 9005,
+   "video": "output/faceless/si_el_hielo_no_flotara_los_lagos_se_cong.mp4",
+   "titulo": "Si el hielo no FLOTARA… los lagos se congelarían enteros | En 60 Segundos",
+   "resumen": "Casi todo es más denso en estado sólido, pero el agua al congelarse arma hexágonos con huecos y ocupa un 9% más: por eso el hielo flota. El agua más densa está a unos 4 °C y se va al fondo, y la tapa de hielo aísla a los peces durante el invierno.",
+   "aprobado": "2026-11-27"
+  }
+ ],
+ "historia": [
+  {
+   "ep": "caja",
+   "parte": 9006,
+   "video": "output/historia/se_mand_a_s_mismo_por_correo_para_ser_li.mp4",
+   "titulo": "Se mandó a sí mismo por CORREO… para ser libre | Historia en 60 Segundos",
+   "resumen": "En 1849, Henry Brown escapó de la esclavitud viajando 27 horas dentro de una caja de madera, de Richmond a Filadelfia. La caja decía \"este lado arriba\", y aun así viajó un tramo cabeza abajo.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "monalisa",
+   "parte": 9007,
+   "video": "output/historia/se_llev_la_mona_lisa_caminando_y_nadie_l.mp4",
+   "titulo": "Se llevó la MONA LISA caminando… y nadie lo notó hasta el otro día | Historia en 60 Segundos",
+   "resumen": "El 21 de agosto de 1911, Vincenzo Peruggia, que había trabajado en el Louvre, descolgó la Mona Lisa y salió caminando con ella. La tuvo más de 2 años en un baúl, y el robo la volvió el cuadro más famoso del mundo.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "cerdo",
+   "parte": 9008,
+   "video": "output/historia/casi_hubo_una_guerra_entre_ee_uu_y_gran.mp4",
+   "titulo": "Casi hubo una GUERRA entre EE.UU. y Gran Bretaña… por un cerdo | Historia en 60 Segundos",
+   "resumen": "En 1859, un granjero de la isla San Juan mató a un cerdo británico que se comía sus papas, y 461 soldados estadounidenses terminaron frente a 5 barcos de guerra con más de 2.000 hombres. La única baja fue el cerdo.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "vermeer",
+   "parte": 9009,
+   "video": "output/historia/le_vendi_un_vermeer_falso_a_g_ring_y_par.mp4",
+   "titulo": "Le vendió un VERMEER falso a Göring… y para salvarse tuvo que pintar otro | Historia en 60 Segundos",
+   "resumen": "Han van Meegeren falsificó a Vermeer y Hermann Göring le dio más de 100 cuadros robados por uno de sus falsos. En 1945 lo acusaron de colaborar con los nazis, y para probar que era falso pintó otro 'Vermeer' delante de testigos.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "fantasma",
+   "parte": 9010,
+   "video": "output/historia/enga_aron_a_los_alemanes_con_tanques_de.mp4",
+   "titulo": "Engañaron a los alemanes con tanques de GOMA… y funcionó | Historia en 60 Segundos",
+   "resumen": "En 1944, el Ejército Fantasma, una unidad secreta de 1.100 soldados llenos de artistas, inventó ejércitos enteros con tanques inflables, parlantes y radios falsas. Fue secreto hasta 1996.",
+   "aprobado": "2026-11-27"
+  }
+ ],
+ "misterios": [
+  {
+   "ep": "mascara",
+   "parte": 9011,
+   "video": "output/misterios/34_a_os_preso_con_la_cara_tapada_y_nadie.mp4",
+   "titulo": "34 años preso con la cara TAPADA… y nadie sabe quién era | Misterios en 60 Segundos",
+   "resumen": "En 1669, Luis XIV mandó encerrar a un hombre que pasó 34 años preso, con orden de matarlo si hablaba de más. Murió en la Bastilla en 1703 y su identidad sigue siendo un misterio.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "oakisland",
+   "parte": 9012,
+   "video": "output/misterios/m_s_de_200_a_os_cavando_este_pozo_y_nadi.mp4",
+   "titulo": "Más de 200 años cavando este POZO… y nadie sabe qué hay abajo | Misterios en 60 Segundos",
+   "resumen": "En 1795, Daniel McGinnis, de 16 años, encontró un hundimiento junto a un roble en Oak Island, Canadá. Desde entonces lo excavaron cientos de buscadores, entre ellos un joven Franklin Roosevelt en 1909, murieron 6 personas y el tesoro nunca apareció.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "piedras",
+   "parte": 9013,
+   "video": "output/misterios/piedras_de_320_kilos_que_se_mueven_solas.mp4",
+   "titulo": "Piedras de 320 kilos que se MUEVEN solas… y nadie las veía | Misterios en 60 Segundos",
+   "resumen": "En Racetrack Playa, en el Valle de la Muerte, hay piedras de hasta 320 kilos que dejan surcos de cientos de metros. En 2014, un equipo con piedras con GPS descubrió por fin qué las empuja.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "kaspar",
+   "parte": 9014,
+   "video": "output/misterios/apareci_de_la_nada_con_dos_cartas_y_nadi.mp4",
+   "titulo": "Apareció de la NADA con dos cartas… y nadie sabe quién era | Misterios en 60 Segundos",
+   "resumen": "En 1828 apareció en Núremberg un chico de unos 16 años que casi no sabía hablar y decía haber vivido encerrado en una celda oscura. Lo atacaron dos veces, murió en 1833 y el ADN nunca resolvió quién era.",
+   "aprobado": "2026-11-27"
+  },
+  {
+   "ep": "boveda",
+   "parte": 9015,
+   "video": "output/misterios/abr_an_esta_tumba_y_los_ata_des_se_hab_a.mp4",
+   "titulo": "Abrían esta TUMBA… y los ataúdes se habían movido solos | Misterios en 60 Segundos",
+   "resumen": "Según los relatos, entre 1812 y 1820 la bóveda de la familia Chase, en Barbados, apareció varias veces con sus pesados ataúdes de plomo desordenados. En 1820 el gobernador la selló y puso arena en el piso: no hubo huellas, pero los ataúdes se habían movido otra vez.",
+   "aprobado": "2026-11-27"
+  }
+ ]
+}

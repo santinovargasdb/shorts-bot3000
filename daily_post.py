@@ -80,6 +80,10 @@ def _save_state(state: dict, channel: str) -> None:
 
 def _ensure_video(part: int, ctx: dict, series) -> Path:
     """Devuelve el mp4 de la parte, generándolo si no existe."""
+    # Episodio animado aprobado (anim3d/cola.py): ya está armado, con su .json de título y descripción.
+    animado = getattr(series, "PARTS", {}).get(part, {}).get("video")
+    if animado:
+        return Path(animado)
     # Canales con video PRE-RENDERIZADO (streamers, whatonearth) exponen video_path_for:
     # daily_post postea ese mp4 tal cual, sin pasar por curiosidades.generate. El render NO
     # deja el .json de metadatos, así que lo escribimos acá con el título REAL de la serie
@@ -462,6 +466,14 @@ def main() -> int:
         print(str(e))
         return 1
     series = load_series(ctx)
+    # Episodios animados aprobados: salen primero (partes prioritarias), sin mover la fila normal.
+    try:
+        from anim3d.cola import inyectar
+        n = inyectar(series, channel)
+        if n:
+            _log(ctx, f"Cola animada: {n} episodio(s) aprobados disponibles.")
+    except Exception as e:
+        _log(ctx, f"⚠️ No se pudo leer la cola animada (sigo con la fila normal): {e}")
     state = _load_state()
     st = state[channel]
 
