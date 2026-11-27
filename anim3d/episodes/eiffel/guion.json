@@ -1,0 +1,25 @@
+{
+  "canal": "historia",
+  "titulo": "El estafador que vendió la Torre Eiffel",
+  "resumen": "cómo Victor Lustig le vendió la Torre Eiffel a un chatarrero en mil novecientos veinticinco",
+  "pregunta": "¿Vos hubieras caído?",
+  "fuente": "https://www.smithsonianmag.com/history/the-smoothest-con-man-that-ever-lived-29861908/ (leída el 26-nov-2026: cada paso del guion sale de ese artículo)",
+  "rate": "+14%",
+  "caption": { "margin_v": 250 },
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "musica_nota": "Pista de trabajo local (los mp3 no se suben al repo). Alternativa libre: music/explicativo/mixkit_732.mp3 (Mixkit, sin crédito)",
+  "frases": [
+    "En mil novecientos veinticinco, un estafador vendió la Torre Eiffel. Y no era suya.",
+    "Victor Lustig lee en el diario que la torre está oxidada, y que mantenerla sale carísimo.",
+    "Así que falsifica papel oficial, se hace pasar por subdirector de Correos, y cita a los mayores chatarreros de París en un hotel de lujo.",
+    "Les cuenta un secreto: el gobierno va a desarmar la torre, y vender siete mil toneladas de hierro.",
+    "Los pasea en limusina para elegir a su víctima: André Poisson, recién llegado a la ciudad.",
+    "Pero Poisson desconfía. Así que Lustig le pide una coima.",
+    "Y funciona: si pide coima, tiene que ser un funcionario de verdad.",
+    "Poisson paga. Y en menos de una hora, Lustig va en un tren rumbo a Austria.",
+    "Poisson, muerto de vergüenza, nunca lo denuncia.",
+    "Así que Lustig vuelve a París, e intenta venderla otra vez.",
+    "Esta vez sospecha que avisaron a la policía, y huye a Estados Unidos.",
+    "Diez años después cae por falsificar billetes. Y termina en Alcatraz."
+  ]
+}

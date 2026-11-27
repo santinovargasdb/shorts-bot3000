@@ -1,0 +1,26 @@
+{
+  "canal": "historia",
+  "titulo": "La fuga de Alcatraz, paso a paso: un taladro casero y una balsa de impermeables",
+  "resumen": "la fuga de Alcatraz de mil novecientos sesenta y dos, paso a paso: cómo Frank Morris y los hermanos Anglin salieron de la cárcel más segura del mundo",
+  "pregunta": "¿Llegaron a la orilla?",
+  "fuente": "https://www.fbi.gov/history/famous-cases/alcatraz-escape (leída el 26-nov-2026: cada paso del guion sale de esa página)",
+  "rate": "+14%",
+  "musica": "music/explicativo/numbers_temporex_instrumental.mp3",
+  "musica_nota": "Pista de trabajo local (los mp3 no se suben al repo). Alternativa libre: music/explicativo/mixkit_732.mp3 (Mixkit, sin crédito)",
+  "frases": [
+    "En mil novecientos sesenta y dos, Frank Morris y los hermanos Anglin escapan de Alcatraz, la cárcel de la que nadie se escapaba. Y lo hacen así.",
+    "Las paredes son de hormigón, pero al fondo de cada celda hay una rejilla de ventilación.",
+    "No tienen herramientas, así que arman un taladro con el motor de una aspiradora rota y perforan agujeritos alrededor de la rejilla, hasta aflojar el trozo entero de pared.",
+    "Pero el hueco se ve, así que lo tapan con un cartón.",
+    "Detrás hay un pasillo de servicio sin guardias. Trepan por las cañerías hasta lo alto del pabellón y montan un taller secreto.",
+    "Pero la isla está rodeada de agua helada, así que juntan más de cincuenta impermeables y cosen una balsa y chalecos salvavidas.",
+    "Pero las costuras tienen que aguantar, así que las sellan con el calor de las cañerías de vapor.",
+    "Pero no tienen con qué inflarla, así que convierten un instrumento musical en un inflador.",
+    "Pero los guardias cuentan a los presos toda la noche, así que dejan en cada cama una cabeza falsa de yeso, pintada color piel y con pelo de verdad.",
+    "Pero la salida al techo tiene una rejilla atornillada, así que la fuerzan y la dejan en su lugar con un tornillo falso hecho de jabón.",
+    "La noche del once de junio salen al techo, bajan por la chimenea de la panadería, saltan la cerca y echan la balsa al agua.",
+    "A la mañana, un guardia empuja una de las cabezas, y rueda por el piso.",
+    "Aparecieron un remo y un chaleco. Ellos, nunca.",
+    "El FBI cerró el caso diecisiete años después. ¿Llegaron a la orilla?"
+  ]
+}

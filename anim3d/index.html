@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Montserrat; font-weight: 800; src: url(/fonts/Montserrat-Black.ttf); }
+  @font-face { font-family: Montserrat; font-weight: 600; src: url(/fonts/Montserrat-SemiBold.ttf); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  canvas { position: absolute; left: 0; top: 0; }
+  #lines { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  .tag { position: absolute; transform: translate(-50%, -50%); background: #111; color: #fff;
+         font: 600 30px Montserrat, sans-serif; letter-spacing: .5px; padding: 8px 16px;
+         border-radius: 8px; white-space: nowrap; text-transform: uppercase; }
+</style>
+<script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
+</head>
+<body>
+<svg id="lines"></svg>
+<div id="tags"></div>
+<script type="module" src="/bunker.js"></script>
+</body>
+</html>
